@@ -16,6 +16,20 @@ uvicorn app.main:app --reload
 
 سيعمل الخادم افتراضيًا على `http://127.0.0.1:8000` مع وثائق تلقائية عبر Swagger في `/docs`.
 
+### الإعداد مع Supabase
+
+للاستفادة من قاعدة بيانات Supabase وخدماتها، عرِّف المتغيرات البيئية التالية قبل تشغيل الخادم:
+
+```bash
+export SUPABASE_URL="https://<project>.supabase.co"
+export SUPABASE_SERVICE_ROLE_KEY="<service-role-key>"
+export SUPABASE_DB_URL="postgresql+psycopg://<user>:<password>@db.<project>.supabase.co:5432/postgres"
+```
+
+- إذا كنت تفضّل استخدام مفتاح واجهة البرمجة العمومية فبإمكانك استخدام `SUPABASE_ANON_KEY` بدلًا من `SUPABASE_SERVICE_ROLE_KEY` وفقًا للصلاحيات المطلوبة.
+- بمجرد توفر `SUPABASE_DB_URL` سيستخدم التطبيق قاعدة بيانات Supabase تلقائيًا، مع تفعيل اتصال آمن (`sslmode=require`).
+- عند عدم تعريف القيم أعلاه سيستمر التطبيق في استخدام قاعدة بيانات SQLite المحلية (`tawq.db`).
+
 ## الاختبارات
 
 ```bash

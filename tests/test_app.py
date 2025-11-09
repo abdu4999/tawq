@@ -4,7 +4,10 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+import app.config as app_config
+
 os.environ["DATABASE_URL"] = "sqlite:///./test_tawq.db"
+app_config.get_settings.cache_clear()
 
 from app.main import app  # noqa: E402
 from app.db import init_db  # noqa: E402
