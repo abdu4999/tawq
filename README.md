@@ -82,9 +82,109 @@ Authorization: Bearer <access_token>
 - **لوحة المتصدرين والتحليلات:** قراءة نتائج `/analytics/leaderboard` و`/analytics/insights` لمتابعة الأداء اللحظي.
 - **الحسابات:** تعديل الصلاحيات أو تعطيل المستخدمين من خلال `/users/{user_id}`.
 
+#### 5. سيناريو استخدام متكامل خطوة بخطوة
+
+يعرض المثال التالي سلسلة طلبات متتابعة تغطي أهم الوحدات. يمكن تنفيذها من خلال Swagger UI أو عبر `curl` أو Postman.
+
+1. **إنشاء مشروع جديد**
+
+   ```bash
+   curl -X POST http://127.0.0.1:8000/projects/ \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "name": "حملة رمضان",
+           "description": "حملة تستهدف المتبرعين الكرام خلال شهر رمضان",
+           "target_amount": 100000,
+           "start_date": "2024-03-01",
+           "end_date": "2024-04-15"
+         }'
+   ```
+
+   سيعيد الخادم معرف المشروع (`id`) الذي سيُستخدم في الطلبات اللاحقة.
+
+2. **تعيين موظفين ومشرف للمشروع**
+
+   ```bash
+   curl -X POST http://127.0.0.1:8000/projects/<project_id>/assignments \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "supervisor_ids": ["<supervisor_id>"],
+           "employee_ids": ["<employee_id_1>", "<employee_id_2>"]
+         }'
+   ```
+
+   يمكن الحصول على معرفات المستخدمين عبر استدعاء `/users/` أو من استجابة التسجيل.
+
+3. **إضافة مهمة للموظفين**
+
+   ```bash
+   curl -X POST http://127.0.0.1:8000/tasks/ \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "project_id": "<project_id>",
+           "title": "التواصل مع 50 متبرعًا من الفئة الذهبية",
+           "description": "اتصل وتابع المتبرعين الذين تبرعوا بأكثر من 1000 ريال",
+           "priority": 1,
+           "due_date": "2024-03-05",
+           "assigned_employee_ids": ["<employee_id_1>"]
+         }'
+   ```
+
+   يتيح النظام إسناد أكثر من موظف للمهمة ذاتها عند الحاجة.
+
+4. **تسجيل تقدم الموظف وإيراد المهمة**
+
+   ```bash
+   curl -X POST http://127.0.0.1:8000/tasks/logs/ \
+     -H "Authorization: Bearer <token>" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "task_id": "<task_id>",
+           "employee_id": "<employee_id_1>",
+           "status": "in_progress",
+           "revenue": 15000,
+           "expenses": 1200,
+           "notes": "تم التواصل مع 15 متبرعًا وتم إغلاق 5 تبرعات"
+         }'
+   ```
+
+   يتم تحديث نقاط الموظف تلقائيًا بناءً على الإنجاز والإيراد المرتبط.
+
+5. **مراجعة لوحة المتصدرين اليومية**
+
+   ```bash
+   curl -X GET http://127.0.0.1:8000/analytics/leaderboard?period=daily \
+     -H "Authorization: Bearer <token>"
+   ```
+
+   تُظهر الاستجابة أفضل الموظفين مع نقاطهم وإيراداتهم وعدد المهام المنجزة.
+
+6. **تحليل الأداء واقتراحات التحسين**
+
+   ```bash
+   curl -X GET http://127.0.0.1:8000/analytics/insights?project_id=<project_id> \
+     -H "Authorization: Bearer <token>"
+   ```
+
+   يتضمن التحليل التوقعات الأسبوعية، وتتبع العوائق المتكررة، وتوصيات شخصية للموظفين.
+
+7. **استخراج البيانات للأرشفة أو المتابعة**
+
+   ```bash
+   curl -X GET "http://127.0.0.1:8000/analytics/export?project_id=<project_id>&format=csv" \
+     -H "Authorization: Bearer <token>" -o project-report.csv
+   ```
+
+   يتم حفظ تقرير CSV محليًا يمكن تحميله إلى نظم التحليل أو التخزين السحابي.
+
+> **نصيحة:** عند استخدام Swagger UI يمكنك الضغط على زر **Try it out** لكل نقطة نهاية ثم تعبئة الحقول يدويًا لتوليد الطلب واستعراض الاستجابة مباشرة.
+
 كل نقطة نهاية موثقة داخل Swagger UI مع الحقول المطلوبة والاستجابة المتوقعة.
 
-#### 5. توصيات للنشر أو العرض التجريبي
+#### 6. توصيات للنشر أو العرض التجريبي
 
 - لتقديم عرض توضيحي داخلي يمكنك إنشاء مجموعة حسابات اختبار ثم مشاركة روابط Swagger UI مع الفريق.
 - في بيئة الإنتاج يفضل تشغيل الخادم باستخدام [Uvicorn مع Gunicorn](https://www.uvicorn.org/deployment/#gunicorn) أو أي مزود ASGI آخر، مع إعداد HTTPS وطبقة مصادقة خارجية إذا لزم الأمر.
@@ -103,6 +203,22 @@ export SUPABASE_DB_URL="postgresql+psycopg://<user>:<password>@db.<project>.supa
 - إذا كنت تفضّل استخدام مفتاح واجهة البرمجة العمومية فبإمكانك استخدام `SUPABASE_ANON_KEY` بدلًا من `SUPABASE_SERVICE_ROLE_KEY` وفقًا للصلاحيات المطلوبة.
 - بمجرد توفر `SUPABASE_DB_URL` سيستخدم التطبيق قاعدة بيانات Supabase تلقائيًا، مع تفعيل اتصال آمن (`sslmode=require`).
 - عند عدم تعريف القيم أعلاه سيستمر التطبيق في استخدام قاعدة بيانات SQLite المحلية (`tawq.db`).
+- للتحقق من أن التطبيق متصل بقاعدة Supabase يمكنك:
+  1. تشغيل الخادم ثم متابعة السجلات (logs) وسترى عنوان قاعدة البيانات المستخدم.
+  2. أو استدعاء نقطة `/analytics/healthcheck` (إذا كانت مفعَّلة) للتحقق من الحالة، أو تنفيذ استعلام بسيط مثل `GET /projects/` والتأكد من أن البيانات تُحفظ في واجهة Supabase مباشرة.
+  3. ضمن لوحة Supabase يمكن فتح تبويب **Table editor** لمشاهدة الجداول التي أنشأها التطبيق (`users`, `projects`, `tasks`...).
+
+#### تهيئة الجداول عبر Supabase CLI (اختياري)
+
+في حال رغبتك باستيراد المخطط يدويًا أو تشغيل الأوامر عبر واجهة Supabase CLI:
+
+```bash
+supabase db connect --password <database-password>
+supabase db push
+```
+
+يسمح ذلك بتطبيق أي تعديلات على المخطط مباشرة على قاعدة البيانات السحابية قبل تشغيل التطبيق في بيئة الإنتاج.
+
 
 ## الاختبارات
 
