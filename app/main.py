@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .controllers import gather_routers
 from .db import init_db
-from .routers import analytics, auth, projects, tasks, users
 
 init_db()
 
@@ -15,11 +15,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(users.router)
-app.include_router(projects.router)
-app.include_router(tasks.router)
-app.include_router(analytics.router)
+for router in gather_routers():
+    app.include_router(router)
 
 
 @app.get("/")
