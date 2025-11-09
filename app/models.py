@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import enum
-from datetime import date, datetime
-from typing import List, Optional
-
-from sqlmodel import Field, Relationship, SQLModel
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
 
 
 class Role(str, enum.Enum):
@@ -14,223 +12,129 @@ class Role(str, enum.Enum):
     EMPLOYEE = "employee"
 
 
-class UserBase(SQLModel):
-    email: str = Field(index=True, unique=True)
-    full_name: str
-    role: Role = Field(default=Role.EMPLOYEE)
-    is_active: bool = Field(default=True)
-    avatar_url: Optional[str] = None
-
-
-class User(UserBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    hashed_password: str
-
-    employee_profile: Optional["EmployeeProfile"] = Relationship(back_populates="user")
-    supervisor_profile: Optional["SupervisorProfile"] = Relationship(back_populates="user")
-
-
-class UserCreate(UserBase):
-    password: str
-
-
-class UserRead(UserBase):
+@dataclass
+class User:
     id: int
+    email: str
+    full_name: str
+    role: Role
+    is_active: bool
+    hashed_password: str
+    avatar_url: Optional[str] = None
     employee_profile_id: Optional[int] = None
     supervisor_profile_id: Optional[int] = None
 
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "id": self.id,
+            "email": self.email,
+            "full_name": self.full_name,
+            "role": self.role.value,
+            "is_active": self.is_active,
+            "avatar_url": self.avatar_url,
+            "employee_profile_id": self.employee_profile_id,
+            "supervisor_profile_id": self.supervisor_profile_id,
+        }
 
-class UserUpdate(SQLModel):
-    email: Optional[str] = None
-    full_name: Optional[str] = None
-    role: Optional[Role] = None
-    is_active: Optional[bool] = None
-    avatar_url: Optional[str] = None
 
-
-class EmployeeProfileBase(SQLModel):
-    title: Optional[str] = None
+@dataclass
+class EmployeeProfile:
+    id: int
+    user_id: int
     monthly_target: Optional[float] = None
     yearly_target: Optional[float] = None
     strengths: Optional[str] = None
     opportunities: Optional[str] = None
 
 
-class EmployeeProfile(EmployeeProfileBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
-    supervisor_id: Optional[int] = Field(default=None, foreign_key="supervisorprofile.id")
-
-    user: User = Relationship(back_populates="employee_profile")
-    supervisor: Optional["SupervisorProfile"] = Relationship(back_populates="team_members")
-    assignments: List["ProjectAssignment"] = Relationship(back_populates="employee")
-    task_logs: List["TaskLog"] = Relationship(back_populates="employee")
-    incentives: List["Incentive"] = Relationship(back_populates="employee")
-
-
-class EmployeeProfileRead(EmployeeProfileBase):
+@dataclass
+class SupervisorProfile:
     id: int
     user_id: int
-    supervisor_id: Optional[int]
+    team_members: List[int] = field(default_factory=list)
 
 
-class SupervisorProfileBase(SQLModel):
-    title: Optional[str] = None
-
-
-class SupervisorProfile(SupervisorProfileBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.id")
-
-    user: User = Relationship(back_populates="supervisor_profile")
-    team_members: List[EmployeeProfile] = Relationship(back_populates="supervisor")
-
-
-class SupervisorProfileRead(SupervisorProfileBase):
+@dataclass
+class Project:
     id: int
-    user_id: int
-
-
-class ProjectBase(SQLModel):
     name: str
-    description: Optional[str] = None
-    goal_amount: Optional[float] = None
-    start_date: Optional[date] = None
-    end_date: Optional[date] = None
+    description: Optional[str]
+    goal_amount: Optional[float]
+    owner_id: Optional[int]
+    assignments: List[int] = field(default_factory=list)
+    tasks: List[int] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "goal_amount": self.goal_amount,
+            "owner_id": self.owner_id,
+        }
 
 
-class Project(ProjectBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    owner_id: Optional[int] = Field(default=None, foreign_key="user.id")
-
-    assignments: List["ProjectAssignment"] = Relationship(back_populates="project")
-    tasks: List["Task"] = Relationship(back_populates="project")
-    revenue_records: List["RevenueRecord"] = Relationship(back_populates="project")
-    expense_records: List["ExpenseRecord"] = Relationship(back_populates="project")
-
-
-class ProjectAssignmentBase(SQLModel):
+@dataclass
+class ProjectAssignment:
+    id: int
+    project_id: int
     employee_id: int
     role_description: Optional[str] = None
 
-
-class ProjectAssignment(ProjectAssignmentBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    project_id: int = Field(foreign_key="project.id")
-    employee_id: int = Field(foreign_key="employeeprofile.id")
-
-    project: Project = Relationship(back_populates="assignments")
-    employee: EmployeeProfile = Relationship(back_populates="assignments")
-
-
-class ProjectAssignmentCreate(ProjectAssignmentBase):
-    ...
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "id": self.id,
+            "project_id": self.project_id,
+            "employee_id": self.employee_id,
+            "role_description": self.role_description,
+        }
 
 
-class TaskPriority(int, enum.Enum):
-    LOW = 1
-    MEDIUM = 2
-    HIGH = 3
-    CRITICAL = 4
-
-
-class TaskStatus(str, enum.Enum):
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    BLOCKED = "blocked"
-
-
-class TaskBase(SQLModel):
+@dataclass
+class Task:
+    id: int
     title: str
-    description: Optional[str] = None
-    priority: TaskPriority = Field(default=TaskPriority.MEDIUM)
-    due_date: Optional[date] = None
-    target_revenue: Optional[float] = None
-    project_id: Optional[int] = None
+    description: Optional[str]
+    priority: int
+    target_revenue: Optional[float]
+    project_id: Optional[int]
+    creator_id: Optional[int] = None
+    owner_id: Optional[int] = None
+    status: str = "pending"
+    current_revenue: float = 0.0
+    logs: List[int] = field(default_factory=list)
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "priority": self.priority,
+            "target_revenue": self.target_revenue,
+            "project_id": self.project_id,
+            "owner_id": self.owner_id,
+            "status": self.status,
+            "current_revenue": self.current_revenue,
+        }
 
 
-class Task(TaskBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    project_id: Optional[int] = Field(default=None, foreign_key="project.id")
-    creator_id: Optional[int] = Field(default=None, foreign_key="user.id")
-    owner_id: Optional[int] = Field(default=None, foreign_key="employeeprofile.id")
-    status: TaskStatus = Field(default=TaskStatus.PENDING)
-    current_revenue: float = Field(default=0)
-
-    project: Optional[Project] = Relationship(back_populates="tasks")
-    logs: List["TaskLog"] = Relationship(back_populates="task")
-
-
-class TaskLogBase(SQLModel):
-    note: Optional[str] = None
-    revenue: Optional[float] = None
-    blockers: Optional[str] = None
-    needs: Optional[str] = None
-    employee_id: Optional[int] = None
-
-
-class TaskLog(TaskLogBase, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    task_id: int = Field(foreign_key="task.id")
-    employee_id: int = Field(foreign_key="employeeprofile.id")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-    task: Task = Relationship(back_populates="logs")
-    employee: EmployeeProfile = Relationship(back_populates="task_logs")
-
-
-class TaskLogCreate(TaskLogBase):
-    ...
-
-
-class TaskStatusUpdate(SQLModel):
-    status: TaskStatus
-
-
-class RevenueRecord(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    project_id: int = Field(foreign_key="project.id")
-    employee_id: Optional[int] = Field(default=None, foreign_key="employeeprofile.id")
-    amount: float
-    source: Optional[str] = None
-    recorded_at: datetime = Field(default_factory=datetime.utcnow)
-
-    project: Project = Relationship(back_populates="revenue_records")
-
-
-class ExpenseRecord(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    project_id: int = Field(foreign_key="project.id")
-    employee_id: Optional[int] = Field(default=None, foreign_key="employeeprofile.id")
-    amount: float
-    description: Optional[str] = None
-    recorded_at: datetime = Field(default_factory=datetime.utcnow)
-
-    project: Project = Relationship(back_populates="expense_records")
-
-
-class Incentive(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    employee_id: int = Field(foreign_key="employeeprofile.id")
-    description: str
-    points: int = 0
-    granted_at: datetime = Field(default_factory=datetime.utcnow)
-
-    employee: EmployeeProfile = Relationship(back_populates="incentives")
-
-
-class Recommendation(SQLModel, table=True):
-    id: Optional[int] = Field(default=None, primary_key=True)
-    employee_id: int = Field(foreign_key="employeeprofile.id")
-    task_id: Optional[int] = Field(default=None, foreign_key="task.id")
-    text: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-
-class LeaderboardEntry(SQLModel):
+@dataclass
+class TaskLog:
+    id: int
+    task_id: int
     employee_id: int
-    employee_name: str
-    total_points: int
-    total_revenue: float
-    completed_tasks: int
+    note: Optional[str]
+    revenue: Optional[float]
+    blockers: Optional[str]
+    needs: Optional[str]
+
+    def to_dict(self) -> Dict[str, object]:
+        return {
+            "id": self.id,
+            "task_id": self.task_id,
+            "employee_id": self.employee_id,
+            "note": self.note,
+            "revenue": self.revenue,
+            "blockers": self.blockers,
+            "needs": self.needs,
+        }

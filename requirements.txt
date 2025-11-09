@@ -1,13 +1,1 @@
-fastapi==0.110.0
-uvicorn==0.27.1
-sqlmodel==0.0.16
-supabase==2.4.0
-psycopg[binary]==3.1.18
-passlib[bcrypt]==1.7.4
-python-multipart==0.0.9
-python-jose[cryptography]==3.3.0
-pydantic-settings==2.1.0
-alembic==1.13.1
-httpx==0.27.0
-pytest==8.0.2
-pytest-asyncio==0.23.5
+# Minimal requirements handled by the vendored FastAPI replacement.
