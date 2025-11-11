@@ -1,0 +1,1 @@
+# Minimal requirements handled by the vendored FastAPI replacement.
