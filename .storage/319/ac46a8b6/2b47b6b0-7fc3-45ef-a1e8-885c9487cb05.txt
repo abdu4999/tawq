@@ -1,0 +1,21 @@
+$ find docs/tasks -name "*.md" -type f
+docs/tasks/Alex_todo.md
+$ pnpm run build && pnpm run lint
+
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1700 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.54 kB │ gzip:   0.82 kB
+dist/assets/index-DRE7IsDX.css   88.03 kB │ gzip:  14.06 kB
+dist/assets/index-7reOPdUq.js   458.36 kB │ gzip: 141.08 kB
+✓ built in 4.89s
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+

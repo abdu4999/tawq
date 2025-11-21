@@ -1,0 +1,2 @@
+$ ps aux | grep vite
+root       306  0.0  0.0   3904  2008 ?        S    02:29   0:00 grep vite

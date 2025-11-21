@@ -1,0 +1,39 @@
+$ pnpm run lint
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/components/NotificationSystem.tsx
+  2:0  error  Parsing error: ',' expected
+
+/workspace/shadcn-ui/src/lib/error-storage.ts
+  59:51  error  Parsing error: ')' expected
+
+/workspace/shadcn-ui/src/pages/ErrorManagement.tsx
+  167:68  error  Parsing error: Unterminated string literal
+
+✖ 3 problems (3 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ find . -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/极速赛车开奖结果历史记录//g'
+
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/components/NotificationSystem.tsx
+  2:0  error  Parsing error: ',' expected
+
+/workspace/shadcn-ui/src/lib/error-storage.ts
+  59:51  error  Parsing error: ')' expected
+
+/workspace/shadcn-ui/src/pages/ErrorManagement.tsx
+  3:0  error  Parsing error: ',' expected
+
+✖ 3 problems (3 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

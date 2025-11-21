@@ -1,0 +1,21 @@
+$ curl -s http://localhost:5173 | head -20
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+  <script type="module" src="/@vite/client"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+  <title>نظام إدارة الأداء - التسويق الخيري المتقدم</title>
+  <meta name="description" content="نظام متكامل لإدارة الأداء في التسويق الخيري مع ذكاء اصطناعي متقدم وأنظمة تحفيز ذكية" />
+  <meta name="author" content="MGX" />
+  <meta name="keywords" content="إدارة الأداء, التسويق الخيري, الذكاء الاصطناعي, نظام المكافآت, إدارة الفرق" />
+
+  <meta property="og:title" content="نظام إدارة الأداء - التسويق الخيري المتقدم" />

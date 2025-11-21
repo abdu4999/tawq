@@ -1,0 +1,42 @@
+$ curl -s http://localhost:5173 | head -20
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+  <script type="module" src="/@vite/client"></script>
+
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="https://public-frontend-cos.metadl.com/mgx/img/favicon.png" type="image/png">
+  <title>نظام إدارة الأداء - التسويق الخيري المتقدم</title>
+  <meta name="description" content="نظام متكامل لإدارة الأداء في التسويق الخيري مع ذكاء اصطناعي متقدم وأنظمة تحفيز ذكية" />
+  <meta name="author" content="MGX" />
+  <meta name="keywords" content="إدارة الأداء, التسويق الخيري, الذكاء الاصطناعي, نظام المكافآت, إدارة الفرق" />
+
+  <meta property="og:title" content="نظام إدارة الأداء - التسويق الخيري المتقدم" />
+$ pnpm run build
+
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1701 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.54 kB │ gzip:   0.82 kB
+dist/assets/index-FnOYCDch.css   88.53 kB │ gzip:  14.17 kB
+dist/assets/index-DuD9c83b.js   462.12 kB │ gzip: 142.10 kB
+✓ built in 4.96s
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+

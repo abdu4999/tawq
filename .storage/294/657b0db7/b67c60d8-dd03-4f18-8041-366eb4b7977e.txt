@@ -1,0 +1,63 @@
+$ pnpm run build
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1742 modules transformed.
+x Build failed in 3.89s
+error during build:
+src/pages/Dashboard.tsx (7:9): "getFinancialSummary" is not exported by "src/lib/finance-storage.ts", imported by "src/pages/Dashboard.tsx".
+file: /workspace/shadcn-ui/src/pages/Dashboard.tsx:7:9
+
+5: import { ProjectStorage } from '@/lib/project-storage';
+6: import { GamificationStorage } from '@/lib/gamification-storage';
+7: import { getFinancialSummary } from '@/lib/finance-storage';
+            ^
+8: 
+9: interface ProjectStats {
+
+    at getRollupError (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at error (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+    at Module.error (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:16939:16)
+    at Module.traceVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:17391:29)
+    at ModuleScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:15061:39)
+    at ReturnValueScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at FunctionBodyScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at ReturnValueScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at FunctionBodyScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at Identifier.bind (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5413:40)
+ ELIFECYCLE  Command failed with exit code 1.
+$ pnpm run build
+
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1742 modules transformed.
+x Build failed in 3.61s
+error during build:
+src/pages/Finance.tsx (5:9): "getFinancialRecords" is not exported by "src/lib/finance-storage.ts", imported by "src/pages/Finance.tsx".
+file: /workspace/shadcn-ui/src/pages/Finance.tsx:5:9
+
+3: import { Badge } from '@/components/ui/badge';
+4: import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+5: import { getFinancialRecords, getFinancialSummary, FinancialRecord } from '@/lib/finance-storage';
+            ^
+6: 
+7: const Finance: React.FC = () => {
+
+    at getRollupError (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at error (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/parseAst.js:397:42)
+    at Module.error (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:16939:16)
+    at Module.traceVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:17391:29)
+    at ModuleScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:15061:39)
+    at ReturnValueScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at FunctionBodyScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at ReturnValueScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at FunctionBodyScope.findVariable (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5642:38)
+    at Identifier.bind (file:///workspace/shadcn-ui/node_modules/.pnpm/rollup@4.52.5/node_modules/rollup/dist/es/shared/node-entry.js:5413:40)
+ ELIFECYCLE  Command failed with exit code 1.

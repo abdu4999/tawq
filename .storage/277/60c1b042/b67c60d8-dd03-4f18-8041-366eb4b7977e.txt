@@ -1,0 +1,25 @@
+$ pnpm run lint
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/components/ui/input.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/workspace/shadcn-ui/src/components/ui/textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+/workspace/shadcn-ui/src/pages/Dashboard.tsx
+  36:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:50  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspace/shadcn-ui/src/pages/Finance.tsx
+  16:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/workspace/shadcn-ui/src/pages/Tasks.tsx
+  15:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 6 problems (6 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.

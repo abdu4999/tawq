@@ -1,0 +1,73 @@
+$ find . -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/极速赛车开奖结果历史记录//g'
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/components/NotificationSystem.tsx
+  4:0  error  Parsing error: ',' expected
+
+/workspace/shadcn-ui/src/pages/ErrorManagement.tsx
+  140:133  error  Parsing error: Unterminated string literal
+
+✖ 2 problems (2 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ find . -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/极速赛车开奖结果历史记录//g'
+
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/components/NotificationSystem.tsx
+  88:32  error  Parsing error: Unterminated string literal
+
+/workspace/shadcn-ui/src/pages/ErrorManagement.tsx
+  140:133  error  Parsing error: Unterminated string literal
+
+✖ 2 problems (2 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ find . -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/极速赛车开奖结果历史记录//g'
+
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/components/NotificationSystem.tsx
+  3:0  error  Parsing error: 'from' expected
+
+/workspace/shadcn-ui/src/pages/ErrorManagement.tsx
+  140:133  error  Parsing error: Unterminated string literal
+
+✖ 2 problems (2 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ find . -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/极速赛车开奖结果历史记录//g'
+
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/components/NotificationSystem.tsx
+  4:0  error  Parsing error: ',' expected
+
+/workspace/shadcn-ui/src/pages/ErrorManagement.tsx
+  140:133  error  Parsing error: Unterminated string literal
+
+✖ 2 problems (2 errors, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ find . -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/极速赛车开奖结果历史记录//g'
+

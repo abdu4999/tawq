@@ -1,0 +1,19 @@
+$ cd /workspace/shadcn-ui && find . -type f -name "*.tsx" -o -name "*.ts" | grep -E "(Notification|Error|Sidebar|Dashboard)" | head -20
+./src/components/NotificationSystem.tsx
+./src/components/Sidebar.tsx
+./src/lib/supabaseNotifications.ts
+./src/pages/Dashboard.tsx
+./src/pages/ErrorManagement.tsx
+./src/pages/Notifications.tsx
+$ find ./src -name "*.tsx" -o -name "*.ts" | xargs grep -l "useEffect\|useQuery\|supabase" | grep -v "NotificationSystem\|error-storage\|supabaseClient" | head -10
+
+./src/components/ActivityLog.tsx
+./src/components/AuthProvider.tsx
+./src/components/FileUpload.tsx
+./src/components/ui/carousel.tsx
+./src/components/ui/sidebar.tsx
+./src/hooks/use-mobile.tsx
+./src/hooks/use-toast.ts
+./src/lib/supabase.ts
+./src/lib/supabaseNotifications.ts
+./src/lib/supabaseProfile.ts

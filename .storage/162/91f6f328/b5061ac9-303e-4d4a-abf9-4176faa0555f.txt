@@ -1,0 +1,1 @@
+$ find . -name "*.tsx" -o -name "*.ts" | xargs sed -i 's/极速赛车开奖结果历史记录//g'
