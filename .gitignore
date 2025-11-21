@@ -1,0 +1,18 @@
+# Build artifacts
+build/
+dist/
+.storage/
+cover/
+
+# Dependencies
+node_modules/
+workspace/shadcn-ui/node_modules/
+
+# Temp files
+*.zip
+.DS_Store
+*.log
+
+# IDE
+.vscode/
+.idea/
