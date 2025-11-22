@@ -562,6 +562,390 @@
       showNotification('اختبار الإشعار', 'نظام الإشعارات يعمل بشكل صحيح! ✅', 'success');
     };
 
+    // ========================================
+    // نظام CRUD الكامل للمهام والمشاريع
+    // ========================================
+    
+    // دوال القراءة (Read)
+    window.getAllTasks = function() {
+      try {
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
+        console.log('📋 Tasks:', tasks.length, '| Charity Tasks:', charityTasks.length);
+        return { tasks, charityTasks };
+      } catch (error) {
+        console.error('Error reading tasks:', error);
+        return { tasks: [], charityTasks: [] };
+      }
+    };
+    
+    window.getTaskById = function(taskId) {
+      const { tasks, charityTasks } = getAllTasks();
+      return tasks.find(t => t.id === taskId) || charityTasks.find(t => t.id === taskId) || null;
+    };
+    
+    // دوال التحديث (Update)
+    window.updateTask = function(taskId, updates) {
+      try {
+        console.log('Updating task:', taskId, updates);
+        let updated = false;
+        
+        // تحديث في tasks
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const taskIndex = tasks.findIndex(t => t.id === taskId);
+        if (taskIndex !== -1) {
+          tasks[taskIndex] = { ...tasks[taskIndex], ...updates, updatedAt: new Date().toISOString() };
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+          console.log('✓ Updated in tasks');
+          updated = true;
+        }
+        
+        // تحديث في charity_tasks
+        const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
+        const charityIndex = charityTasks.findIndex(t => t.id === taskId);
+        if (charityIndex !== -1) {
+          charityTasks[charityIndex] = { ...charityTasks[charityIndex], ...updates, updatedAt: new Date().toISOString() };
+          localStorage.setItem('charity_tasks', JSON.stringify(charityTasks));
+          console.log('✓ Updated in charity_tasks');
+          updated = true;
+        }
+        
+        // تحديث في bt إذا كان موجوداً
+        if (window.bt && typeof window.bt.updateTask === 'function') {
+          try {
+            window.bt.updateTask(taskId, updates);
+            console.log('✓ Updated via bt.updateTask');
+            updated = true;
+          } catch (e) {
+            console.warn('bt.updateTask failed:', e);
+          }
+        }
+        
+        if (updated) {
+          showNotification('تم التحديث ✓', 'تم تحديث المهمة بنجاح', 'success');
+          setTimeout(() => location.reload(), 800);
+          return true;
+        } else {
+          showNotification('خطأ', 'لم يتم العثور على المهمة', 'error');
+          return false;
+        }
+      } catch (error) {
+        console.error('Error updating task:', error);
+        showNotification('خطأ', 'فشل تحديث المهمة: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    // دوال الحذف (Delete)
+    window.deleteTask = function(taskId) {
+      if (!confirm('هل أنت متأكد من حذف هذه المهمة؟')) {
+        return false;
+      }
+      
+      try {
+        console.log('Deleting task:', taskId);
+        let deleted = false;
+        
+        // حذف من tasks
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const newTasks = tasks.filter(t => t.id !== taskId);
+        if (newTasks.length < tasks.length) {
+          localStorage.setItem('tasks', JSON.stringify(newTasks));
+          console.log('✓ Deleted from tasks');
+          deleted = true;
+        }
+        
+        // حذف من charity_tasks
+        const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
+        const newCharityTasks = charityTasks.filter(t => t.id !== taskId);
+        if (newCharityTasks.length < charityTasks.length) {
+          localStorage.setItem('charity_tasks', JSON.stringify(newCharityTasks));
+          console.log('✓ Deleted from charity_tasks');
+          deleted = true;
+        }
+        
+        // حذف من bt إذا كان موجوداً
+        if (window.bt && typeof window.bt.deleteTask === 'function') {
+          try {
+            window.bt.deleteTask(taskId);
+            console.log('✓ Deleted via bt.deleteTask');
+            deleted = true;
+          } catch (e) {
+            console.warn('bt.deleteTask failed:', e);
+          }
+        }
+        
+        if (deleted) {
+          showNotification('تم الحذف ✓', 'تم حذف المهمة بنجاح', 'success');
+          setTimeout(() => location.reload(), 800);
+          return true;
+        } else {
+          showNotification('خطأ', 'لم يتم العثور على المهمة', 'error');
+          return false;
+        }
+      } catch (error) {
+        console.error('Error deleting task:', error);
+        showNotification('خطأ', 'فشل حذف المهمة: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    // دوال المشاريع
+    window.getAllProjects = function() {
+      try {
+        const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+        console.log('📁 Projects:', projects.length);
+        return projects;
+      } catch (error) {
+        console.error('Error reading projects:', error);
+        return [];
+      }
+    };
+    
+    window.createProject = function(projectData) {
+      try {
+        const projects = getAllProjects();
+        const newProject = {
+          id: 'project_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          ...projectData,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        projects.unshift(newProject);
+        localStorage.setItem('projects', JSON.stringify(projects));
+        console.log('✓ Project created:', newProject.id);
+        showNotification('تم الإنشاء ✓', `المشروع "${newProject.name}" تم إنشاؤه بنجاح`, 'success');
+        return newProject;
+      } catch (error) {
+        console.error('Error creating project:', error);
+        showNotification('خطأ', 'فشل إنشاء المشروع: ' + error.message, 'error');
+        return null;
+      }
+    };
+    
+    window.updateProject = function(projectId, updates) {
+      try {
+        const projects = getAllProjects();
+        const index = projects.findIndex(p => p.id === projectId);
+        if (index !== -1) {
+          projects[index] = { ...projects[index], ...updates, updatedAt: new Date().toISOString() };
+          localStorage.setItem('projects', JSON.stringify(projects));
+          showNotification('تم التحديث ✓', 'تم تحديث المشروع بنجاح', 'success');
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error updating project:', error);
+        showNotification('خطأ', 'فشل تحديث المشروع: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    window.deleteProject = function(projectId) {
+      if (!confirm('هل أنت متأكد من حذف هذا المشروع؟ سيتم حذف جميع المهام المرتبطة به.')) {
+        return false;
+      }
+      
+      try {
+        const projects = getAllProjects();
+        const newProjects = projects.filter(p => p.id !== projectId);
+        localStorage.setItem('projects', JSON.stringify(newProjects));
+        
+        // حذف المهام المرتبطة
+        const { tasks, charityTasks } = getAllTasks();
+        const newTasks = tasks.filter(t => t.projectId !== projectId);
+        const newCharityTasks = charityTasks.filter(t => t.projectId !== projectId);
+        localStorage.setItem('tasks', JSON.stringify(newTasks));
+        localStorage.setItem('charity_tasks', JSON.stringify(newCharityTasks));
+        
+        showNotification('تم الحذف ✓', 'تم حذف المشروع والمهام المرتبطة به', 'success');
+        setTimeout(() => location.reload(), 800);
+        return true;
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        showNotification('خطأ', 'فشل حذف المشروع: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    // دوال المتبرعين
+    window.getAllDonors = function() {
+      try {
+        const donors = JSON.parse(localStorage.getItem('donors') || '[]');
+        console.log('👥 Donors:', donors.length);
+        return donors;
+      } catch (error) {
+        console.error('Error reading donors:', error);
+        return [];
+      }
+    };
+    
+    window.createDonor = function(donorData) {
+      try {
+        const donors = getAllDonors();
+        const newDonor = {
+          id: 'donor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          ...donorData,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        donors.unshift(newDonor);
+        localStorage.setItem('donors', JSON.stringify(donors));
+        console.log('✓ Donor created:', newDonor.id);
+        showNotification('تم الإضافة ✓', `المتبرع "${newDonor.name}" تمت إضافته بنجاح`, 'success');
+        return newDonor;
+      } catch (error) {
+        console.error('Error creating donor:', error);
+        showNotification('خطأ', 'فشل إضافة المتبرع: ' + error.message, 'error');
+        return null;
+      }
+    };
+    
+    window.updateDonor = function(donorId, updates) {
+      try {
+        const donors = getAllDonors();
+        const index = donors.findIndex(d => d.id === donorId);
+        if (index !== -1) {
+          donors[index] = { ...donors[index], ...updates, updatedAt: new Date().toISOString() };
+          localStorage.setItem('donors', JSON.stringify(donors));
+          showNotification('تم التحديث ✓', 'تم تحديث بيانات المتبرع بنجاح', 'success');
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error updating donor:', error);
+        showNotification('خطأ', 'فشل تحديث المتبرع: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    window.deleteDonor = function(donorId) {
+      if (!confirm('هل أنت متأكد من حذف هذا المتبرع؟')) {
+        return false;
+      }
+      
+      try {
+        const donors = getAllDonors();
+        const newDonors = donors.filter(d => d.id !== donorId);
+        localStorage.setItem('donors', JSON.stringify(newDonors));
+        showNotification('تم الحذف ✓', 'تم حذف المتبرع بنجاح', 'success');
+        setTimeout(() => location.reload(), 800);
+        return true;
+      } catch (error) {
+        console.error('Error deleting donor:', error);
+        showNotification('خطأ', 'فشل حذف المتبرع: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    // دوال المشاهير
+    window.getAllInfluencers = function() {
+      try {
+        const influencers = JSON.parse(localStorage.getItem('influencers') || '[]');
+        console.log('⭐ Influencers:', influencers.length);
+        return influencers;
+      } catch (error) {
+        console.error('Error reading influencers:', error);
+        return [];
+      }
+    };
+    
+    window.createInfluencer = function(influencerData) {
+      try {
+        const influencers = getAllInfluencers();
+        const newInfluencer = {
+          id: 'influencer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          ...influencerData,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        influencers.unshift(newInfluencer);
+        localStorage.setItem('influencers', JSON.stringify(influencers));
+        console.log('✓ Influencer created:', newInfluencer.id);
+        showNotification('تم الإضافة ✓', `المشهور "${newInfluencer.name}" تمت إضافته بنجاح`, 'success');
+        return newInfluencer;
+      } catch (error) {
+        console.error('Error creating influencer:', error);
+        showNotification('خطأ', 'فشل إضافة المشهور: ' + error.message, 'error');
+        return null;
+      }
+    };
+    
+    window.updateInfluencer = function(influencerId, updates) {
+      try {
+        const influencers = getAllInfluencers();
+        const index = influencers.findIndex(i => i.id === influencerId);
+        if (index !== -1) {
+          influencers[index] = { ...influencers[index], ...updates, updatedAt: new Date().toISOString() };
+          localStorage.setItem('influencers', JSON.stringify(influencers));
+          showNotification('تم التحديث ✓', 'تم تحديث بيانات المشهور بنجاح', 'success');
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.error('Error updating influencer:', error);
+        showNotification('خطأ', 'فشل تحديث المشهور: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    window.deleteInfluencer = function(influencerId) {
+      if (!confirm('هل أنت متأكد من حذف هذا المشهور؟')) {
+        return false;
+      }
+      
+      try {
+        const influencers = getAllInfluencers();
+        const newInfluencers = influencers.filter(i => i.id !== influencerId);
+        localStorage.setItem('influencers', JSON.stringify(newInfluencers));
+        showNotification('تم الحذف ✓', 'تم حذف المشهور بنجاح', 'success');
+        setTimeout(() => location.reload(), 800);
+        return true;
+      } catch (error) {
+        console.error('Error deleting influencer:', error);
+        showNotification('خطأ', 'فشل حذف المشهور: ' + error.message, 'error');
+        return false;
+      }
+    };
+    
+    // دالة عرض جميع البيانات في Console
+    window.showAllData = function() {
+      console.log('='.repeat(60));
+      console.log('📊 جميع البيانات في النظام:');
+      console.log('='.repeat(60));
+      
+      const { tasks, charityTasks } = getAllTasks();
+      console.log('📋 المهام (tasks):', tasks.length);
+      console.table(tasks);
+      
+      console.log('📋 المهام الخيرية (charity_tasks):', charityTasks.length);
+      console.table(charityTasks);
+      
+      const projects = getAllProjects();
+      console.log('📁 المشاريع (projects):', projects.length);
+      console.table(projects);
+      
+      const donors = getAllDonors();
+      console.log('👥 المتبرعون (donors):', donors.length);
+      console.table(donors);
+      
+      const influencers = getAllInfluencers();
+      console.log('⭐ المشاهير (influencers):', influencers.length);
+      console.table(influencers);
+      
+      console.log('='.repeat(60));
+      console.log('✅ لعرض البيانات مرة أخرى، اكتب: showAllData()');
+      console.log('='.repeat(60));
+    };
+    
+    console.log('✅ نظام CRUD جاهز!');
+    console.log('📝 الوظائف المتاحة:');
+    console.log('  - getAllTasks() / getTaskById(id) / updateTask(id, data) / deleteTask(id)');
+    console.log('  - getAllProjects() / createProject(data) / updateProject(id, data) / deleteProject(id)');
+    console.log('  - getAllDonors() / createDonor(data) / updateDonor(id, data) / deleteDonor(id)');
+    console.log('  - getAllInfluencers() / createInfluencer(data) / updateInfluencer(id, data) / deleteInfluencer(id)');
+    console.log('  - showAllData() - لعرض جميع البيانات');
+
     // ربط نظام الإشعارات مع نظام المهام
     window.addEventListener('load', function() {
       setTimeout(function() {
