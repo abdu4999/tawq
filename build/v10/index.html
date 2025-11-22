@@ -164,6 +164,291 @@
   <link rel="stylesheet" crossorigin href="/assets/index-FnOYCDch.css">
   
   <script>
+    // ========================================
+    // إعدادات API - الربط مع قاعدة البيانات
+    // ========================================
+    
+    const API_BASE_URL = 'http://localhost:8000/api';
+    const USE_API = true; // true = استخدام قاعدة البيانات | false = استخدام localStorage
+    
+    // دالة عامة لاستدعاء API
+    async function apiRequest(endpoint, method = 'GET', data = null) {
+      const url = `${API_BASE_URL}${endpoint}`;
+      const options = {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+      
+      if (data && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+        options.body = JSON.stringify(data);
+      }
+      
+      try {
+        console.log(`📡 API Request: ${method} ${url}`, data || '');
+        const response = await fetch(url, options);
+        
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.detail || `HTTP ${response.status}`);
+        }
+        
+        // حالة 204 No Content (للحذف)
+        if (response.status === 204) {
+          console.log('✓ API Response: 204 No Content');
+          return null;
+        }
+        
+        const result = await response.json();
+        console.log('✓ API Response:', result);
+        return result;
+      } catch (error) {
+        console.error('✗ API Error:', error);
+        
+        // في حالة فشل API، استخدم localStorage كنسخة احتياطية
+        if (USE_API) {
+          console.warn('⚠️ API failed, falling back to localStorage');
+        }
+        throw error;
+      }
+    }
+    
+    // ========================================
+    // دوال API للمهام (Tasks)
+    // ========================================
+    
+    window.apiCreateTask = async function(taskData) {
+      if (!USE_API) {
+        // Fallback to localStorage
+        return localStorageCreateTask(taskData);
+      }
+      
+      try {
+        // تحويل البيانات لصيغة API
+        const apiData = {
+          title: taskData.title,
+          description: taskData.description || '',
+          project_id: parseInt(taskData.projectId) || 1,
+          assigned_to: parseInt(taskData.assignedTo) || 1,
+          priority: taskData.priority || 'medium',
+          status: taskData.status || 'pending',
+          due_date: taskData.dueDate ? new Date(taskData.dueDate).toISOString() : null
+        };
+        
+        const result = await apiRequest('/tasks', 'POST', apiData);
+        showNotification('تم الحفظ في قاعدة البيانات ✓', `المهمة "${result.title}" تم حفظها`, 'success');
+        
+        // حفظ نسخة في localStorage كنسخة احتياطية
+        localStorageCreateTask(result);
+        
+        return result;
+      } catch (error) {
+        showNotification('خطأ في API', error.message, 'error');
+        // Fallback to localStorage
+        return localStorageCreateTask(taskData);
+      }
+    };
+    
+    window.apiGetTasks = async function(filters = {}) {
+      if (!USE_API) {
+        return localStorageGetTasks();
+      }
+      
+      try {
+        const params = new URLSearchParams(filters).toString();
+        const endpoint = params ? `/tasks?${params}` : '/tasks';
+        return await apiRequest(endpoint, 'GET');
+      } catch (error) {
+        return localStorageGetTasks();
+      }
+    };
+    
+    window.apiUpdateTask = async function(taskId, updates) {
+      if (!USE_API) {
+        return localStorageUpdateTask(taskId, updates);
+      }
+      
+      try {
+        const result = await apiRequest(`/tasks/${taskId}`, 'PUT', updates);
+        showNotification('تم التحديث في قاعدة البيانات ✓', 'تم تحديث المهمة بنجاح', 'success');
+        
+        // تحديث localStorage
+        localStorageUpdateTask(taskId, result);
+        
+        return result;
+      } catch (error) {
+        showNotification('خطأ في API', error.message, 'error');
+        return localStorageUpdateTask(taskId, updates);
+      }
+    };
+    
+    window.apiDeleteTask = async function(taskId) {
+      if (!USE_API) {
+        return localStorageDeleteTask(taskId);
+      }
+      
+      try {
+        await apiRequest(`/tasks/${taskId}`, 'DELETE');
+        showNotification('تم الحذف من قاعدة البيانات ✓', 'تم حذف المهمة بنجاح', 'success');
+        
+        // حذف من localStorage
+        localStorageDeleteTask(taskId);
+        
+        return true;
+      } catch (error) {
+        showNotification('خطأ في API', error.message, 'error');
+        return localStorageDeleteTask(taskId);
+      }
+    };
+    
+    // ========================================
+    // دوال localStorage (النسخة الاحتياطية)
+    // ========================================
+    
+    function localStorageCreateTask(taskData) {
+      try {
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        tasks.unshift(taskData);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        
+        const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
+        charityTasks.unshift(taskData);
+        localStorage.setItem('charity_tasks', JSON.stringify(charityTasks));
+        
+        console.log('✓ Saved to localStorage');
+        return taskData;
+      } catch (error) {
+        console.error('localStorage save failed:', error);
+        return null;
+      }
+    }
+    
+    function localStorageGetTasks() {
+      try {
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
+        return { tasks, charityTasks };
+      } catch (error) {
+        console.error('localStorage read failed:', error);
+        return { tasks: [], charityTasks: [] };
+      }
+    }
+    
+    function localStorageUpdateTask(taskId, updates) {
+      try {
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const index = tasks.findIndex(t => t.id == taskId);
+        if (index !== -1) {
+          tasks[index] = { ...tasks[index], ...updates, updatedAt: new Date().toISOString() };
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        return tasks[index];
+      } catch (error) {
+        console.error('localStorage update failed:', error);
+        return null;
+      }
+    }
+    
+    function localStorageDeleteTask(taskId) {
+      try {
+        const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const filtered = tasks.filter(t => t.id != taskId);
+        localStorage.setItem('tasks', JSON.stringify(filtered));
+        return true;
+      } catch (error) {
+        console.error('localStorage delete failed:', error);
+        return false;
+      }
+    }
+    
+    // ========================================
+    // مزامنة البيانات من localStorage إلى قاعدة البيانات
+    // ========================================
+    
+    window.syncLocalStorageToDatabase = async function() {
+      if (!USE_API) {
+        console.warn('API mode is disabled');
+        return;
+      }
+      
+      console.log('🔄 بدء مزامنة البيانات من localStorage إلى قاعدة البيانات...');
+      
+      try {
+        // فحص اتصال API
+        await apiRequest('/health', 'GET');
+        console.log('✓ API Server is running');
+      } catch (error) {
+        console.error('✗ API Server is not running. Start it first!');
+        showNotification('خطأ', 'الخادم غير متصل! شغّل backend/start.bat أولاً', 'error');
+        return;
+      }
+      
+      const { tasks, charityTasks } = localStorageGetTasks();
+      const allTasks = [...tasks, ...charityTasks];
+      
+      let synced = 0;
+      let failed = 0;
+      
+      for (const task of allTasks) {
+        try {
+          await apiCreateTask(task);
+          synced++;
+        } catch (error) {
+          console.error('Failed to sync task:', task.id, error);
+          failed++;
+        }
+      }
+      
+      console.log(`✓ تمت المزامنة: ${synced} مهمة | فشل: ${failed}`);
+      showNotification(
+        'تمت المزامنة ✓',
+        `تم رفع ${synced} مهمة إلى قاعدة البيانات`,
+        'success'
+      );
+    };
+    
+    // ========================================
+    // فحص حالة الاتصال بقاعدة البيانات
+    // ========================================
+    
+    window.checkDatabaseConnection = async function() {
+      console.log('🔍 فحص الاتصال بقاعدة البيانات...');
+      
+      try {
+        const health = await apiRequest('/health', 'GET');
+        console.log('✅ متصل بقاعدة البيانات!', health);
+        showNotification('متصل ✓', 'قاعدة البيانات تعمل بنجاح', 'success');
+        return true;
+      } catch (error) {
+        console.error('❌ غير متصل بقاعدة البيانات!', error);
+        showNotification(
+          'غير متصل',
+          'قاعدة البيانات غير متاحة. شغّل backend/start.bat',
+          'warning'
+        );
+        return false;
+      }
+    };
+    
+    // فحص الاتصال تلقائياً عند التحميل
+    if (USE_API) {
+      setTimeout(() => {
+        checkDatabaseConnection();
+      }, 2000);
+    }
+    
+    console.log('✅ نظام API جاهز!');
+    console.log(`📊 الوضع: ${USE_API ? 'قاعدة البيانات (Database)' : 'التخزين المحلي (localStorage)'}`);
+    console.log('🔧 للتبديل: USE_API = true/false');
+    console.log('📝 دوال API المتاحة:');
+    console.log('  - apiCreateTask(data)');
+    console.log('  - apiGetTasks()');
+    console.log('  - apiUpdateTask(id, updates)');
+    console.log('  - apiDeleteTask(id)');
+    console.log('  - syncLocalStorageToDatabase()');
+    console.log('  - checkDatabaseConnection()');
+    
     // إضافة زر "إنشاء مهمة جديدة" تلقائياً - في الأعلى بجانب العنوان
     function addTaskButton() {
       // البحث عن صفحة المهام
@@ -315,9 +600,9 @@
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
       
-      // معالج النموذج - محسّن ومضمون للعمل
+      // معالج النموذج - محسّن مع دعم API
       const form = document.getElementById('task-form');
-      form.onsubmit = function(e) {
+      form.onsubmit = async function(e) {
         e.preventDefault();
         e.stopPropagation();
         
@@ -333,11 +618,11 @@
           id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
           title: title,
           description: document.getElementById('task-description').value || '',
-          assignedTo: document.getElementById('task-assignee').value || 'غير محدد',
+          assignedTo: document.getElementById('task-assignee').value || '1',
           priority: document.getElementById('task-priority').value,
           status: document.getElementById('task-status').value,
           dueDate: document.getElementById('task-date').value || new Date().toISOString().split('T')[0],
-          projectId: 'project_default',
+          projectId: '1',
           projectName: 'مشروع افتراضي',
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -345,87 +630,25 @@
         
         console.log('Creating task:', taskData);
         
-        // إنشاء المهمة بطرق متعددة مع التحقق الكامل
-        let saved = false;
-        
+        // استخدام API إذا كان مفعلاً
         try {
-          // الطريقة 1: استخدام bt.createTask (النظام الرئيسي)
-          if (window.bt && typeof window.bt.createTask === 'function') {
-            console.log('Using bt.createTask');
-            const result = window.bt.createTask(taskData);
-            console.log('bt.createTask result:', result);
-            saved = true;
+          const result = await apiCreateTask(taskData);
+          
+          if (result) {
+            console.log('Task created successfully:', result);
+            closeTaskModal();
+            
+            // تحديث الصفحة بعد ثانية
+            setTimeout(() => {
+              console.log('Reloading page...');
+              location.reload();
+            }, 1000);
           } else {
-            console.warn('bt.createTask not available');
+            throw new Error('Failed to create task');
           }
         } catch (error) {
-          console.error('bt.createTask failed:', error);
-        }
-        
-        try {
-          // الطريقة 2: حفظ في localStorage كـ tasks
-          const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-          tasks.unshift(taskData); // إضافة في البداية
-          localStorage.setItem('tasks', JSON.stringify(tasks));
-          console.log('✓ Saved to localStorage tasks:', tasks.length, 'items');
-          saved = true;
-        } catch (error) {
-          console.error('✗ localStorage tasks failed:', error);
-        }
-        
-        try {
-          // الطريقة 3: حفظ في localStorage كـ charity_tasks (نسخة احتياطية)
-          const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
-          charityTasks.unshift(taskData);
-          localStorage.setItem('charity_tasks', JSON.stringify(charityTasks));
-          console.log('✓ Saved to charity_tasks:', charityTasks.length, 'items');
-          saved = true;
-        } catch (error) {
-          console.error('✗ localStorage charity_tasks failed:', error);
-        }
-        
-        // حفظ في IndexedDB كنسخة احتياطية إضافية
-        try {
-          const dbRequest = indexedDB.open('TawqDB', 1);
-          dbRequest.onsuccess = (event) => {
-            const db = event.target.result;
-            if (db.objectStoreNames.contains('tasks')) {
-              const transaction = db.transaction(['tasks'], 'readwrite');
-              const store = transaction.objectStore('tasks');
-              store.add(taskData);
-              console.log('✓ Saved to IndexedDB');
-            }
-          };
-          dbRequest.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains('tasks')) {
-              db.createObjectStore('tasks', { keyPath: 'id' });
-            }
-          };
-        } catch (error) {
-          console.warn('IndexedDB save failed:', error);
-        }
-        
-        if (saved) {
-          // إظهار إشعار نجاح
-          if (window.showNotification) {
-            window.showNotification(
-              'تم الحفظ بنجاح ✓',
-              `المهمة "${taskData.title}" تم حفظها`,
-              'success'
-            );
-          }
-          
-          console.log('Task saved successfully');
-          closeTaskModal();
-          
-          // تحديث الصفحة بعد ثانية
-          setTimeout(() => {
-            console.log('Reloading page...');
-            location.reload();
-          }, 1000);
-        } else {
-          throw new Error('فشل الحفظ في جميع الطرق');
+          console.error('Error creating task:', error);
+          showNotification('خطأ', 'فشل إنشاء المهمة: ' + error.message, 'error');
         }
         
         return false;
