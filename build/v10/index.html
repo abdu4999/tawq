@@ -90,6 +90,172 @@
   </style>
   <script type="module" crossorigin src="/assets/index-Bwri3W_O.js"></script>
   <link rel="stylesheet" crossorigin href="/assets/index-FnOYCDch.css">
+  
+  <script>
+    // إضافة زر "إنشاء مهمة جديدة" تلقائياً
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        // البحث عن صفحة المهام
+        const taskHeader = Array.from(document.querySelectorAll('h1, h2')).find(el => 
+          el.textContent.includes('إدارة المهامم') || el.textContent.includes('إدارة المهام')
+        );
+        
+        if (taskHeader && !document.getElementById('add-task-btn')) {
+          const headerContainer = taskHeader.parentElement;
+          
+          // إنشاء زر الإضافة
+          const addButton = document.createElement('button');
+          addButton.id = 'add-task-btn';
+          addButton.textContent = '+ إنشاء مهمة جديدة';
+          addButton.style.cssText = `
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-family: 'Cairo', sans-serif;
+          `;
+          
+          addButton.onmouseover = () => addButton.style.background = '#2563eb';
+          addButton.onmouseout = () => addButton.style.background = '#3b82f6';
+          
+          addButton.onclick = function() {
+            showTaskModal();
+          };
+          
+          headerContainer.appendChild(addButton);
+        }
+      }, 1000);
+    });
+
+    // نافذة إضافة مهمة
+    function showTaskModal() {
+      // إنشاء الخلفية
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      `;
+      
+      // إنشاء النافذة
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+      `;
+      
+      modal.innerHTML = `
+        <h2 style="margin: 0 0 20px 0; font-size: 20px;">إنشاء مهمة جديدة</h2>
+        <form id="task-form">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">عنوان المهمة *</label>
+            <input type="text" id="task-title" required style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Cairo', sans-serif;" />
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">الوصف</label>
+            <textarea id="task-description" rows="3" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Cairo', sans-serif;"></textarea>
+          </div>
+          
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">المسؤول</label>
+            <input type="text" id="task-assignee" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Cairo', sans-serif;" />
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600;">الأولوية</label>
+              <select id="task-priority" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Cairo', sans-serif;">
+                <option value="low">منخفضة</option>
+                <option value="medium" selected>متوسطة</option>
+                <option value="high">عالية</option>
+                <option value="urgent">عاجلة</option>
+              </select>
+            </div>
+            
+            <div>
+              <label style="display: block; margin-bottom: 8px; font-weight: 600;">الحالة</label>
+              <select id="task-status" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Cairo', sans-serif;">
+                <option value="pending" selected>معلقة</option>
+                <option value="in-progress">قيد التنفيذ</option>
+                <option value="completed">مكتملة</option>
+                <option value="blocked">محظورة</option>
+              </select>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600;">تاريخ الاستحقاق</label>
+            <input type="date" id="task-date" style="width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-family: 'Cairo', sans-serif;" />
+          </div>
+          
+          <div style="display: flex; gap: 12px; justify-content: flex-end;">
+            <button type="button" onclick="closeTaskModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; font-family: 'Cairo', sans-serif;">إلغاء</button>
+            <button type="submit" style="padding: 10px 20px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-family: 'Cairo', sans-serif;">إنشاء المهمة</button>
+          </div>
+        </form>
+      `;
+      
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+      
+      // معالج النموذج
+      document.getElementById('task-form').onsubmit = function(e) {
+        e.preventDefault();
+        
+        const taskData = {
+          title: document.getElementById('task-title').value,
+          description: document.getElementById('task-description').value,
+          assignedTo: document.getElementById('task-assignee').value || 'غير محدد',
+          priority: document.getElementById('task-priority').value,
+          status: document.getElementById('task-status').value,
+          dueDate: document.getElementById('task-date').value || new Date().toISOString().split('T')[0],
+          projectId: 'project_default',
+          projectName: 'مشروع افتراضي'
+        };
+        
+        // إنشاء المهمة
+        try {
+          if (window.bt && window.bt.createTask) {
+            window.bt.createTask(taskData);
+            alert('✅ تم إنشاء المهمة بنجاح!');
+            closeTaskModal();
+            location.reload(); // تحديث الصفحة
+          } else {
+            alert('❌ خطأ: نظام المهام غير متوفر');
+          }
+        } catch (error) {
+          alert('❌ حدث خطأ: ' + error.message);
+        }
+      };
+      
+      window.closeTaskModal = function() {
+        overlay.remove();
+      };
+      
+      overlay.onclick = function(e) {
+        if (e.target === overlay) closeTaskModal();
+      };
+    }
+  </script>
 </head>
 
 <body>
