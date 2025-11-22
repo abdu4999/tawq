@@ -28,7 +28,7 @@
     /* إصلاح نظام الإشعارات - تحديث محسّن */
     [data-sonner-toaster] {
       position: fixed !important;
-      bottom: 20px !important;
+      bottom: 80px !important;
       left: 20px !important;
       right: auto !important;
       top: auto !important;
@@ -179,21 +179,33 @@
         addButton.id = 'add-task-btn';
         addButton.textContent = '+ إنشاء مهمة جديدة';
         addButton.style.cssText = `
+          position: fixed !important;
+          bottom: 20px !important;
+          right: 20px !important;
           background: #3b82f6 !important;
           color: white !important;
           border: none !important;
-          padding: 10px 20px !important;
-          border-radius: 8px !important;
+          padding: 15px 25px !important;
+          border-radius: 50px !important;
           cursor: pointer !important;
-          font-size: 14px !important;
-          font-weight: 600 !important;
-          transition: all 0.2s !important;
+          font-size: 16px !important;
+          font-weight: 700 !important;
+          transition: all 0.3s !important;
           font-family: 'Cairo', sans-serif !important;
-          margin-right: 10px !important;
+          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4) !important;
+          z-index: 10000 !important;
         `;
         
-        addButton.onmouseover = () => addButton.style.background = '#2563eb';
-        addButton.onmouseout = () => addButton.style.background = '#3b82f6';
+        addButton.onmouseover = () => {
+          addButton.style.background = '#2563eb';
+          addButton.style.transform = 'scale(1.05)';
+          addButton.style.boxShadow = '0 6px 25px rgba(37, 99, 235, 0.5)';
+        };
+        addButton.onmouseout = () => {
+          addButton.style.background = '#3b82f6';
+          addButton.style.transform = 'scale(1)';
+          addButton.style.boxShadow = '0 4px 20px rgba(59, 130, 246, 0.4)';
+        };
         
         addButton.onclick = function(e) {
           e.preventDefault();
@@ -377,7 +389,7 @@
         toaster.setAttribute('data-sonner-toaster', '');
         toaster.style.cssText = `
           position: fixed !important;
-          bottom: 20px !important;
+          bottom: 80px !important;
           left: 20px !important;
           z-index: 999999 !important;
           display: flex !important;
