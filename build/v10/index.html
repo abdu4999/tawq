@@ -310,60 +310,95 @@
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
       
-      // معالج النموذج - محسّن
+      // معالج النموذج - محسّن ومضمون للعمل
       const form = document.getElementById('task-form');
       form.onsubmit = function(e) {
         e.preventDefault();
         e.stopPropagation();
         
+        const title = document.getElementById('task-title').value;
+        if (!title) {
+          if (window.showNotification) {
+            window.showNotification('خطأ', 'يرجى إدخال عنوان المهمة', 'error');
+          }
+          return false;
+        }
+        
         const taskData = {
-          id: 'task_' + Date.now(),
-          title: document.getElementById('task-title').value,
-          description: document.getElementById('task-description').value,
+          id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          title: title,
+          description: document.getElementById('task-description').value || '',
           assignedTo: document.getElementById('task-assignee').value || 'غير محدد',
           priority: document.getElementById('task-priority').value,
           status: document.getElementById('task-status').value,
           dueDate: document.getElementById('task-date').value || new Date().toISOString().split('T')[0],
           projectId: 'project_default',
           projectName: 'مشروع افتراضي',
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
         
-        // إنشاء المهمة
+        console.log('Creating task:', taskData);
+        
+        // إنشاء المهمة بطرق متعددة
+        let saved = false;
+        
         try {
-          // محاولة استخدام bt.createTask
+          // الطريقة 1: استخدام bt.createTask
           if (window.bt && typeof window.bt.createTask === 'function') {
+            console.log('Using bt.createTask');
             window.bt.createTask(taskData);
-          } else {
-            // حفظ في localStorage مباشرة كحل بديل
-            const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
-            tasks.push(taskData);
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+            saved = true;
           }
-          
+        } catch (error) {
+          console.error('bt.createTask failed:', error);
+        }
+        
+        try {
+          // الطريقة 2: حفظ في localStorage كـ tasks
+          const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+          tasks.unshift(taskData); // إضافة في البداية
+          localStorage.setItem('tasks', JSON.stringify(tasks));
+          console.log('Saved to localStorage tasks:', tasks.length);
+          saved = true;
+        } catch (error) {
+          console.error('localStorage tasks failed:', error);
+        }
+        
+        try {
+          // الطريقة 3: حفظ في localStorage كـ charity_tasks
+          const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
+          charityTasks.unshift(taskData);
+          localStorage.setItem('charity_tasks', JSON.stringify(charityTasks));
+          console.log('Saved to charity_tasks:', charityTasks.length);
+          saved = true;
+        } catch (error) {
+          console.error('localStorage charity_tasks failed:', error);
+        }
+        
+        if (saved) {
           // إظهار إشعار نجاح
           if (window.showNotification) {
             window.showNotification(
-              'تم إنشاء المهمة بنجاح',
-              `المهمة "${taskData.title}" تم إضافتها بنجاح`,
+              'تم الحفظ بنجاح ✓',
+              `المهمة "${taskData.title}" تم حفظها`,
               'success'
             );
           }
           
+          console.log('Task saved successfully');
           closeTaskModal();
-          setTimeout(() => location.reload(), 1500); // تحديث الصفحة بعد 1.5 ثانية
-        } catch (error) {
-          console.error('Error creating task:', error);
           
-          // إظهار إشعار خطأ
-          if (window.showNotification) {
-            window.showNotification(
-              'حدث خطأ',
-              error.message || 'فشل إنشاء المهمة',
-              'error'
-            );
-          }
+          // تحديث الصفحة بعد ثانية
+          setTimeout(() => {
+            console.log('Reloading page...');
+            location.reload();
+          }, 1000);
+        } else {
+          throw new Error('فشل الحفظ في جميع الطرق');
         }
+        
+        return false;
       };
       
       window.closeTaskModal = function() {
