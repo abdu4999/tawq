@@ -307,14 +307,41 @@
         try {
           if (window.bt && window.bt.createTask) {
             window.bt.createTask(taskData);
-            alert('✅ تم إنشاء المهمة بنجاح!');
+            
+            // إظهار إشعار نجاح
+            if (window.showNotification) {
+              window.showNotification(
+                'تم إنشاء المهمة بنجاح',
+                `المهمة "${taskData.title}" تم إضافتها بنجاح`,
+                'success'
+              );
+            }
+            
             closeTaskModal();
-            location.reload(); // تحديث الصفحة
+            setTimeout(() => location.reload(), 1000); // تحديث الصفحة بعد ثانية
           } else {
-            alert('❌ خطأ: نظام المهام غير متوفر');
+            // إظهار إشعار خطأ
+            if (window.showNotification) {
+              window.showNotification(
+                'خطأ في النظام',
+                'نظام المهام غير متوفر حالياً',
+                'error'
+              );
+            } else {
+              alert('❌ خطأ: نظام المهام غير متوفر');
+            }
           }
         } catch (error) {
-          alert('❌ حدث خطأ: ' + error.message);
+          // إظهار إشعار خطأ
+          if (window.showNotification) {
+            window.showNotification(
+              'حدث خطأ',
+              error.message,
+              'error'
+            );
+          } else {
+            alert('❌ حدث خطأ: ' + error.message);
+          }
         }
       };
       
