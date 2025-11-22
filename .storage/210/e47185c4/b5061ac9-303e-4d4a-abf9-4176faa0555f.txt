@@ -1,0 +1,72 @@
+$ pnpm run lint
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/pages/ErrorManagement.tsx
+  140:133  error  Parsing error: Unterminated string literal
+
+✖ 1 problem (1 error, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+$ pnpm run build
+
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1843 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.54 kB │ gzip:   0.82 kB
+dist/assets/index-B05NsUW4.css   88.89 kB │ gzip:  14.18 kB
+dist/assets/index-B0FoezWV.js   827.33 kB │ gzip: 225.57 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.74s
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+$ find ./src/pages -type f -name "*.tsx" -o -name "*.ts" -o -name "*.jsx" -o -name "*.js" | head -20
+
+./src/pages/AIAnalytics.tsx
+./src/pages/AIInsights.tsx
+./src/pages/Accounting.tsx
+./src/pages/AdminPermissions.tsx
+./src/pages/Analytics.tsx
+./src/pages/CelebrityManagement.tsx
+./src/pages/Dashboard.tsx
+./src/pages/ErrorManagement.tsx
+./src/pages/GamificationSystem.tsx
+./src/pages/Index.tsx
+./src/pages/Login.tsx
+./src/pages/NotFound.tsx
+./src/pages/Notifications.tsx
+./src/pages/Profile.tsx
+./src/pages/ProjectManagement.tsx
+./src/pages/Rewards.tsx
+./src/pages/Settings.tsx
+./src/pages/TaskManagement.tsx
+./src/pages/Teams.tsx
+./src/pages/Training.tsx
+$ pnpm run lint
+
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+

@@ -1,0 +1,7 @@
+$ cd /workspace/shadcn-ui && find . -type f -name "*.tsx" -o -name "*.ts" | grep -E "(Notification|Error|Sidebar|Dashboard)" | head -20
+./src/components/NotificationSystem.tsx
+./src/components/Sidebar.tsx
+./src/lib/supabaseNotifications.ts
+./src/pages/Dashboard.tsx
+./src/pages/ErrorManagement.tsx
+./src/pages/Notifications.tsx

@@ -1,0 +1,71 @@
+$ find docs/tasks -name "*.md" -type f
+docs/tasks/Alex_todo.md
+$ pnpm run build && pnpm run lint
+
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1700 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.54 kB │ gzip:   0.82 kB
+dist/assets/index-DRE7IsDX.css   88.03 kB │ gzip:  14.06 kB
+dist/assets/index-7reOPdUq.js   458.36 kB │ gzip: 141.08 kB
+✓ built in 4.89s
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+$ pnpm run build && pnpm run lint
+
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1701 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.54 kB │ gzip:   0.82 kB
+dist/assets/index-FnOYCDch.css   88.53 kB │ gzip:  14.17 kB
+dist/assets/index-CrWWpZrq.js   459.88 kB │ gzip: 141.51 kB
+✓ built in 4.78s
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+
+/workspace/shadcn-ui/src/lib/notification-storage.ts
+  21:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 1 problem (1 error, 0 warnings)
+
+ ELIFECYCLE  Command failed with exit code 1.
+$ pnpm run build && pnpm run lint
+
+
+> shadcnui@ build /workspace/shadcn-ui
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1701 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   1.54 kB │ gzip:   0.82 kB
+dist/assets/index-FnOYCDch.css   88.53 kB │ gzip:  14.17 kB
+dist/assets/index-CrWWpZrq.js   459.88 kB │ gzip: 141.51 kB
+✓ built in 4.84s
+
+> shadcnui@ lint /workspace/shadcn-ui
+> eslint --quiet ./src
+
+$ find . -type d \( -name "node_modules" -o -name "site-packages" \) -prune -o -type f -name "*.md" -print | head -20
+
+./README.md
+./docs/tasks/Alex_todo.md
+./todo.md
