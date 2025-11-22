@@ -25,67 +25,116 @@
       direction: rtl;
     }
 
-    /* إصلاح نظام الإشعارات */
-    [class*="notification"],
-    [class*="toast"],
-    [class*="alert"],
-    [data-sonner-toaster],
-    [data-sonner-toast] {
-      right: auto !important;
-      left: 20px !important;
-      z-index: 9999 !important;
-    }
-
-    /* التأكد من ظهور الإشعارات */
+    /* إصلاح نظام الإشعارات - تحديث محسّن */
     [data-sonner-toaster] {
       position: fixed !important;
       bottom: 20px !important;
       left: 20px !important;
+      right: auto !important;
+      z-index: 999999 !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 8px !important;
+      gap: 12px !important;
+      pointer-events: none !important;
     }
 
     [data-sonner-toast] {
+      pointer-events: all !important;
       background: white !important;
       border: 1px solid #e5e7eb !important;
-      border-radius: 8px !important;
-      padding: 16px !important;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
-      min-width: 300px !important;
-      animation: slideInLeft 0.3s ease-out !important;
+      border-radius: 12px !important;
+      padding: 16px 20px !important;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+      min-width: 320px !important;
+      max-width: 400px !important;
+      animation: slideInLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      opacity: 1 !important;
+      display: flex !important;
+      align-items: start !important;
+      gap: 12px !important;
     }
 
     @keyframes slideInLeft {
       from {
-        transform: translateX(-100%);
+        transform: translateX(-100%) scale(0.95);
         opacity: 0;
       }
       to {
-        transform: translateX(0);
+        transform: translateX(0) scale(1);
         opacity: 1;
       }
     }
 
+    /* أيقونات الإشعارات */
+    [data-sonner-toast][data-type="success"]::before {
+      content: "✅";
+      font-size: 20px;
+      display: block;
+    }
+
+    [data-sonner-toast][data-type="error"]::before {
+      content: "❌";
+      font-size: 20px;
+      display: block;
+    }
+
+    [data-sonner-toast][data-type="warning"]::before {
+      content: "⚠️";
+      font-size: 20px;
+      display: block;
+    }
+
+    [data-sonner-toast][data-type="info"]::before {
+      content: "ℹ️";
+      font-size: 20px;
+      display: block;
+    }
+
     /* ألوان الإشعارات */
     [data-sonner-toast][data-type="success"] {
-      border-color: #10b981 !important;
+      border-right: 4px solid #10b981 !important;
       background: #f0fdf4 !important;
     }
 
     [data-sonner-toast][data-type="error"] {
-      border-color: #ef4444 !important;
+      border-right: 4px solid #ef4444 !important;
       background: #fef2f2 !important;
     }
 
     [data-sonner-toast][data-type="warning"] {
-      border-color: #f59e0b !important;
+      border-right: 4px solid #f59e0b !important;
       background: #fffbeb !important;
     }
 
     [data-sonner-toast][data-type="info"] {
-      border-color: #3b82f6 !important;
+      border-right: 4px solid #3b82f6 !important;
       background: #eff6ff !important;
+    }
+
+    /* نص الإشعار */
+    [data-sonner-toast] [data-title] {
+      font-weight: 600 !important;
+      font-size: 14px !important;
+      margin-bottom: 4px !important;
+    }
+
+    [data-sonner-toast] [data-description] {
+      font-size: 13px !important;
+      color: #6b7280 !important;
+    }
+
+    /* زر الإغلاق */
+    [data-sonner-toast] [data-close-button] {
+      position: absolute !important;
+      top: 8px !important;
+      left: 8px !important;
+      right: auto !important;
+      opacity: 0.5 !important;
+      transition: opacity 0.2s !important;
+    }
+
+    [data-sonner-toast] [data-close-button]:hover {
+      opacity: 1 !important;
     }
   </style>
   <script type="module" crossorigin src="/assets/index-Bwri3W_O.js"></script>
@@ -255,6 +304,34 @@
         if (e.target === overlay) closeTaskModal();
       };
     }
+
+    // وظيفة لاختبار نظام الإشعارات
+    window.testNotification = function() {
+      if (window.aE) {
+        window.aE({
+          title: "اختبار الإشعار",
+          description: "نظام الإشعارات يعمل بشكل صحيح! ✅",
+          duration: 3000
+        });
+      } else {
+        console.log('Toast system not ready yet. Trying alternative...');
+        // محاولة البحث عن toast function
+        const toastFn = Object.values(window).find(v => typeof v === 'function' && v.toString().includes('TOAST'));
+        if (toastFn) {
+          toastFn({
+            title: "اختبار الإشعار",
+            description: "نظام الإشعارات يعمل بشكل صحيح! ✅"
+          });
+        }
+      }
+    };
+
+    // تفعيل نظام الإشعارات عند التحميل
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        console.log('✅ Notification system ready. Type testNotification() to test.');
+      }, 2000);
+    });
   </script>
 </head>
 
