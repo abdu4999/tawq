@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>اختبار نظام الإشعارات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    p {
+      text-align: center;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .buttons {
+      display: grid;
+      gap: 15px;
+    }
+
+    button {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-error {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn-info {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-all {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    @keyframes slideInLeft {
+      from {
+        transform: translateX(-100%) scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutLeft {
+      from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(-100%) scale(0.95);
+        opacity: 0;
+      }
+    }
+
+    .code-section {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 30px;
+    }
+
+    .code-section h3 {
+      margin-top: 0;
+      color: #333;
+      font-size: 16px;
+    }
+
+    code {
+      background: #e9ecef;
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      color: #d63384;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔔 اختبار نظام الإشعارات</h1>
+    <p>اضغط على أي زر لاختبار نوع معين من الإشعارات</p>
+    
+    <div class="buttons">
+      <button class="btn-success" onclick="testSuccess()">✅ إشعار نجاح</button>
+      <button class="btn-error" onclick="testError()">❌ إشعار خطأ</button>
+      <button class="btn-warning" onclick="testWarning()">⚠️ إشعار تحذير</button>
+      <button class="btn-info" onclick="testInfo()">ℹ️ إشعار معلومة</button>
+      <button class="btn-all" onclick="testAll()">🎉 اختبار جميع الأنواع</button>
+    </div>
+
+    <div class="code-section">
+      <h3>📝 استخدام في Console:</h3>
+      <div>
+        <code>showNotification('عنوان', 'وصف', 'success')</code><br><br>
+        <code>testNotification()</code>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // نظام الإشعارات الكامل
+    window.showNotification = function(title, description, type) {
+      type = type || 'info';
+      
+      // إنشاء container للإشعارات إذا لم يكن موجوداً
+      let toaster = document.querySelector('[data-sonner-toaster]');
+      if (!toaster) {
+        toaster = document.createElement('ol');
+        toaster.setAttribute('data-sonner-toaster', '');
+        toaster.style.cssText = `
+          position: fixed !important;
+          bottom: 20px !important;
+          left: 20px !important;
+          z-index: 999999 !important;
+          display: flex !important;
+          flex-direction: column !important;
+          gap: 12px !important;
+          pointer-events: none !important;
+          list-style: none !important;
+          margin: 0 !important;
+          padding: 0 !important;
+        `;
+        document.body.appendChild(toaster);
+      }
+      
+      // إنشاء الإشعار
+      const toast = document.createElement('li');
+      toast.setAttribute('data-sonner-toast', '');
+      toast.setAttribute('data-type', type);
+      toast.style.cssText = `
+        pointer-events: all !important;
+        background: white !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 16px 20px !important;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        min-width: 320px !important;
+        max-width: 400px !important;
+        animation: slideInLeft 0.3s ease !important;
+        display: flex !important;
+        align-items: start !important;
+        gap: 12px !important;
+        position: relative !important;
+        list-style: none !important;
+      `;
+      
+      // تطبيق الألوان حسب النوع
+      const colors = {
+        'success': { border: '#10b981', bg: '#f0fdf4', icon: '✅' },
+        'error': { border: '#ef4444', bg: '#fef2f2', icon: '❌' },
+        'warning': { border: '#f59e0b', bg: '#fffbeb', icon: '⚠️' },
+        'info': { border: '#3b82f6', bg: '#eff6ff', icon: 'ℹ️' }
+      };
+      
+      const style = colors[type] || colors.info;
+      toast.style.borderRight = `4px solid ${style.border} !important`;
+      toast.style.background = `${style.bg} !important`;
+      
+      // محتوى الإشعار
+      toast.innerHTML = `
+        <span style="font-size: 20px; display: block; flex-shrink: 0;">${style.icon}</span>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px; font-family: 'Cairo', sans-serif; color: #1f2937;">
+            ${title}
+          </div>
+          ${description ? `<div style="font-size: 13px; color: #6b7280; font-family: 'Cairo', sans-serif; word-wrap: break-word;">
+            ${description}
+          </div>` : ''}
+        </div>
+        <button style="
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          width: 20px;
+          height: 20px;
+          border: 1px solid #e5e7eb;
+          border-radius: 50%;
+          background: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0.5;
+          transition: opacity 0.2s;
+          font-size: 16px;
+          line-height: 1;
+          padding: 0;
+        " onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.5'">×</button>
+      `;
+      
+      toaster.appendChild(toast);
+      
+      // حذف الإشعار بعد 4 ثوانٍ
+      const removeToast = () => {
+        toast.style.animation = 'slideOutLeft 0.3s ease';
+        setTimeout(() => {
+          toast.remove();
+          if (toaster.children.length === 0) {
+            toaster.remove();
+          }
+        }, 300);
+      };
+      
+      const autoRemoveTimer = setTimeout(removeToast, 4000);
+      
+      // زر الإغلاق
+      toast.querySelector('button').onclick = () => {
+        clearTimeout(autoRemoveTimer);
+        removeToast();
+      };
+      
+      return toast;
+    };
+
+    // دوال الاختبار
+    function testSuccess() {
+      showNotification('تم بنجاح!', 'تمت العملية بنجاح دون أي مشاكل', 'success');
+    }
+
+    function testError() {
+      showNotification('حدث خطأ!', 'عذراً، حدث خطأ أثناء تنفيذ العملية', 'error');
+    }
+
+    function testWarning() {
+      showNotification('تحذير!', 'يرجى الانتباه إلى هذه الملاحظة المهمة', 'warning');
+    }
+
+    function testInfo() {
+      showNotification('معلومة', 'هذه معلومة مفيدة قد تحتاج إلى معرفتها', 'info');
+    }
+
+    function testAll() {
+      showNotification('نجاح', 'هذا إشعار نجاح', 'success');
+      setTimeout(() => showNotification('خطأ', 'هذا إشعار خطأ', 'error'), 500);
+      setTimeout(() => showNotification('تحذير', 'هذا إشعار تحذير', 'warning'), 1000);
+      setTimeout(() => showNotification('معلومة', 'هذا إشعار معلومة', 'info'), 1500);
+    }
+
+    // دالة اختبار عامة
+    window.testNotification = function() {
+      showNotification('اختبار الإشعار', 'نظام الإشعارات يعمل بشكل صحيح! ✅', 'success');
+    };
+
+    console.log('✅ Notification system loaded. Try: testNotification()');
+  </script>
+</body>
+</html>
