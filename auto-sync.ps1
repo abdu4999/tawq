@@ -1,89 +1,82 @@
-# Auto Sync - يراقب التغييرات ويزامن تلقائياً
+# Auto Sync - Monitors changes and syncs automatically
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "   Tawq Auto Sync Watcher" -ForegroundColor Cyan
-Write-Host "   مراقبة التغييرات والمزامنة التلقائية" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "[*] Starting file watcher..." -ForegroundColor Yellow
-Write-Host "[*] سيتم المزامنة تلقائياً عند أي تغيير" -ForegroundColor Yellow
-Write-Host "[*] اضغط Ctrl+C للإيقاف" -ForegroundColor Yellow
+Write-Host "[*] Press Ctrl+C to stop" -ForegroundColor Yellow
 Write-Host ""
 
 $watchPath = $PSScriptRoot
 $lastSync = Get-Date
-$syncInterval = 30 # ثواني قبل المزامنة بعد آخر تغيير
+$syncInterval = 30
+$pendingSync = $false
+$lastChange = Get-Date
 
-# إنشاء FileSystemWatcher
+# Create FileSystemWatcher
 $watcher = New-Object System.IO.FileSystemWatcher
 $watcher.Path = $watchPath
 $watcher.IncludeSubdirectories = $true
 $watcher.EnableRaisingEvents = $true
-
-# تجاهل بعض المجلدات
 $watcher.NotifyFilter = [System.IO.NotifyFilters]::FileName -bor 
                         [System.IO.NotifyFilters]::DirectoryName -bor
                         [System.IO.NotifyFilters]::LastWrite
 
-$pendingSync = $false
-
-# دالة المزامنة
+# Sync function
 function Invoke-GitSync {
     Write-Host ""
-    Write-Host "[Sync] بدء المزامنة..." -ForegroundColor Green
+    Write-Host "[Sync] Starting sync..." -ForegroundColor Green
     Write-Host "======================================" -ForegroundColor Cyan
     
     try {
-        # فحص الحالة
         $status = git status --short
         if ($status) {
-            Write-Host "[1/3] وجدت تغييرات:" -ForegroundColor Yellow
+            Write-Host "[1/3] Found changes:" -ForegroundColor Yellow
             Write-Host $status
             
-            # إضافة وحفظ
             Write-Host ""
-            Write-Host "[2/3] حفظ التغييرات..." -ForegroundColor Yellow
+            Write-Host "[2/3] Committing changes..." -ForegroundColor Yellow
             git add -A
             
             $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            git commit -m "Auto sync: $timestamp" 2>&1 | Out-Null
+            $commitOutput = git commit -m "Auto sync: $timestamp" 2>&1
             
-            # رفع
-            Write-Host "[3/3] رفع إلى GitHub..." -ForegroundColor Yellow
-            $pushResult = git push origin copilot/develop-performance-tracking-app 2>&1
+            Write-Host "[3/3] Pushing to GitHub..." -ForegroundColor Yellow
+            $pushOutput = git push origin copilot/develop-performance-tracking-app 2>&1
             
             if ($LASTEXITCODE -eq 0) {
                 Write-Host ""
-                Write-Host "✓ تمت المزامنة بنجاح!" -ForegroundColor Green
+                Write-Host "Success! Synced successfully!" -ForegroundColor Green
                 Write-Host "======================================" -ForegroundColor Cyan
             } else {
                 Write-Host ""
-                Write-Host "✗ فشلت المزامنة!" -ForegroundColor Red
-                Write-Host $pushResult
+                Write-Host "Failed to sync!" -ForegroundColor Red
+                Write-Host $pushOutput
             }
         } else {
-            Write-Host "[i] لا توجد تغييرات جديدة" -ForegroundColor Gray
+            Write-Host "[i] No new changes" -ForegroundColor Gray
         }
     } catch {
-        Write-Host "✗ خطأ: $_" -ForegroundColor Red
+        Write-Host "Error: $_" -ForegroundColor Red
     }
     
     $script:lastSync = Get-Date
     $script:pendingSync = $false
     Write-Host ""
-    Write-Host "[*] جاهز لرصد التغييرات..." -ForegroundColor Yellow
+    Write-Host "[*] Ready to watch for changes..." -ForegroundColor Yellow
 }
 
-# معالج التغييرات
+# Change handler
 $onChange = {
     param($sender, $e)
     
     $path = $e.FullPath
     $name = $e.Name
     
-    # تجاهل ملفات .git
     if ($path -like "*\.git\*") { return }
-    
-    # تجاهل ملفات مؤقتة
     if ($name -like "*.tmp" -or $name -like "*.swp" -or $name -like "*~") { return }
     
     $changeType = $e.ChangeType
@@ -95,35 +88,32 @@ $onChange = {
     $script:lastChange = Get-Date
 }
 
-# تسجيل المعالجات
+# Register events
 Register-ObjectEvent -InputObject $watcher -EventName Changed -Action $onChange | Out-Null
 Register-ObjectEvent -InputObject $watcher -EventName Created -Action $onChange | Out-Null
 Register-ObjectEvent -InputObject $watcher -EventName Deleted -Action $onChange | Out-Null
 Register-ObjectEvent -InputObject $watcher -EventName Renamed -Action $onChange | Out-Null
 
-Write-Host "[✓] المراقبة نشطة!" -ForegroundColor Green
+Write-Host "[OK] Watcher is active!" -ForegroundColor Green
 Write-Host ""
 
-# حلقة المراقبة
+# Main loop
 try {
     while ($true) {
         Start-Sleep -Seconds 1
         
-        # إذا كان هناك تغييرات معلقة
         if ($pendingSync) {
             $timeSinceChange = (Get-Date) - $lastChange
             
-            # انتظر 30 ثانية بعد آخر تغيير قبل المزامنة
             if ($timeSinceChange.TotalSeconds -ge $syncInterval) {
                 Invoke-GitSync
             }
         }
     }
 } finally {
-    # تنظيف
     $watcher.EnableRaisingEvents = $false
     $watcher.Dispose()
     Get-EventSubscriber | Unregister-Event
     Write-Host ""
-    Write-Host "[*] تم إيقاف المراقبة" -ForegroundColor Yellow
+    Write-Host "[*] Watcher stopped" -ForegroundColor Yellow
 }
