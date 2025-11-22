@@ -65,6 +65,28 @@
       }
     }
 
+    @keyframes slideInLeft {
+      from {
+        transform: translateX(-100%) scale(0.95);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOutLeft {
+      from {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(-100%) scale(0.95);
+        opacity: 0;
+      }
+    }
+
     /* أيقونات الإشعارات */
     [data-sonner-toast][data-type="success"]::before {
       content: "✅";
@@ -305,30 +327,138 @@
       };
     }
 
-    // وظيفة لاختبار نظام الإشعارات
-    window.testNotification = function() {
-      if (window.aE) {
-        window.aE({
-          title: "اختبار الإشعار",
-          description: "نظام الإشعارات يعمل بشكل صحيح! ✅",
-          duration: 3000
-        });
-      } else {
-        console.log('Toast system not ready yet. Trying alternative...');
-        // محاولة البحث عن toast function
-        const toastFn = Object.values(window).find(v => typeof v === 'function' && v.toString().includes('TOAST'));
-        if (toastFn) {
-          toastFn({
-            title: "اختبار الإشعار",
-            description: "نظام الإشعارات يعمل بشكل صحيح! ✅"
-          });
-        }
+    // نظام الإشعارات الكامل والعامل
+    window.showNotification = function(title, description, type) {
+      type = type || 'info';
+      
+      // إنشاء container للإشعارات إذا لم يكن موجوداً
+      let toaster = document.querySelector('[data-sonner-toaster]');
+      if (!toaster) {
+        toaster = document.createElement('ol');
+        toaster.setAttribute('data-sonner-toaster', '');
+        toaster.setAttribute('data-theme', 'light');
+        toaster.setAttribute('data-y-position', 'bottom');
+        toaster.setAttribute('data-x-position', 'left');
+        toaster.style.cssText = `
+          position: fixed;
+          bottom: 20px;
+          left: 20px;
+          z-index: 999999;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          pointer-events: none;
+        `;
+        document.body.appendChild(toaster);
       }
+      
+      // إنشاء الإشعار
+      const toast = document.createElement('li');
+      toast.setAttribute('data-sonner-toast', '');
+      toast.setAttribute('data-type', type);
+      toast.setAttribute('data-styled', 'true');
+      toast.setAttribute('data-mounted', 'true');
+      toast.setAttribute('data-visible', 'true');
+      toast.style.cssText = `
+        pointer-events: all;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 16px 20px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        min-width: 320px;
+        max-width: 400px;
+        animation: slideInLeft 0.3s ease;
+        display: flex;
+        align-items: start;
+        gap: 12px;
+      `;
+      
+      // تطبيق الألوان حسب النوع
+      const colors = {
+        'success': { border: '#10b981', bg: '#f0fdf4', icon: '✅' },
+        'error': { border: '#ef4444', bg: '#fef2f2', icon: '❌' },
+        'warning': { border: '#f59e0b', bg: '#fffbeb', icon: '⚠️' },
+        'info': { border: '#3b82f6', bg: '#eff6ff', icon: 'ℹ️' }
+      };
+      
+      const style = colors[type] || colors.info;
+      toast.style.borderRight = `4px solid ${style.border}`;
+      toast.style.background = style.bg;
+      
+      // محتوى الإشعار
+      toast.innerHTML = `
+        <span style="font-size: 20px; display: block;">${style.icon}</span>
+        <div style="flex: 1;">
+          <div data-title style="font-weight: 600; font-size: 14px; margin-bottom: 4px; font-family: 'Cairo', sans-serif;">
+            ${title}
+          </div>
+          ${description ? `<div data-description style="font-size: 13px; color: #6b7280; font-family: 'Cairo', sans-serif;">
+            ${description}
+          </div>` : ''}
+        </div>
+        <button data-close-button style="
+          position: absolute;
+          top: 8px;
+          left: 8px;
+          width: 20px;
+          height: 20px;
+          border: 1px solid #e5e7eb;
+          border-radius: 50%;
+          background: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0.5;
+          transition: opacity 0.2s;
+        ">×</button>
+      `;
+      
+      toaster.appendChild(toast);
+      
+      // حذف الإشعار بعد 4 ثوانٍ
+      const removeToast = () => {
+        toast.style.animation = 'slideOutLeft 0.3s ease';
+        setTimeout(() => {
+          toast.remove();
+          // حذف container إذا كان فارغاً
+          if (toaster.children.length === 0) {
+            toaster.remove();
+          }
+        }, 300);
+      };
+      
+      setTimeout(removeToast, 4000);
+      
+      // زر الإغلاق
+      toast.querySelector('[data-close-button]').onclick = removeToast;
+      
+      return toast;
     };
 
-    // تفعيل نظام الإشعارات عند التحميل
+    // دالة الاختبار
+    window.testNotification = function() {
+      showNotification('اختبار الإشعار', 'نظام الإشعارات يعمل بشكل صحيح! ✅', 'success');
+    };
+
+    // ربط نظام الإشعارات مع نظام المهام
     window.addEventListener('load', function() {
       setTimeout(function() {
+        // Override original task creation to show notifications
+        if (window.bt && window.bt.createTask) {
+          const originalCreateTask = window.bt.createTask;
+          window.bt.createTask = function(taskData) {
+            try {
+              originalCreateTask.call(this, taskData);
+              showNotification('✅ تم إنشاء المهمة', `المهمة "${taskData.title}" تم إضافتها بنجاح`, 'success');
+            } catch (error) {
+              showNotification('❌ خطأ', 'فشل إنشاء المهمة: ' + error.message, 'error');
+              throw error;
+            }
+          };
+        }
+        
         console.log('✅ Notification system ready. Type testNotification() to test.');
       }, 2000);
     });
