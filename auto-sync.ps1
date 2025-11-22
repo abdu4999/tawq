@@ -2,8 +2,11 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
-# Add Git to PATH
-$env:Path += ";C:\Program Files\Git\cmd"
+# Git path
+$gitPath = "C:\Program Files\Git\cmd\git.exe"
+if (-not (Test-Path $gitPath)) {
+    $gitPath = "git"
+}
 
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "   Tawq Auto Sync Watcher" -ForegroundColor Cyan
@@ -35,20 +38,22 @@ function Invoke-GitSync {
     Write-Host "======================================" -ForegroundColor Cyan
     
     try {
-        $status = git status --short
-        if ($status) {
+        Set-Location $PSScriptRoot
+        $status = & $gitPath status --short 2>&1
+        
+        if ($status -and $status -notlike "*fatal*" -and $status -notlike "*error*") {
             Write-Host "[1/3] Found changes:" -ForegroundColor Yellow
             Write-Host $status
             
             Write-Host ""
             Write-Host "[2/3] Committing changes..." -ForegroundColor Yellow
-            git add -A
+            & $gitPath add -A 2>&1 | Out-Null
             
             $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            $commitOutput = git commit -m "Auto sync: $timestamp" 2>&1
+            $commitOutput = & $gitPath commit -m "Auto sync: $timestamp" 2>&1
             
             Write-Host "[3/3] Pushing to GitHub..." -ForegroundColor Yellow
-            $pushOutput = git push origin copilot/develop-performance-tracking-app 2>&1
+            $pushOutput = & $gitPath push origin copilot/develop-performance-tracking-app 2>&1
             
             if ($LASTEXITCODE -eq 0) {
                 Write-Host ""
