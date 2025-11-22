@@ -164,7 +164,7 @@
   <link rel="stylesheet" crossorigin href="/assets/index-FnOYCDch.css">
   
   <script>
-    // إضافة زر "إنشاء مهمة جديدة" تلقائياً - محسّن
+    // إضافة زر "إنشاء مهمة جديدة" تلقائياً - في الأعلى بجانب العنوان
     function addTaskButton() {
       // البحث عن صفحة المهام
       const taskHeader = Array.from(document.querySelectorAll('h1, h2')).find(el => 
@@ -179,32 +179,31 @@
         addButton.id = 'add-task-btn';
         addButton.textContent = '+ إنشاء مهمة جديدة';
         addButton.style.cssText = `
-          position: fixed !important;
-          bottom: 20px !important;
-          right: 20px !important;
+          display: inline-block !important;
+          margin-right: 16px !important;
           background: #3b82f6 !important;
           color: white !important;
           border: none !important;
-          padding: 15px 25px !important;
-          border-radius: 50px !important;
+          padding: 10px 20px !important;
+          border-radius: 8px !important;
           cursor: pointer !important;
-          font-size: 16px !important;
-          font-weight: 700 !important;
-          transition: all 0.3s !important;
+          font-size: 14px !important;
+          font-weight: 600 !important;
+          transition: all 0.2s !important;
           font-family: 'Cairo', sans-serif !important;
-          box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4) !important;
-          z-index: 10000 !important;
+          box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+          vertical-align: middle !important;
         `;
         
         addButton.onmouseover = () => {
           addButton.style.background = '#2563eb';
-          addButton.style.transform = 'scale(1.05)';
-          addButton.style.boxShadow = '0 6px 25px rgba(37, 99, 235, 0.5)';
+          addButton.style.transform = 'translateY(-2px)';
+          addButton.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
         };
         addButton.onmouseout = () => {
           addButton.style.background = '#3b82f6';
-          addButton.style.transform = 'scale(1)';
-          addButton.style.boxShadow = '0 4px 20px rgba(59, 130, 246, 0.4)';
+          addButton.style.transform = 'translateY(0)';
+          addButton.style.boxShadow = '0 2px 8px rgba(59, 130, 246, 0.3)';
         };
         
         addButton.onclick = function(e) {
@@ -213,7 +212,13 @@
           showTaskModal();
         };
         
-        headerContainer.appendChild(addButton);
+        // إضافة الزر بجانب العنوان
+        if (headerContainer.style.display !== 'flex') {
+          headerContainer.style.display = 'flex';
+          headerContainer.style.alignItems = 'center';
+          headerContainer.style.gap = '12px';
+        }
+        headerContainer.insertBefore(addButton, taskHeader.nextSibling);
       }
     }
     
@@ -340,15 +345,18 @@
         
         console.log('Creating task:', taskData);
         
-        // إنشاء المهمة بطرق متعددة
+        // إنشاء المهمة بطرق متعددة مع التحقق الكامل
         let saved = false;
         
         try {
-          // الطريقة 1: استخدام bt.createTask
+          // الطريقة 1: استخدام bt.createTask (النظام الرئيسي)
           if (window.bt && typeof window.bt.createTask === 'function') {
             console.log('Using bt.createTask');
-            window.bt.createTask(taskData);
+            const result = window.bt.createTask(taskData);
+            console.log('bt.createTask result:', result);
             saved = true;
+          } else {
+            console.warn('bt.createTask not available');
           }
         } catch (error) {
           console.error('bt.createTask failed:', error);
@@ -359,21 +367,43 @@
           const tasks = JSON.parse(localStorage.getItem('tasks') || '[]');
           tasks.unshift(taskData); // إضافة في البداية
           localStorage.setItem('tasks', JSON.stringify(tasks));
-          console.log('Saved to localStorage tasks:', tasks.length);
+          console.log('✓ Saved to localStorage tasks:', tasks.length, 'items');
           saved = true;
         } catch (error) {
-          console.error('localStorage tasks failed:', error);
+          console.error('✗ localStorage tasks failed:', error);
         }
         
         try {
-          // الطريقة 3: حفظ في localStorage كـ charity_tasks
+          // الطريقة 3: حفظ في localStorage كـ charity_tasks (نسخة احتياطية)
           const charityTasks = JSON.parse(localStorage.getItem('charity_tasks') || '[]');
           charityTasks.unshift(taskData);
           localStorage.setItem('charity_tasks', JSON.stringify(charityTasks));
-          console.log('Saved to charity_tasks:', charityTasks.length);
+          console.log('✓ Saved to charity_tasks:', charityTasks.length, 'items');
           saved = true;
         } catch (error) {
-          console.error('localStorage charity_tasks failed:', error);
+          console.error('✗ localStorage charity_tasks failed:', error);
+        }
+        
+        // حفظ في IndexedDB كنسخة احتياطية إضافية
+        try {
+          const dbRequest = indexedDB.open('TawqDB', 1);
+          dbRequest.onsuccess = (event) => {
+            const db = event.target.result;
+            if (db.objectStoreNames.contains('tasks')) {
+              const transaction = db.transaction(['tasks'], 'readwrite');
+              const store = transaction.objectStore('tasks');
+              store.add(taskData);
+              console.log('✓ Saved to IndexedDB');
+            }
+          };
+          dbRequest.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('tasks')) {
+              db.createObjectStore('tasks', { keyPath: 'id' });
+            }
+          };
+        } catch (error) {
+          console.warn('IndexedDB save failed:', error);
         }
         
         if (saved) {
