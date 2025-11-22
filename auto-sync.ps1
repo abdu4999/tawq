@@ -2,6 +2,9 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
+# Add Git to PATH
+$env:Path += ";C:\Program Files\Git\cmd"
+
 Write-Host "======================================" -ForegroundColor Cyan
 Write-Host "   Tawq Auto Sync Watcher" -ForegroundColor Cyan
 Write-Host "======================================" -ForegroundColor Cyan
