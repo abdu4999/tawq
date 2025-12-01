@@ -8,7 +8,7 @@ Set-Location $PSScriptRoot
 
 # جلب آخر التحديثات من GitHub
 Write-Host "`n📥 جلب آخر التحديثات من GitHub..." -ForegroundColor Yellow
-git fetch origin copilot/develop-performance-tracking-app
+git fetch origin main
 
 # التحقق من وجود تعارضات
 $status = git status --porcelain
@@ -28,7 +28,7 @@ if ($status) {
 
 # محاولة دمج التحديثات من GitHub
 Write-Host "`n🔀 دمج التحديثات..." -ForegroundColor Yellow
-$pullResult = git pull origin copilot/develop-performance-tracking-app --rebase 2>&1
+$pullResult = git pull origin main --rebase 2>&1
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "`n⚠️  تعارض في الملفات! يرجى حل التعارضات يدوياً" -ForegroundColor Red
@@ -39,7 +39,7 @@ if ($LASTEXITCODE -ne 0) {
 # دفع التغييرات المحلية إلى GitHub
 if ($status) {
     Write-Host "`n📤 دفع التغييرات إلى GitHub..." -ForegroundColor Yellow
-    git push origin copilot/develop-performance-tracking-app
+    git push origin main
     
     if ($LASTEXITCODE -eq 0) {
         Write-Host "`n✅ تمت المزامنة بنجاح!" -ForegroundColor Green

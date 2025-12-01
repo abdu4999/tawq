@@ -26,18 +26,18 @@ if errorlevel 1 (
 
 echo.
 echo [4/4] Pushing to GitHub...
-git push origin copilot/develop-performance-tracking-app
+git push origin main
 
 if errorlevel 1 (
     echo.
     echo [!] Push failed! Trying to pull first...
-    git pull origin copilot/develop-performance-tracking-app --rebase
+    git pull origin main --rebase
     if errorlevel 1 (
         echo [!] Conflicts detected! Please resolve manually.
         pause
         exit /b 1
     )
-    git push origin copilot/develop-performance-tracking-app
+    git push origin main
 )
 
 echo.
