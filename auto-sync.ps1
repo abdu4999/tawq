@@ -53,7 +53,7 @@ function Invoke-GitSync {
             $commitOutput = & $gitPath commit -m "Auto sync: $timestamp" 2>&1
             
             Write-Host "[3/3] Pushing to GitHub..." -ForegroundColor Yellow
-            $pushOutput = & $gitPath push origin copilot/develop-performance-tracking-app 2>&1
+            $pushOutput = & $gitPath push origin main 2>&1
             
             if ($LASTEXITCODE -eq 0) {
                 Write-Host ""

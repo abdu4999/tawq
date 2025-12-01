@@ -26,7 +26,7 @@ if errorlevel 1 (
     echo [+] Changes detected! Syncing...
     git add -A
     git commit -m "Auto sync: %date% %time%"
-    git push origin copilot/develop-performance-tracking-app
+    git push origin main
     if errorlevel 1 (
         echo [!] Push failed!
     ) else (
