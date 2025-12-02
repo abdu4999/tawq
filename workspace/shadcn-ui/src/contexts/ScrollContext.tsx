@@ -84,24 +84,30 @@ export function useScrollContext() {
 // Hook مخصص لحفظ واستعادة التمرير التلقائي
 export function useScrollMemory(pageKey: string, contentRef: React.RefObject<HTMLElement>) {
   const { saveScrollPosition, getScrollPosition } = useScrollContext();
-  const scrollTimeoutRef = useRef<NodeJS.Timeout>();
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   React.useEffect(() => {
     // استعادة موضع التمرير عند التحميل
     const savedPosition = getScrollPosition(pageKey);
     
     if (savedPosition !== null && contentRef.current) {
-      requestAnimationFrame(() => {
+      // تأخير استعادة الموضع للتأكد من تحميل المحتوى
+      const timer = setTimeout(() => {
         requestAnimationFrame(() => {
-          if (contentRef.current) {
-            contentRef.current.scrollTop = savedPosition;
-            console.log(`✅ استعادة التمرير: ${pageKey} → ${savedPosition}px`);
-          }
+          requestAnimationFrame(() => {
+            if (contentRef.current) {
+              contentRef.current.scrollTop = savedPosition;
+              console.log(`✅ استعادة التمرير: ${pageKey} → ${savedPosition}px`);
+            }
+          });
         });
-      });
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    } else {
+      console.log(`📄 صفحة جديدة: ${pageKey} - البدء من الأعلى`);
     }
-
-    // إعداد مستمع التمرير
+  }, [pageKey]);
     const handleScroll = () => {
       if (contentRef.current) {
         const position = contentRef.current.scrollTop;
