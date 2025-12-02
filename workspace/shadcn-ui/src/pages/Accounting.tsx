@@ -12,6 +12,7 @@ import { useNotifications } from '@/components/NotificationSystem';
 import Sidebar from '@/components/Sidebar';
 import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
 import { supabaseAPI, Transaction } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 import {
   DollarSign,
   Plus,
@@ -439,7 +440,7 @@ export default function Accounting() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          <span>{new Date(transaction.date).toLocaleDateString('ar-SA')}</span>
+                          <span>{formatDateDMY(transaction.date)}</span>
                         </div>
                         {transaction.reference && (
                           <div className="flex items-center gap-1">

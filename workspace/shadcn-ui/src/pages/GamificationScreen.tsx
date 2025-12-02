@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Sidebar from '@/components/Sidebar';
 import { supabase } from '@/lib/supabase';
+import { formatDateDMY } from '@/lib/date-utils';
 import { 
   Trophy, 
   Star, 
@@ -201,7 +202,7 @@ export default function GamificationScreen() {
                             </span>
                           </div>
                           <span className="text-xs text-gray-500">
-                            ينتهي: {new Date(challenge.endDate).toLocaleDateString('ar-SA')}
+                            ينتهي: {formatDateDMY(challenge.endDate)}
                           </span>
                         </div>
                       </div>

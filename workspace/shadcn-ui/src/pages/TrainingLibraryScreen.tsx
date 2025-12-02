@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import Sidebar from '@/components/Sidebar';
 import { useToast } from '@/hooks/use-toast';
+import { formatDateDMY } from '@/lib/date-utils';
 import { 
   Book, 
   Video, 
@@ -260,7 +261,7 @@ export default function TrainingLibraryScreen() {
                       <div className="space-y-1">
                         <h4 className="font-bold text-lg text-gray-900">{story.title}</h4>
                         <p className="text-sm text-gray-600">بواسطة: {story.author}</p>
-                        <p className="text-sm text-gray-500">{new Date(story.date).toLocaleDateString('ar-SA')}</p>
+                        <p className="text-sm text-gray-500">{formatDateDMY(story.date)}</p>
                       </div>
                       <div className="text-left">
                         <p className="text-sm text-gray-600">الإيراد المحقق</p>

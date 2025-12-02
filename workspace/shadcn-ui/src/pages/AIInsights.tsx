@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Brain, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Lightbulb, Target, Zap, Heart } from 'lucide-react';
+import { formatDateDMY } from '@/lib/date-utils';
 
 import { AIEngine, AIRecommendation, PsychologicalProfile } from '@/lib/ai-engine';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
@@ -374,7 +375,7 @@ export default function AIInsights() {
                       </div>
 
                       <p className="text-xs text-gray-500">
-                        آخر تحديث: {profile.lastUpdated.toLocaleDateString('ar-SA')}
+                        آخر تحديث: {formatDateDMY(profile.lastUpdated)}
                       </p>
                     </CardContent>
                   </Card>

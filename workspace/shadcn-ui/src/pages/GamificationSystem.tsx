@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useNotifications } from '@/components/NotificationSystem';
 import Sidebar from '@/components/Sidebar';
 import { supabaseAPI } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 import {
   Trophy,
   Star,
@@ -275,7 +276,7 @@ export default function GamificationSystem() {
                         )}
                         {achievement.earned && achievement.date && (
                           <p className="text-xs text-green-600 mt-1">
-                            تم الإنجاز في {new Date(achievement.date).toLocaleDateString('ar-SA')}
+                            تم الإنجاز في {formatDateDMY(achievement.date)}
                           </p>
                         )}
                       </div>
@@ -325,7 +326,7 @@ export default function GamificationSystem() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Calendar className="h-4 w-4" />
-                          <span>ينتهي {new Date(challenge.deadline).toLocaleDateString('ar-SA')}</span>
+                          <span>ينتهي {formatDateDMY(challenge.deadline)}</span>
                         </div>
                       </div>
                       {challenge.progress >= 100 && (

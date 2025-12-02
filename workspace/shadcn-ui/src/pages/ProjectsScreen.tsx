@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Sidebar from '@/components/Sidebar';
 import { supabaseAPI, type Project } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 import { 
   FolderKanban, 
   Plus, 
@@ -265,7 +266,7 @@ export default function ProjectsScreen() {
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
                             <span className="text-gray-600">
-                              {new Date(project.deadline).toLocaleDateString('ar-SA')}
+                              {formatDateDMY(project.deadline)}
                             </span>
                           </div>
                         )}
@@ -467,7 +468,7 @@ export default function ProjectsScreen() {
                     <div>
                       <span className="text-gray-600">الموعد النهائي:</span>
                       <span className="mr-2 font-semibold">
-                        {new Date(selectedProject.deadline).toLocaleDateString('ar-SA')}
+                        {formatDateDMY(selectedProject.deadline)}
                       </span>
                     </div>
                   )}

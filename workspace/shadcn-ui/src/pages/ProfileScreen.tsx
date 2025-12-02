@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import Sidebar from '@/components/Sidebar';
 import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
+import { formatDateDMY } from '@/lib/date-utils';
 import { 
   User, 
   Mail, 
@@ -114,7 +115,7 @@ export default function ProfileScreen() {
               <div className="pt-4 border-t text-xs text-gray-500">
                 <div className="flex items-center justify-center gap-1">
                   <Calendar className="h-3 w-3" />
-                  <span>انضم في {new Date(userStats.joinDate).toLocaleDateString('ar-SA')}</span>
+                  <span>انضم في {formatDateDMY(userStats.joinDate)}</span>
                 </div>
               </div>
             </CardContent>

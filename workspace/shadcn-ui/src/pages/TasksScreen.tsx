@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Sidebar from '@/components/Sidebar';
 import { supabaseAPI, type Task } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 import { 
   CheckSquare, 
   Plus, 
@@ -270,7 +271,7 @@ export default function TasksScreen() {
                             {task.due_date && (
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-4 w-4" />
-                                <span>{new Date(task.due_date).toLocaleDateString('ar-SA')}</span>
+                                <span>{formatDateDMY(task.due_date)}</span>
                               </div>
                             )}
                             {task.revenue && (
@@ -417,7 +418,7 @@ export default function TasksScreen() {
                     <div>
                       <span className="text-gray-600">تاريخ الاستحقاق:</span>
                       <span className="mr-2 font-semibold">
-                        {new Date(selectedTask.due_date).toLocaleDateString('ar-SA')}
+                        {formatDateDMY(selectedTask.due_date)}
                       </span>
                     </div>
                   )}

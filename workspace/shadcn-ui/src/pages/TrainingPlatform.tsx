@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useNotifications } from '@/components/NotificationSystem';
 import Sidebar from '@/components/Sidebar';
 import { supabaseAPI } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 import {
   GraduationCap,
   BookOpen,
@@ -397,7 +398,7 @@ export default function TrainingPlatform() {
                         مُحقق
                       </Badge>
                       <span className="text-xs text-green-600">
-                        {achievement.date && new Date(achievement.date).toLocaleDateString('ar-SA')}
+                        {achievement.date && formatDateDMY(achievement.date)}
                       </span>
                     </div>
                   ) : achievement.progress ? (
