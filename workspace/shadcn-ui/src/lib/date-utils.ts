@@ -28,7 +28,6 @@ export function formatDate(
   const options: Intl.DateTimeFormatOptions = {
     calendar: 'gregory', // التقويم الميلادي فقط
     numberingSystem: 'latn', // الأرقام الإنجليزية
-    locale: 'ar-EG', // العربية المصرية لضمان ترميز سليم
   };
 
   switch (format) {

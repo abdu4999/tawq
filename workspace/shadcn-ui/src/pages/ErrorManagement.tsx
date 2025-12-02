@@ -179,13 +179,13 @@ export default function ErrorManagement() {
         error.error_message,
         error.error_details,
         error.resolved ? 'تم الحل' : 'لم يتم الحل',
-        formatDate(error.timestamp, 'datetime'),
-        error.resolved_at ? formatDate(error.resolved_at, 'datetime') : '',
+        formatDateTimeDMY(error.timestamp),
+        error.resolved_at ? formatDateTimeDMY(error.resolved_at) : '',
         error.resolution_notes || ''
       ])
     ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `سجلات_الأخطاء_${formatDate(new Date(), 'short').replace(/\//g, '-')}.csv`;
@@ -419,7 +419,9 @@ export default function ErrorManagement() {
                         </div>
                         <p className="text-sm text-gray-600 mb-1">{error.error_message}</p>
                         <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-                          <span title={formatDate(error.timestamp, 'full')}>🕐 {formatRelativeTime(error.timestamp)}</span>
+                          <span title={formatDateArabic(error.timestamp)}>
+                            🕐 {formatRelativeTime(error.timestamp)}
+                          </span>
                           {error.context && <span>📍 {error.context}</span>}
                           {error.url && <span>🔗 {error.url}</span>}
                         </div>
@@ -479,7 +481,8 @@ export default function ErrorManagement() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700">وقت الحدوث</label>
-                    <p>{formatDate(selectedError.timestamp, 'full')}</p>
+                    <p className="font-medium">{formatDateArabic(selectedError.timestamp)}</p>
+                    <p className="text-sm text-gray-600">{formatDateTimeDMY(selectedError.timestamp)}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">الحالة</label>
@@ -503,7 +506,8 @@ export default function ErrorManagement() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">معلومات الحل</label>
                     <p>تم الحل بواسطة: {selectedError.resolved_by}</p>
-                    <p>وقت الحل: {formatDate(selectedError.resolved_at!, 'full')}</p>
+                    <p>وقت الحل: {formatDateArabic(selectedError.resolved_at!)}</p>
+                    <p className="text-sm text-gray-600">{formatDateTimeDMY(selectedError.resolved_at!)}</p>
                     {selectedError.resolution_notes && (
                       <p>ملاحظات الحل: {selectedError.resolution_notes}</p>
                     )}
