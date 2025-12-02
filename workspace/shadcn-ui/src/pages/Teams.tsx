@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { formatDateDMY } from '@/lib/date-utils';
 import { Users, Crown, Target, TrendingUp, Award, Star, UserPlus, Settings } from 'lucide-react';
 
 
@@ -538,7 +539,7 @@ export default function Teams() {
                         </div>
 
                         <div className="text-sm text-gray-500">
-                          <p>آخر تبرع: {donor.lastDonation.toLocaleDateString('ar-SA')}</p>
+                          <p>آخر تبرع: {formatDateDMY(donor.lastDonation)}</p>
                         </div>
 
                         {assignedEmployee && (
@@ -657,7 +658,7 @@ export default function Teams() {
                           </div>
 
                           <div className="flex justify-between items-center mt-3 text-sm text-gray-500">
-                            <span>الموعد النهائي: {goal.deadline.toLocaleDateString('ar-SA')}</span>
+                            <span>الموعد النهائي: {formatDateDMY(goal.deadline)}</span>
                             <Badge variant="outline">{goal.type}</Badge>
                           </div>
                         </div>

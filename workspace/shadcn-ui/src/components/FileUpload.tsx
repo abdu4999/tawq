@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Upload, File, Image, Video, Music, X, Download, Eye } from 'lucide-react';
 import { FileService, FileMetadata } from '@/lib/file-service';
+import { formatDateDMY } from '@/lib/date-utils';
 
 interface FileUploadProps {
   taskId?: string;
@@ -208,7 +209,7 @@ export default function FileUpload({ taskId, projectId, userId, onFileUploaded }
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{file.name}</p>
                     <p className="text-xs text-gray-500">
-                      {formatFileSize(file.size)} • {file.uploadedAt.toLocaleDateString('ar-SA')}
+                      {formatFileSize(file.size)} • {formatDateDMY(file.uploadedAt)}
                     </p>
                   </div>
                   <Badge className={getCategoryColor(file.category)}>
@@ -274,7 +275,7 @@ export default function FileUpload({ taskId, projectId, userId, onFileUploaded }
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium truncate">{file.name}</h4>
                       <p className="text-sm text-gray-500">
-                        {formatFileSize(file.size)} • {file.uploadedAt.toLocaleDateString('ar-SA')}
+                        {formatFileSize(file.size)} • {formatDateDMY(file.uploadedAt)}
                       </p>
                       <p className="text-xs text-gray-400">
                         رفع بواسطة: {file.uploadedBy}

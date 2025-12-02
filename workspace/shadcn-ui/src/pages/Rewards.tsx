@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Trophy, Gift, Target, Clock, Star, Zap, Crown, Award } from 'lucide-react';
+import { formatDateDMY } from '@/lib/date-utils';
 
 import { AIEngine } from '@/lib/ai-engine';
 
@@ -441,7 +442,7 @@ export default function Rewards() {
                             ✓ مفتوح
                           </Badge>
                           <p className="text-xs text-gray-500">
-                            تم الفتح في: {achievement.unlockedAt.toLocaleDateString('ar-SA')}
+                            تم الفتح في: {formatDateDMY(achievement.unlockedAt)}
                           </p>
                         </div>
                       ) : (
