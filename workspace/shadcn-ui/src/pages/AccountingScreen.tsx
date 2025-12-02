@@ -329,7 +329,7 @@ export default function AccountingScreen() {
                   {transactions.map((transaction) => (
                     <TableRow key={transaction.id}>
                       <TableCell className="font-medium">
-                        {new Date(transaction.date).toLocaleDateString('ar-SA')}
+                        {formatDateDMY(transaction.date)}
                       </TableCell>
                       <TableCell>{transaction.description}</TableCell>
                       <TableCell>

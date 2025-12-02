@@ -518,7 +518,7 @@ export default function ProjectManagement() {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-blue-600" />
                         <span className="text-gray-600">البداية:</span>
-                        <span className="font-medium">{new Date(project.start_date).toLocaleDateString('ar-SA')}</span>
+                        <span className="font-medium">{formatDateDMY(project.start_date)}</span>
                       </div>
                     )}
                   </div>
@@ -527,13 +527,13 @@ export default function ProjectManagement() {
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="h-4 w-4 text-red-600" />
                       <span className="text-gray-600">النهاية:</span>
-                      <span className="font-medium">{new Date(project.end_date).toLocaleDateString('ar-SA')}</span>
+                      <span className="font-medium">{formatDateDMY(project.end_date)}</span>
                     </div>
                   )}
                   
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="text-xs text-gray-500">
-                      أنشئ: {new Date(project.created_at).toLocaleDateString('ar-SA')}
+                      أنشئ: {formatDateDMY(project.created_at)}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
