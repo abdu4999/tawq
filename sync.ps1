@@ -6,6 +6,30 @@ Write-Host "🔄 بدء المزامنة مع GitHub..." -ForegroundColor Cyan
 # الانتقال لمجلد المستودع
 Set-Location $PSScriptRoot
 
+# مزامنة الـ submodules أولاً
+Write-Host "`n🔄 فحص Submodules..." -ForegroundColor Cyan
+$submodules = git submodule status
+if ($submodules) {
+    Write-Host "📦 تحديث Submodules..." -ForegroundColor Yellow
+    git submodule update --init --recursive
+    
+    # التحقق من تغييرات داخل workspace
+    if (Test-Path "workspace") {
+        Push-Location workspace
+        $submoduleStatus = git status --porcelain
+        if ($submoduleStatus) {
+            Write-Host "`n📝 تغييرات في workspace:" -ForegroundColor Green
+            git status --short
+            git add -A
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            git commit -m "Workspace sync: $timestamp"
+            git push 2>&1 | Out-Null
+            Write-Host "✅ تم رفع تغييرات workspace" -ForegroundColor Green
+        }
+        Pop-Location
+    }
+}
+
 # جلب آخر التحديثات من GitHub
 Write-Host "`n📥 جلب آخر التحديثات من GitHub..." -ForegroundColor Yellow
 git fetch origin main
