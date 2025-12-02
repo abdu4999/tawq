@@ -40,9 +40,28 @@ export default function AIInsights() {
   const [predictions, setPredictions] = useState<PredictionResult[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
 
   useEffect(() => {
-    generateAIInsights();
+    // Load mock data or fetch from API
+    const mockEmployees = [
+      { id: '1', name: 'أحمد محمد', role: 'مدير', avatar: '' },
+      { id: '2', name: 'فاطمة علي', role: 'موظف', avatar: '' },
+      { id: '3', name: 'سارة أحمد', role: 'موظف', avatar: '' }
+    ];
+    const mockTasks = [
+      { id: '1', employeeId: '1', status: 'completed', priority: 'high' },
+      { id: '2', employeeId: '2', status: 'pending', priority: 'medium' }
+    ];
+    setEmployees(mockEmployees);
+    setTasks(mockTasks);
+  }, []);
+
+  useEffect(() => {
+    if (employees.length > 0 && tasks.length > 0) {
+      generateAIInsights();
+    }
   }, [employees, tasks]);
 
   const generateAIInsights = async () => {
