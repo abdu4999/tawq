@@ -490,7 +490,7 @@ export default function TaskManagement() {
 
         {/* Create/Edit Task Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl" dir="rtl">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
             <DialogHeader>
               <DialogTitle>
                 {editingTask ? 'تعديل المهمة' : 'إضافة مهمة جديدة'}

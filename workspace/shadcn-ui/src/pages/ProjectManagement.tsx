@@ -342,7 +342,7 @@ export default function ProjectManagement() {
                     إضافة مشروع جديد
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
                   <DialogHeader>
                     <DialogTitle>إضافة مشروع جديد</DialogTitle>
                     <DialogDescription>
@@ -599,7 +599,7 @@ export default function ProjectManagement() {
 
         {/* Edit Project Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
             <DialogHeader>
               <DialogTitle>تعديل المشروع</DialogTitle>
               <DialogDescription>
