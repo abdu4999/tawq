@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 >nul
+cls
 echo ======================================
 echo    Tawq Auto Sync Watcher
 echo ======================================
@@ -11,31 +12,51 @@ echo.
 cd /d "%~dp0"
 
 :loop
-echo [%date% %time%] Checking for changes...
+echo.
+echo ======================================
+echo [%date% %time%] Starting sync cycle...
+echo ======================================
+echo.
 
-git status --short > nul 2>&1
-if errorlevel 1 (
-    echo [!] Git error - make sure you're in the right folder
-    timeout /t 5 >nul
-    goto loop
-)
+echo [1/4] Checking for local changes...
+git status --short
 
-git diff --quiet
+echo.
+echo [2/4] Adding all changes...
+echo [i] Respecting .gitignore exclusions
+git add -u
+git add .
+
+echo.
+echo [3/4] Committing changes...
+git diff --staged --quiet
 if errorlevel 1 (
-    echo.
-    echo [+] Changes detected! Syncing...
-    git add -A
     git commit -m "Auto sync: %date% %time%"
-    git push origin main
-    if errorlevel 1 (
-        echo [!] Push failed!
-    ) else (
-        echo [+] Synced successfully!
-    )
+    echo [+] Changes committed
 ) else (
-    echo [i] No changes
+    echo [i] No changes to commit
 )
 
 echo.
+echo [4/4] Pushing to GitHub...
+git push origin main
+
+if errorlevel 1 (
+    echo.
+    echo [!] Push failed! Trying to pull first...
+    git pull origin main --rebase
+    if errorlevel 1 (
+        echo [!] Conflicts detected! Resolving...
+        git rebase --abort
+        git pull origin main
+    )
+    git push origin main
+)
+
+echo.
+echo ======================================
+echo [+] Sync completed! Waiting 60 seconds...
+echo ======================================
+
 timeout /t 60 >nul
 goto loop
