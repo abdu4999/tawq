@@ -28,61 +28,122 @@ export function formatDate(
   const options: Intl.DateTimeFormatOptions = {
     calendar: 'gregory', // التقويم الميلادي فقط
     numberingSystem: 'latn', // الأرقام الإنجليزية
+    locale: 'ar-EG', // العربية المصرية لضمان ترميز سليم
   };
 
   switch (format) {
     case 'full':
       // مثال: الأحد، 2 ديسمبر 2025، 3:45 م
-      return dateObj.toLocaleString('ar-SA', {
+      return dateObj.toLocaleString('ar-EG', {
         ...options,
         weekday: 'long',
-        year: 'numeric',
-        month: 'long',
         day: 'numeric',
+        month: 'long',
+        year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
       });
 
     case 'short':
-      // مثال: 2/12/2025
-      return dateObj.toLocaleDateString('ar-SA', {
+      // مثال: 2/12/2025 (يوم/شهر/سنة)
+      return dateObj.toLocaleDateString('ar-EG', {
         ...options,
-        year: 'numeric',
-        month: '2-digit',
         day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
       });
 
     case 'date-only':
       // مثال: 2 ديسمبر 2025
-      return dateObj.toLocaleDateString('ar-SA', {
+      return dateObj.toLocaleDateString('ar-EG', {
         ...options,
-        year: 'numeric',
-        month: 'long',
         day: 'numeric',
+        month: 'long',
+        year: 'numeric',
       });
 
     case 'time-only':
       // مثال: 3:45 م
-      return dateObj.toLocaleTimeString('ar-SA', {
+      return dateObj.toLocaleTimeString('ar-EG', {
         ...options,
         hour: '2-digit',
         minute: '2-digit',
       });
 
     case 'datetime':
-      // مثال: 2/12/2025 3:45 م
-      return dateObj.toLocaleString('ar-SA', {
+      // مثال: 2/12/2025 3:45 م (يوم/شهر/سنة)
+      return dateObj.toLocaleString('ar-EG', {
         ...options,
-        year: 'numeric',
-        month: '2-digit',
         day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
       });
 
     default:
-      return dateObj.toLocaleString('ar-SA', options);
+      return dateObj.toLocaleString('ar-EG', options);
   }
+}
+
+/**
+ * تنسيق التاريخ بترتيب يوم/شهر/سنة بشكل صريح
+ * @param date - كائن Date أو نص ISO
+ * @returns نص التاريخ بصيغة dd/mm/yyyy
+ */
+export function formatDateDMY(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  if (isNaN(dateObj.getTime())) {
+    return 'تاريخ غير صالح';
+  }
+
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+
+  return `${day}/${month}/${year}`;
+}
+
+/**
+ * تنسيق التاريخ والوقت بترتيب يوم/شهر/سنة ساعة:دقيقة
+ * @param date - كائن Date أو نص ISO
+ * @returns نص التاريخ والوقت بصيغة dd/mm/yyyy hh:mm
+ */
+export function formatDateTimeDMY(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  if (isNaN(dateObj.getTime())) {
+    return 'تاريخ غير صالح';
+  }
+
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  const hours = String(dateObj.getHours()).padStart(2, '0');
+  const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
+/**
+ * تنسيق التاريخ بالعربي الكامل (يوم الأسبوع، اليوم الشهر السنة)
+ * @param date - كائن Date أو نص ISO
+ * @returns نص التاريخ بالعربي الكامل
+ */
+export function formatDateArabic(date: Date | string): string {
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  
+  if (isNaN(dateObj.getTime())) {
+    return 'تاريخ غير صالح';
+  }
+
+  const dayName = getWeekdayName(dateObj.getDay());
+  const day = dateObj.getDate();
+  const monthName = getMonthName(dateObj.getMonth());
+  const year = dateObj.getFullYear();
+
+  return `${dayName}، ${day} ${monthName} ${year}`;
 }
 
 /**
@@ -389,6 +450,9 @@ export function getWeekdayName(dayIndex: number): string {
 
 export default {
   formatDate,
+  formatDateDMY,
+  formatDateTimeDMY,
+  formatDateArabic,
   toISOString,
   getCurrentDate,
   getCurrentISODate,

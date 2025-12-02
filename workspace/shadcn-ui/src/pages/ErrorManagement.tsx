@@ -9,7 +9,7 @@ import { Search, AlertCircle, CheckCircle, Clock, Filter, Download, Bug, X, Cale
 import { errorStorage, ErrorLog } from '@/lib/error-storage';
 import Layout from '@/components/Layout';
 import { useNotifications } from '@/components/NotificationSystem';
-import { formatDate, formatRelativeTime } from '@/lib/date-utils';
+import { formatDate, formatRelativeTime, formatDateTimeDMY, formatDateArabic } from '@/lib/date-utils';
 
 export default function ErrorManagement() {
   const { addNotification, addErrorNotification } = useNotifications();
