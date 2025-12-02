@@ -33,6 +33,110 @@ interface TeamRadarData {
   target: number;
 }
 
+// بيانات الموظفين التجريبية
+const employees = [
+  {
+    id: '1',
+    name: 'أحمد محمد الأحمد',
+    role: 'مدير المشاريع',
+    avatar: '',
+    points: 1250,
+    totalEarnings: 15000,
+  },
+  {
+    id: '2',
+    name: 'فاطمة سالم العتيبي',
+    role: 'مسؤولة التسويق',
+    avatar: '',
+    points: 950,
+    totalEarnings: 8000,
+  },
+  {
+    id: '3',
+    name: 'محمد خالد الغامدي',
+    role: 'منسق المشاهير',
+    avatar: '',
+    points: 780,
+    totalEarnings: 4500,
+  },
+  {
+    id: '4',
+    name: 'نورا علي الشهري',
+    role: 'مديرة الموارد البشرية',
+    avatar: '',
+    points: 1100,
+    totalEarnings: 10000,
+  },
+  {
+    id: '5',
+    name: 'عبدالله سعيد القحطاني',
+    role: 'محلل بيانات',
+    avatar: '',
+    points: 320,
+    totalEarnings: 3000,
+  }
+];
+
+// بيانات المهام التجريبية
+const tasks = [
+  {
+    id: '1',
+    title: 'إعداد خطة التسويق الرقمي',
+    assigneeId: '2',
+    status: 'completed',
+    dueDate: new Date('2024-02-15'),
+    createdAt: new Date('2024-01-10'),
+  },
+  {
+    id: '2',
+    title: 'التواصل مع المؤثرين',
+    assigneeId: '3',
+    status: 'in_progress',
+    dueDate: new Date('2024-02-20'),
+    createdAt: new Date('2024-01-12'),
+  },
+  {
+    id: '3',
+    title: 'تحضير المواد الإعلامية',
+    assigneeId: '2',
+    status: 'completed',
+    dueDate: new Date('2024-01-30'),
+    createdAt: new Date('2024-01-08'),
+  },
+  {
+    id: '4',
+    title: 'مراجعة التقارير المالية',
+    assigneeId: '1',
+    status: 'completed',
+    dueDate: new Date('2024-02-01'),
+    createdAt: new Date('2024-01-15'),
+  },
+  {
+    id: '5',
+    title: 'تنظيم ورشة العمل',
+    assigneeId: '4',
+    status: 'in_progress',
+    dueDate: new Date('2024-02-25'),
+    createdAt: new Date('2024-01-20'),
+  },
+  {
+    id: '6',
+    title: 'تحليل بيانات الحملة',
+    assigneeId: '5',
+    status: 'pending',
+    dueDate: new Date('2024-01-25'),
+    createdAt: new Date('2024-01-18'),
+  },
+  {
+    id: '7',
+    title: 'إعداد تقرير الأداء',
+    assigneeId: '5',
+    status: 'pending',
+    dueDate: new Date('2024-01-22'),
+    createdAt: new Date('2024-01-15'),
+  }
+];
+
 export default function AIInsights() {
   
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>([]);
@@ -43,7 +147,7 @@ export default function AIInsights() {
 
   useEffect(() => {
     generateAIInsights();
-  }, [employees, tasks]);
+  }, []);
 
   const generateAIInsights = async () => {
     setIsAnalyzing(true);
