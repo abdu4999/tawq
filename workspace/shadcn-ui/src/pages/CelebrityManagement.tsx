@@ -12,6 +12,7 @@ import { useNotifications } from '@/components/NotificationSystem';
 import Sidebar from '@/components/Sidebar';
 import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
 import { supabaseAPI, Celebrity } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 import {
   Star,
   Plus,
@@ -577,7 +578,7 @@ export default function CelebrityManagement() {
                 
                 <div className="flex items-center justify-between pt-4 border-t">
                   <div className="text-xs text-gray-500">
-                    أضيف: {new Date(celebrity.created_at).toLocaleDateString('ar-SA')}
+                    أضيف: {formatDateDMY(celebrity.created_at)}
                   </div>
                   <div className="flex items-center gap-2">
                     <Button

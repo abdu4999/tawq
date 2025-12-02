@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDateDMY } from '@/lib/date-utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -551,8 +552,8 @@ export default function AdminPermissions() {
                   </div>
                   
                   <div className="flex items-center justify-between pt-4 border-t">
-                    <div className="text-xs text-gray-500">
-                      أنشئ: {new Date(role.created_at).toLocaleDateString('ar-SA')}
+                    <div className="text-xs text-gray-500 mt-4">
+                      أنشئ: {formatDateDMY(role.created_at)}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button

@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { formatDateDMY } from '@/lib/date-utils';
 import Sidebar from '@/components/Sidebar';
 import { supabase } from '@/lib/supabase';
 import { errorStorage } from '@/lib/error-storage';
