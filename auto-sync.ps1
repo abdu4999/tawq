@@ -29,7 +29,8 @@ $watcher.IncludeSubdirectories = $true
 $watcher.EnableRaisingEvents = $true
 $watcher.NotifyFilter = [System.IO.NotifyFilters]::FileName -bor 
                         [System.IO.NotifyFilters]::DirectoryName -bor
-                        [System.IO.NotifyFilters]::LastWrite
+                        [System.IO.NotifyFilters]::LastWrite -bor
+                        [System.IO.NotifyFilters]::Size
 
 # Sync function
 function Invoke-GitSync {

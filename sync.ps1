@@ -10,11 +10,21 @@ Set-Location $PSScriptRoot
 Write-Host "`n📥 جلب آخر التحديثات من GitHub..." -ForegroundColor Yellow
 git fetch origin main
 
-# التحقق من وجود تعارضات
+# التحقق من وجود تغييرات
 $status = git status --porcelain
 if ($status) {
     Write-Host "`n📝 تم العثور على تغييرات محلية:" -ForegroundColor Green
     git status --short
+    
+    # عرض إحصائيات التغييرات
+    $modifiedFiles = ($status | Where-Object { $_ -match '^ M' }).Count
+    $addedFiles = ($status | Where-Object { $_ -match '^A|^\?\?' }).Count
+    $deletedFiles = ($status | Where-Object { $_ -match '^ D' }).Count
+    
+    Write-Host "`n📊 ملخص التغييرات:" -ForegroundColor Cyan
+    if ($modifiedFiles -gt 0) { Write-Host "   • ملفات معدلة: $modifiedFiles" -ForegroundColor Yellow }
+    if ($addedFiles -gt 0) { Write-Host "   • ملفات جديدة: $addedFiles" -ForegroundColor Green }
+    if ($deletedFiles -gt 0) { Write-Host "   • ملفات محذوفة: $deletedFiles" -ForegroundColor Red }
     
     # إضافة جميع التغييرات
     Write-Host "`n➕ إضافة التغييرات..." -ForegroundColor Yellow
