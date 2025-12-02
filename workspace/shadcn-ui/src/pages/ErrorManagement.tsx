@@ -9,6 +9,7 @@ import { Search, AlertCircle, CheckCircle, Clock, Filter, Download, Bug, X, Cale
 import { errorStorage, ErrorLog } from '@/lib/error-storage';
 import Layout from '@/components/Layout';
 import { useNotifications } from '@/components/NotificationSystem';
+import { formatDate, formatRelativeTime } from '@/lib/date-utils';
 
 export default function ErrorManagement() {
   const { addNotification, addErrorNotification } = useNotifications();
@@ -178,8 +179,8 @@ export default function ErrorManagement() {
         error.error_message,
         error.error_details,
         error.resolved ? 'تم الحل' : 'لم يتم الحل',
-        new Date(error.timestamp).toLocaleString('ar-SA'),
-        error.resolved_at ? new Date(error.resolved_at).toLocaleString('ar-SA') : '',
+        formatDate(error.timestamp, 'datetime'),
+        error.resolved_at ? formatDate(error.resolved_at, 'datetime') : '',
         error.resolution_notes || ''
       ])
     ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
@@ -187,19 +188,12 @@ export default function ErrorManagement() {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `سجلات_الأخطاء_${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = `سجلات_الأخطاء_${formatDate(new Date(), 'short').replace(/\//g, '-')}.csv`;
     link.click();
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('ar-SA', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  // تم استبدالها بـ date-utils
+  // const formatDate = ...
 
   return (
     <Layout pageKey="error-management">
@@ -425,7 +419,7 @@ export default function ErrorManagement() {
                         </div>
                         <p className="text-sm text-gray-600 mb-1">{error.error_message}</p>
                         <div className="flex flex-wrap gap-3 text-xs text-gray-500">
-                          <span>🕐 {formatDate(error.timestamp)}</span>
+                          <span title={formatDate(error.timestamp, 'full')}>🕐 {formatRelativeTime(error.timestamp)}</span>
                           {error.context && <span>📍 {error.context}</span>}
                           {error.url && <span>🔗 {error.url}</span>}
                         </div>
@@ -485,7 +479,7 @@ export default function ErrorManagement() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-sm font-medium text-gray-700">وقت الحدوث</label>
-                    <p>{formatDate(selectedError.timestamp)}</p>
+                    <p>{formatDate(selectedError.timestamp, 'full')}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">الحالة</label>
@@ -509,7 +503,7 @@ export default function ErrorManagement() {
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">معلومات الحل</label>
                     <p>تم الحل بواسطة: {selectedError.resolved_by}</p>
-                    <p>وقت الحل: {formatDate(selectedError.resolved_at!)}</p>
+                    <p>وقت الحل: {formatDate(selectedError.resolved_at!, 'full')}</p>
                     {selectedError.resolution_notes && (
                       <p>ملاحظات الحل: {selectedError.resolution_notes}</p>
                     )}
