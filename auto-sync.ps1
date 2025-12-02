@@ -50,7 +50,9 @@ function Invoke-GitSync {
             
             Write-Host ""
             Write-Host "[2/3] Committing changes..." -ForegroundColor Yellow
-            & $gitPath add -A 2>&1 | Out-Null
+            # Add only tracked files and respect .gitignore
+            & $gitPath add -u 2>&1 | Out-Null
+            & $gitPath add . 2>&1 | Out-Null
             
             $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
             $commitOutput = & $gitPath commit -m "Auto sync: $timestamp" 2>&1
@@ -90,6 +92,7 @@ $onChange = {
     if ($path -like "*\.git\*") { return }
     if ($path -like "*\node_modules\*") { return }
     if ($path -like "*\dist\*" -or $path -like "*\build\*") { return }
+    if ($path -like "*\.vite\*" -or $path -like "*\.turbo\*") { return }
     if ($name -like "*.tmp" -or $name -like "*.swp" -or $name -like "*~") { return }
     if ($name -like "*.log") { return }
     

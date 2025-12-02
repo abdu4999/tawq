@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, AlertCircle, CheckCircle, Clock, Filter, Download, Bug, X, Calendar } from 'lucide-react';
 import { errorStorage, ErrorLog } from '@/lib/error-storage';
-import Sidebar from '@/components/Sidebar';
+import Layout from '@/components/Layout';
 import { useNotifications } from '@/components/NotificationSystem';
 
 export default function ErrorManagement() {
@@ -202,11 +202,8 @@ export default function ErrorManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      
-      {/* Main content area with proper spacing */}
-      <div className="flex-1 p-6 space-y-6 ml-0">
+    <Layout pageKey="error-management">
+      <div className="space-y-6">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             إدارة الأخطاء
@@ -529,6 +526,6 @@ export default function ErrorManagement() {
           </Card>
         )}
       </div>
-    </div>
+    </Layout>
   );
 }

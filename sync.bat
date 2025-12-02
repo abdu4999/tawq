@@ -12,7 +12,9 @@ git status --short
 
 echo.
 echo [2/4] Adding all changes...
-git add -A
+echo [i] Respecting .gitignore exclusions
+git add -u
+git add .
 
 echo.
 echo [3/4] Committing changes...

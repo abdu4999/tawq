@@ -81,7 +81,7 @@ export default function Sidebar() {
 
   return (
     <TooltipProvider>
-      <div className={`fixed right-0 top-0 h-full bg-white shadow-xl border-l border-gray-200 transition-all duration-300 z-50 ${
+      <div className={`fixed right-0 top-0 h-full bg-white shadow-xl border-l border-gray-200 transition-all duration-300 z-50 flex-shrink-0 ${
         isCollapsed ? 'w-16' : 'w-80'
       }`}>
         {/* Toggle Button */}

@@ -18,7 +18,9 @@ if ($status) {
     git status --short
     
     Write-Host "`nAdding changes..." -ForegroundColor Yellow
-    git add -A
+    # Add only tracked files and respect .gitignore
+    git add -u
+    git add .
     
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Write-Host "Committing..." -ForegroundColor Yellow
