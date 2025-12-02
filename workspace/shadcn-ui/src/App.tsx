@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NotificationProvider } from '@/components/NotificationSystem';
 import { AuthProvider } from '@/components/AuthProvider';
+import { ScrollProvider } from '@/contexts/ScrollContext';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
@@ -39,10 +40,11 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <NotificationProvider>
-        <TooltipProvider>
-          <Toaster position="bottom-left" dir="rtl" />
-          <BrowserRouter>
-            <Routes>
+        <ScrollProvider>
+          <TooltipProvider>
+            <Toaster position="bottom-left" dir="rtl" />
+            <BrowserRouter>
+              <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
@@ -75,9 +77,10 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
-      </NotificationProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+      </ScrollProvider>
+    </NotificationProvider>
+  </AuthProvider>
+</QueryClientProvider>
 );
 
 export default App;

@@ -1,60 +1,56 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import { useScrollMemory } from '@/contexts/ScrollContext';
 
 interface LayoutProps {
   children: React.ReactNode;
   pageKey?: string; // مفتاح فريد لكل صفحة للحفاظ على موضع التمرير
 }
 
-export default function Layout({ children, pageKey = 'default' }: LayoutProps) {
+export default function Layout({ children, pageKey }: LayoutProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [sidebarWidth, setSidebarWidth] = useState(320); // العرض الافتراضي للسايدبار
+  const location = useLocation();
+  
+  // استخدام pathname كمفتاح افتراضي إذا لم يتم تمرير pageKey
+  const scrollKey = pageKey || location.pathname;
+  
+  // استخدام Hook المخصص لإدارة التمرير
+  useScrollMemory(scrollKey, contentRef);
 
-  // استعادة موضع التمرير عند تحميل الصفحة
+  // مراقبة تغيير عرض الـ sidebar مع transition سلس
   useEffect(() => {
-    const savedScrollPosition = sessionStorage.getItem(`scroll-${pageKey}`);
-    if (savedScrollPosition && contentRef.current) {
-      setTimeout(() => {
-        if (contentRef.current) {
-          contentRef.current.scrollTop = parseInt(savedScrollPosition, 10);
-        }
-      }, 0);
-    }
-  }, [pageKey]);
-
-  // حفظ موضع التمرير عند التمرير
-  useEffect(() => {
-    const handleScroll = () => {
-      if (contentRef.current) {
-        const position = contentRef.current.scrollTop;
-        sessionStorage.setItem(`scroll-${pageKey}`, position.toString());
-      }
-    };
-
-    const contentElement = contentRef.current;
-    if (contentElement) {
-      contentElement.addEventListener('scroll', handleScroll);
-      return () => contentElement.removeEventListener('scroll', handleScroll);
-    }
-  }, [pageKey]);
-
-  // مراقبة تغيير عرض الـ sidebar
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const sidebar = document.querySelector('[class*="right-0"][class*="top-0"]');
+    const updateSidebarWidth = () => {
+      const sidebar = document.querySelector('[class*="right-0"][class*="top-0"][class*="fixed"]');
       if (sidebar) {
         const width = sidebar.getBoundingClientRect().width;
         setSidebarWidth(width);
       }
-    });
+    };
 
-    const sidebar = document.querySelector('[class*="right-0"][class*="top-0"]');
+    // تحديث فوري
+    updateSidebarWidth();
+
+    // مراقبة التغييرات
+    const observer = new MutationObserver(updateSidebarWidth);
+    const sidebar = document.querySelector('[class*="right-0"][class*="top-0"][class*="fixed"]');
+    
     if (sidebar) {
-      observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
-      setSidebarWidth(sidebar.getBoundingClientRect().width);
+      observer.observe(sidebar, { 
+        attributes: true, 
+        attributeFilter: ['class', 'style'],
+        subtree: true 
+      });
     }
 
-    return () => observer.disconnect();
+    // مراقبة تغيير حجم النافذة
+    window.addEventListener('resize', updateSidebarWidth);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateSidebarWidth);
+    };
   }, []);
 
   return (
