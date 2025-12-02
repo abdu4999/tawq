@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Brain, TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Lightbulb, Target, Zap, Heart } from 'lucide-react';
 import { formatDateDMY } from '@/lib/date-utils';
+import Sidebar from '@/components/Sidebar';
 
 import { AIEngine, AIRecommendation, PsychologicalProfile } from '@/lib/ai-engine';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
@@ -181,8 +182,10 @@ export default function AIInsights() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-purple-50 flex" dir="rtl">
+      <Sidebar />
+      
+      <div className="flex-1 lg:mr-80 p-6 space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
