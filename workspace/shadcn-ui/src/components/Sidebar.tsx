@@ -44,6 +44,7 @@ const navigationItems = [
   { path: '/influencer-revenue', icon: DollarSign, label: 'إيرادات المشاهير', badge: null },
   { path: '/analytics', icon: BarChart3, label: 'التحليلات والتقارير', badge: null },
   { path: '/analytics-predictions', icon: Brain, label: 'التوقعات AI', badge: 'AI' },
+  { path: '/ai-insights', icon: Brain, label: 'مركز الذكاء الاصطناعي', badge: '🤖' },
   { path: '/training-platform', icon: GraduationCap, label: 'منصة التدريب', badge: null },
   { path: '/gamification', icon: Gamepad2, label: 'النقاط والتحفيز', badge: '🏆' },
   { path: '/accounting', icon: Calculator, label: 'النظام المحاسبي', badge: null },

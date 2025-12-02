@@ -13,6 +13,7 @@ import ProjectManagement from './pages/ProjectManagement';
 import CelebrityManagement from './pages/CelebrityManagement';
 import Analytics from './pages/Analytics';
 import AIAnalytics from './pages/AIAnalytics';
+import AIInsights from './pages/AIInsights';
 import TrainingPlatform from './pages/TrainingPlatform';
 import GamificationSystem from './pages/GamificationSystem';
 import Accounting from './pages/Accounting';
@@ -60,6 +61,7 @@ const App = () => (
               <Route path="/targets-roi" element={<TargetsRoiScreen />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/ai-analytics" element={<AIAnalytics />} />
+              <Route path="/ai-insights" element={<AIInsights />} />
               <Route path="/analytics-predictions" element={<AnalyticsScreen />} />
               <Route path="/training-platform" element={<TrainingPlatform />} />
               <Route path="/gamification" element={<GamificationSystem />} />
