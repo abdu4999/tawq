@@ -108,6 +108,9 @@ export function useScrollMemory(pageKey: string, contentRef: React.RefObject<HTM
       console.log(`📄 صفحة جديدة: ${pageKey} - البدء من الأعلى`);
     }
   }, [pageKey]);
+
+  // إعداد مستمع التمرير
+  React.useEffect(() => {
     const handleScroll = () => {
       if (contentRef.current) {
         const position = contentRef.current.scrollTop;
