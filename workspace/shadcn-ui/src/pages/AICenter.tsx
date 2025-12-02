@@ -68,6 +68,8 @@ import {
 import { Employee, Task } from '@/lib/types';
 
 // Mock data for demonstration
+// Mock data for demonstration - In production, this would be fetched from the database
+// TODO: Replace with actual data from supabaseAPI when integrating with backend
 const mockEmployees: Employee[] = [
   { id: '1', name: 'أحمد محمد', email: 'ahmed@example.com', role: 'employee', points: 850, monthlyTarget: 10000, yearlyTarget: 120000, currentRevenue: 8500, tasksCompleted: 45, rank: 1, strengths: ['إدارة الوقت', 'التواصل'], weaknesses: ['التخطيط طويل المدى'] },
   { id: '2', name: 'سارة علي', email: 'sara@example.com', role: 'employee', points: 720, monthlyTarget: 8000, yearlyTarget: 96000, currentRevenue: 7200, tasksCompleted: 38, rank: 2, strengths: ['العمل الجماعي', 'الإبداع'], weaknesses: ['إدارة الضغوط'] },
@@ -83,8 +85,6 @@ const mockTasks: Task[] = [
   { id: '4', title: 'كتابة التوثيق', description: 'توثيق النظام والأكواد', assignedTo: ['3', '5'], projectId: 'p2', priority: 2, status: 'pending', dueDate: new Date('2024-12-30'), points: 60, createdBy: 'admin', createdAt: new Date('2024-11-20') },
   { id: '5', title: 'مراجعة الأداء', description: 'تحسين أداء التطبيق', assignedTo: ['1'], projectId: 'p1', priority: 4, status: 'in-progress', dueDate: new Date('2024-12-10'), points: 120, createdBy: 'admin', createdAt: new Date('2024-11-05') },
 ];
-
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 export default function AICenter() {
   const { addNotification } = useNotifications();

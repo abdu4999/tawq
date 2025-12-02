@@ -369,64 +369,80 @@ export class AIEngine {
 
   // ============ AI Center Features ============
 
+  // Seeded random number generator for deterministic results based on employee ID
+  private static seededRandom(seed: string, modifier: number = 0): number {
+    let hash = 0;
+    const combinedSeed = seed + modifier.toString();
+    for (let i = 0; i < combinedSeed.length; i++) {
+      const char = combinedSeed.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    // Convert to 0-1 range
+    return Math.abs((Math.sin(hash) * 10000) % 1);
+  }
+
   // Employee Intelligence Map - خريطة ذكاء الموظفين
   static generateEmployeeIntelligenceMap(employee: Employee, tasks: Task[]): EmployeeIntelligenceMap {
     const completedTasks = tasks.filter(t => t.assignedTo?.includes(employee.id) && t.status === 'completed');
     const totalTasks = tasks.filter(t => t.assignedTo?.includes(employee.id));
     const completionRate = totalTasks.length > 0 ? completedTasks.length / totalTasks.length : 0;
+    
+    // Use seeded random for consistent results
+    const seed = employee.id;
 
     // Calculate skill matrix based on task categories and performance
     const skillMatrix: SkillScore[] = [
       {
         skillName: 'إدارة الوقت',
-        currentLevel: Math.min(100, completionRate * 100 + Math.random() * 20),
+        currentLevel: Math.min(100, completionRate * 100 + this.seededRandom(seed, 1) * 20),
         targetLevel: 90,
-        growthRate: Math.random() * 15 + 5,
+        growthRate: this.seededRandom(seed, 2) * 15 + 5,
         category: 'soft'
       },
       {
         skillName: 'التخطيط الاستراتيجي',
-        currentLevel: Math.min(100, employee.points / 10 + Math.random() * 20),
+        currentLevel: Math.min(100, employee.points / 10 + this.seededRandom(seed, 3) * 20),
         targetLevel: 85,
-        growthRate: Math.random() * 12 + 3,
+        growthRate: this.seededRandom(seed, 4) * 12 + 3,
         category: 'leadership'
       },
       {
         skillName: 'التواصل الفعال',
-        currentLevel: Math.min(100, 60 + Math.random() * 30),
+        currentLevel: Math.min(100, 60 + this.seededRandom(seed, 5) * 30),
         targetLevel: 95,
-        growthRate: Math.random() * 10 + 5,
+        growthRate: this.seededRandom(seed, 6) * 10 + 5,
         category: 'soft'
       },
       {
         skillName: 'حل المشكلات',
-        currentLevel: Math.min(100, completionRate * 80 + Math.random() * 25),
+        currentLevel: Math.min(100, completionRate * 80 + this.seededRandom(seed, 7) * 25),
         targetLevel: 90,
-        growthRate: Math.random() * 18 + 2,
+        growthRate: this.seededRandom(seed, 8) * 18 + 2,
         category: 'technical'
       },
       {
         skillName: 'العمل الجماعي',
-        currentLevel: Math.min(100, 55 + Math.random() * 35),
+        currentLevel: Math.min(100, 55 + this.seededRandom(seed, 9) * 35),
         targetLevel: 85,
-        growthRate: Math.random() * 8 + 4,
+        growthRate: this.seededRandom(seed, 10) * 8 + 4,
         category: 'soft'
       },
       {
         skillName: 'الإبداع والابتكار',
-        currentLevel: Math.min(100, 45 + Math.random() * 40),
+        currentLevel: Math.min(100, 45 + this.seededRandom(seed, 11) * 40),
         targetLevel: 80,
-        growthRate: Math.random() * 20 + 5,
+        growthRate: this.seededRandom(seed, 12) * 20 + 5,
         category: 'technical'
       }
     ];
 
     const performanceScore = Math.min(100, completionRate * 100);
-    const collaborationScore = Math.min(100, 50 + Math.random() * 40);
-    const innovationScore = Math.min(100, 40 + Math.random() * 50);
-    const leadershipPotential = Math.min(100, employee.points / 15 + Math.random() * 30);
-    const learningAgility = Math.min(100, 60 + Math.random() * 35);
-    const adaptabilityScore = Math.min(100, 55 + Math.random() * 40);
+    const collaborationScore = Math.min(100, 50 + this.seededRandom(seed, 13) * 40);
+    const innovationScore = Math.min(100, 40 + this.seededRandom(seed, 14) * 50);
+    const leadershipPotential = Math.min(100, employee.points / 15 + this.seededRandom(seed, 15) * 30);
+    const learningAgility = Math.min(100, 60 + this.seededRandom(seed, 16) * 35);
+    const adaptabilityScore = Math.min(100, 55 + this.seededRandom(seed, 17) * 40);
 
     const overallRating = (
       performanceScore * 0.25 +
@@ -577,7 +593,7 @@ export class AIEngine {
       
       const workload = Math.min(100, pendingTasks.length * 15);
       const completionRate = employeeTasks.length > 0 ? completedTasks.length / employeeTasks.length : 0.5;
-      const skillAlignment = Math.min(100, 40 + Math.random() * 50 + employee.points / 20);
+      const skillAlignment = Math.min(100, 40 + this.seededRandom(employee.id + task.id, 1) * 50 + employee.points / 20);
       
       const matchScore = (
         (100 - workload) * 0.3 +
@@ -612,7 +628,7 @@ export class AIEngine {
       assignmentReason: topEmployee 
         ? `${topEmployee.employeeName} هو الأنسب بناءً على ${topEmployee.matchReasons.join(' و ')}`
         : 'لا يوجد موظف متاح حالياً',
-      predictedCompletionTime: Math.round(8 + Math.random() * 40),
+      predictedCompletionTime: Math.round(8 + this.seededRandom(task.id, 2) * 40),
       predictedSuccessRate: topEmployee ? Math.round(60 + topEmployee.matchScore * 0.35) : 50,
       urgencyScore
     };
@@ -621,41 +637,42 @@ export class AIEngine {
   // System Usage Tracking - تتبع استخدام النظام
   static analyzeSystemUsage(employee: Employee, _tasks: Task[]): SystemUsageMetrics {
     const baseActivity = employee.points / 100;
+    const seed = employee.id;
     
     const featuresUsed: FeatureUsage[] = [
       {
         featureName: 'إدارة المهام',
-        usageCount: Math.round(15 + Math.random() * 30),
-        timeSpent: Math.round(60 + Math.random() * 120),
-        efficiency: Math.round(65 + Math.random() * 30)
+        usageCount: Math.round(15 + this.seededRandom(seed, 20) * 30),
+        timeSpent: Math.round(60 + this.seededRandom(seed, 21) * 120),
+        efficiency: Math.round(65 + this.seededRandom(seed, 22) * 30)
       },
       {
         featureName: 'لوحة التحكم',
-        usageCount: Math.round(20 + Math.random() * 25),
-        timeSpent: Math.round(30 + Math.random() * 60),
-        efficiency: Math.round(70 + Math.random() * 25)
+        usageCount: Math.round(20 + this.seededRandom(seed, 23) * 25),
+        timeSpent: Math.round(30 + this.seededRandom(seed, 24) * 60),
+        efficiency: Math.round(70 + this.seededRandom(seed, 25) * 25)
       },
       {
         featureName: 'التقارير والتحليلات',
-        usageCount: Math.round(5 + Math.random() * 15),
-        timeSpent: Math.round(20 + Math.random() * 40),
-        efficiency: Math.round(60 + Math.random() * 35)
+        usageCount: Math.round(5 + this.seededRandom(seed, 26) * 15),
+        timeSpent: Math.round(20 + this.seededRandom(seed, 27) * 40),
+        efficiency: Math.round(60 + this.seededRandom(seed, 28) * 35)
       },
       {
         featureName: 'إدارة المشاريع',
-        usageCount: Math.round(8 + Math.random() * 20),
-        timeSpent: Math.round(45 + Math.random() * 90),
-        efficiency: Math.round(55 + Math.random() * 40)
+        usageCount: Math.round(8 + this.seededRandom(seed, 29) * 20),
+        timeSpent: Math.round(45 + this.seededRandom(seed, 30) * 90),
+        efficiency: Math.round(55 + this.seededRandom(seed, 31) * 40)
       },
       {
         featureName: 'التواصل والإشعارات',
-        usageCount: Math.round(25 + Math.random() * 40),
-        timeSpent: Math.round(15 + Math.random() * 30),
-        efficiency: Math.round(75 + Math.random() * 20)
+        usageCount: Math.round(25 + this.seededRandom(seed, 32) * 40),
+        timeSpent: Math.round(15 + this.seededRandom(seed, 33) * 30),
+        efficiency: Math.round(75 + this.seededRandom(seed, 34) * 20)
       }
     ];
 
-    const activeHoursPerDay = Math.min(10, 4 + baseActivity + Math.random() * 4);
+    const activeHoursPerDay = Math.min(10, 4 + baseActivity + this.seededRandom(seed, 35) * 4);
     const productiveTime = activeHoursPerDay * 0.7;
     const idleTime = activeHoursPerDay * 0.3;
 
@@ -664,11 +681,11 @@ export class AIEngine {
       employeeName: employee.name,
       activeHoursPerDay: Math.round(activeHoursPerDay * 10) / 10,
       featuresUsed,
-      loginFrequency: Math.round(2 + Math.random() * 4),
+      loginFrequency: Math.round(2 + this.seededRandom(seed, 36) * 4),
       productiveTime: Math.round(productiveTime * 10) / 10,
       idleTime: Math.round(idleTime * 10) / 10,
       lastActive: new Date(),
-      weeklyTrend: Math.random() > 0.6 ? 'increasing' : Math.random() > 0.4 ? 'stable' : 'decreasing'
+      weeklyTrend: this.seededRandom(seed, 37) > 0.6 ? 'increasing' : this.seededRandom(seed, 37) > 0.3 ? 'stable' : 'decreasing'
     };
   }
 
