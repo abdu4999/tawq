@@ -246,6 +246,39 @@ export const supabaseAPI = {
     if (error) throw error;
   },
 
+  // Project methods
+  async createProject(projectData) {
+    const { data, error } = await supabase
+      .from(TABLES.PROJECTS)
+      .insert([{ ...projectData, updated_at: new Date().toISOString() }])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async updateProject(id, updates) {
+    const { data, error } = await supabase
+      .from(TABLES.PROJECTS)
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteProject(id) {
+    const { error } = await supabase
+      .from(TABLES.PROJECTS)
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+  },
+
   // Transaction methods
   async createTransaction(transactionData: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>) {
     try {
@@ -348,6 +381,39 @@ export const supabaseAPI = {
       console.error('Error deleting celebrity:', error);
       throw error;
     }
+  },
+
+  // Employee methods
+  async createEmployee(employeeData) {
+    const { data, error } = await supabase
+      .from(TABLES.EMPLOYEES)
+      .insert([{ ...employeeData, updated_at: new Date().toISOString() }])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async updateEmployee(id, updates) {
+    const { data, error } = await supabase
+      .from(TABLES.EMPLOYEES)
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteEmployee(id) {
+    const { error } = await supabase
+      .from(TABLES.EMPLOYEES)
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
   }
 };
 
