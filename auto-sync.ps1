@@ -41,22 +41,7 @@ function Invoke-GitSync {
     try {
         Set-Location $PSScriptRoot
         
-        # فحص workspace (submodule) أولاً
-        if (Test-Path "workspace") {
-            Push-Location workspace
-            $workspaceStatus = & $gitPath status --short 2>&1
-            if ($workspaceStatus -and $workspaceStatus -notlike "*fatal*") {
-                Write-Host "[Workspace] Found changes in workspace" -ForegroundColor Yellow
-                & $gitPath add -A 2>&1 | Out-Null
-                $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                & $gitPath commit -m "Workspace: $timestamp" 2>&1 | Out-Null
-                & $gitPath push 2>&1 | Out-Null
-                Write-Host "[Workspace] Synced successfully!" -ForegroundColor Green
-            }
-            Pop-Location
-        }
-        
-        # مزامنة المستودع الرئيسي
+        # مزامنة المستودع الرئيسي (يشمل workspace)
         $status = & $gitPath status --short 2>&1
         
         if ($status -and $status -notlike "*fatal*" -and $status -notlike "*error*") {
