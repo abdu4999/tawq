@@ -1,3 +1,5 @@
+import { formatDateDMY } from './date-utils';
+
 export interface FileMetadata {
   id: string;
   name: string;
@@ -219,7 +221,7 @@ export class FileService {
       size: this.formatFileSize(file.size),
       type: file.type,
       category: file.category,
-      uploadedAt: file.uploadedAt.toLocaleDateString('ar-SA'),
+      uploadedAt: formatDateDMY(file.uploadedAt),
       uploadedBy: file.uploadedBy,
       taskId: file.taskId,
       projectId: file.projectId
