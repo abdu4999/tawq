@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDateDMY } from '@/lib/date-utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -9,11 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { LoadingButton } from '@/components/ui/loading-button';
 import { useNotifications } from '@/components/NotificationSystem';
 import Sidebar from '@/components/Sidebar';
-import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
 import { supabaseAPI, Project, Employee } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 import {
   FolderOpen,
   Plus,
@@ -38,7 +36,6 @@ export default function ProjectManagement() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
   const [newProject, setNewProject] = useState({
     name: '',
     description: '',
@@ -84,19 +81,16 @@ export default function ProjectManagement() {
   });
 
   const handleCreateProject = async () => {
-    try {
-      // Validation
-      if (!newProject.name.trim()) {
-        addNotification({
-          type: 'warning',
-          title: '⚠️ خطأ في البيانات',
-          message: 'يرجى إدخال اسم المشروع'
-        });
-        return;
-      }
+    if (!newProject.name.trim()) {
+      addNotification({
+        type: 'warning',
+        title: '⚠️ خطأ في البيانات',
+        message: 'يرجى إدخال اسم المشروع'
+      });
+      return;
+    }
 
-      setIsSaving(true);
-      
+    try {
       const projectData = {
         ...newProject,
         manager_id: newProject.manager_id || null,
@@ -106,8 +100,6 @@ export default function ProjectManagement() {
       
       const createdProject = await supabaseAPI.createProject(projectData);
       setProjects([createdProject, ...projects]);
-      
-      // Reset form
       setNewProject({
         name: '',
         description: '',
@@ -120,22 +112,19 @@ export default function ProjectManagement() {
       });
       setIsCreateDialogOpen(false);
 
-      // Success notification
-      showSuccessNotification(
-        'تم الحفظ بنجاح ✅',
-        `تم إنشاء المشروع "${createdProject.name}" بنجاح`
-      );
-      
-    } catch (error) {
-      await handleApiError(error, {
-        message: 'فشل في إنشاء المشروع',
-        context: 'ProjectManagement - Create',
-        severity: 'high',
-        userFriendlyMessage: 'حدث خطأ أثناء إنشاء المشروع',
-        payload: newProject,
+      addNotification({
+        type: 'success',
+        title: '✅ تم إنشاء المشروع',
+        message: `تم إنشاء المشروع "${createdProject.name}" بنجاح`,
+        duration: 4000
       });
-    } finally {
-      setIsSaving(false);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      addNotification({
+        type: 'error',
+        title: '❌ خطأ في الإنشاء',
+        message: 'حدث خطأ أثناء إنشاء المشروع'
+      });
     }
   };
 
@@ -143,30 +132,23 @@ export default function ProjectManagement() {
     if (!selectedProject) return;
 
     try {
-      setIsSaving(true);
-      
       const updatedProject = await supabaseAPI.updateProject(selectedProject.id, selectedProject);
       setProjects(projects.map(project => project.id === selectedProject.id ? updatedProject : project));
-      
       setIsEditDialogOpen(false);
       setSelectedProject(null);
 
-      // Success notification
-      showSuccessNotification(
-        'تم الحفظ بنجاح ✅',
-        `تم تحديث المشروع "${updatedProject.name}" بنجاح`
-      );
-      
-    } catch (error) {
-      await handleApiError(error, {
-        message: 'فشل في تحديث المشروع',
-        context: 'ProjectManagement - Update',
-        severity: 'high',
-        userFriendlyMessage: 'حدث خطأ أثناء تحديث المشروع',
-        payload: selectedProject,
+      addNotification({
+        type: 'success',
+        title: '✅ تم تحديث المشروع',
+        message: `تم تحديث المشروع "${updatedProject.name}" بنجاح`
       });
-    } finally {
-      setIsSaving(false);
+    } catch (error) {
+      console.error('Error updating project:', error);
+      addNotification({
+        type: 'error',
+        title: '❌ خطأ في التحديث',
+        message: 'حدث خطأ أثناء تحديث المشروع'
+      });
     }
   };
 
@@ -342,7 +324,7 @@ export default function ProjectManagement() {
                     إضافة مشروع جديد
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+                <DialogContent className="max-w-md">
                   <DialogHeader>
                     <DialogTitle>إضافة مشروع جديد</DialogTitle>
                     <DialogDescription>
@@ -448,17 +430,12 @@ export default function ProjectManagement() {
                     </div>
                   </div>
                   <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={isSaving}>
+                    <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                       إلغاء
                     </Button>
-                    <LoadingButton 
-                      onClick={handleCreateProject}
-                      loading={isSaving}
-                      loadingText="جاري الحفظ..."
-                      disabled={!newProject.name}
-                    >
+                    <Button onClick={handleCreateProject}>
                       إنشاء المشروع
-                    </LoadingButton>
+                    </Button>
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -518,7 +495,7 @@ export default function ProjectManagement() {
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-blue-600" />
                         <span className="text-gray-600">البداية:</span>
-                        <span className="font-medium">{formatDateDMY(project.start_date)}</span>
+                        <span className="font-medium">{new Date(project.start_date).toLocaleDateString('ar-SA')}</span>
                       </div>
                     )}
                   </div>
@@ -527,13 +504,13 @@ export default function ProjectManagement() {
                     <div className="flex items-center gap-2 text-sm">
                       <Calendar className="h-4 w-4 text-red-600" />
                       <span className="text-gray-600">النهاية:</span>
-                      <span className="font-medium">{formatDateDMY(project.end_date)}</span>
+                      <span className="font-medium">{new Date(project.end_date).toLocaleDateString('ar-SA')}</span>
                     </div>
                   )}
                   
                   <div className="flex items-center justify-between pt-4 border-t">
                     <div className="text-xs text-gray-500">
-                      أنشئ: {formatDateDMY(project.created_at)}
+                      أنشئ: {new Date(project.created_at).toLocaleDateString('ar-SA')}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button
@@ -599,7 +576,7 @@ export default function ProjectManagement() {
 
         {/* Edit Project Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>تعديل المشروع</DialogTitle>
               <DialogDescription>
@@ -703,17 +680,12 @@ export default function ProjectManagement() {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} disabled={isSaving}>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 إلغاء
               </Button>
-              <LoadingButton 
-                onClick={handleUpdateProject}
-                loading={isSaving}
-                loadingText="جاري الحفظ..."
-                disabled={!selectedProject?.name}
-              >
+              <Button onClick={handleUpdateProject}>
                 حفظ التغييرات
-              </LoadingButton>
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
