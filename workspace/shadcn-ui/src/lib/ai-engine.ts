@@ -26,6 +26,108 @@ interface TrendData {
   earningsTrend: number;
 }
 
+// Employee Intelligence Map Interface
+export interface EmployeeIntelligenceMap {
+  employeeId: string;
+  employeeName: string;
+  skillMatrix: SkillScore[];
+  performanceScore: number;
+  collaborationScore: number;
+  innovationScore: number;
+  leadershipPotential: number;
+  learningAgility: number;
+  adaptabilityScore: number;
+  overallRating: number;
+}
+
+export interface SkillScore {
+  skillName: string;
+  currentLevel: number; // 0-100
+  targetLevel: number;
+  growthRate: number; // percentage
+  category: 'technical' | 'soft' | 'leadership' | 'domain';
+}
+
+// Turnover Risk Score Interface
+export interface TurnoverRiskAssessment {
+  employeeId: string;
+  employeeName: string;
+  riskScore: number; // 0-100 (higher = more likely to leave)
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  factors: TurnoverFactor[];
+  retentionStrategies: string[];
+  predictedTimeToLeave?: number; // days
+  lastAssessmentDate: Date;
+}
+
+export interface TurnoverFactor {
+  name: string;
+  impact: number; // 0-100
+  category: 'engagement' | 'compensation' | 'growth' | 'workload' | 'culture' | 'management';
+  description: string;
+}
+
+// Intelligent Task Assignment Interface
+export interface IntelligentTaskAssignment {
+  taskId: string;
+  taskTitle: string;
+  recommendedEmployees: EmployeeMatch[];
+  assignmentReason: string;
+  predictedCompletionTime: number; // hours
+  predictedSuccessRate: number; // percentage
+  urgencyScore: number; // 0-100
+}
+
+export interface EmployeeMatch {
+  employeeId: string;
+  employeeName: string;
+  matchScore: number; // 0-100
+  matchReasons: string[];
+  currentWorkload: number; // percentage
+  skillAlignment: number;
+  availability: boolean;
+}
+
+// System Usage Tracking Interface
+export interface SystemUsageMetrics {
+  employeeId: string;
+  employeeName: string;
+  activeHoursPerDay: number;
+  featuresUsed: FeatureUsage[];
+  loginFrequency: number; // times per day
+  productiveTime: number; // hours
+  idleTime: number; // hours
+  lastActive: Date;
+  weeklyTrend: 'increasing' | 'stable' | 'decreasing';
+}
+
+export interface FeatureUsage {
+  featureName: string;
+  usageCount: number;
+  timeSpent: number; // minutes
+  efficiency: number; // percentage
+}
+
+// Burnout Monitoring Interface
+export interface BurnoutIndicator {
+  employeeId: string;
+  employeeName: string;
+  burnoutScore: number; // 0-100
+  burnoutLevel: 'healthy' | 'mild' | 'moderate' | 'severe';
+  indicators: BurnoutFactor[];
+  recommendations: string[];
+  workloadBalance: number; // -100 to 100 (negative = overworked)
+  recoveryActions: string[];
+  lastCheckDate: Date;
+}
+
+export interface BurnoutFactor {
+  name: string;
+  severity: number; // 0-100
+  trend: 'improving' | 'stable' | 'worsening';
+  description: string;
+}
+
 export class AIEngine {
   // تحليل أداء الموظف وإنشاء التوصيات
   static analyzeEmployeePerformance(employee: Employee, tasks: Task[]): AIRecommendation[] {
@@ -263,5 +365,448 @@ export class AIEngine {
     }
     
     return challenges;
+  }
+
+  // ============ AI Center Features ============
+
+  // Seeded random number generator for deterministic results based on employee ID
+  private static seededRandom(seed: string, modifier: number = 0): number {
+    let hash = 0;
+    const combinedSeed = seed + modifier.toString();
+    for (let i = 0; i < combinedSeed.length; i++) {
+      const char = combinedSeed.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    // Convert to 0-1 range
+    return Math.abs((Math.sin(hash) * 10000) % 1);
+  }
+
+  // Employee Intelligence Map - خريطة ذكاء الموظفين
+  static generateEmployeeIntelligenceMap(employee: Employee, tasks: Task[]): EmployeeIntelligenceMap {
+    const completedTasks = tasks.filter(t => t.assignedTo?.includes(employee.id) && t.status === 'completed');
+    const totalTasks = tasks.filter(t => t.assignedTo?.includes(employee.id));
+    const completionRate = totalTasks.length > 0 ? completedTasks.length / totalTasks.length : 0;
+    
+    // Use seeded random for consistent results
+    const seed = employee.id;
+
+    // Calculate skill matrix based on task categories and performance
+    const skillMatrix: SkillScore[] = [
+      {
+        skillName: 'إدارة الوقت',
+        currentLevel: Math.min(100, completionRate * 100 + this.seededRandom(seed, 1) * 20),
+        targetLevel: 90,
+        growthRate: this.seededRandom(seed, 2) * 15 + 5,
+        category: 'soft'
+      },
+      {
+        skillName: 'التخطيط الاستراتيجي',
+        currentLevel: Math.min(100, employee.points / 10 + this.seededRandom(seed, 3) * 20),
+        targetLevel: 85,
+        growthRate: this.seededRandom(seed, 4) * 12 + 3,
+        category: 'leadership'
+      },
+      {
+        skillName: 'التواصل الفعال',
+        currentLevel: Math.min(100, 60 + this.seededRandom(seed, 5) * 30),
+        targetLevel: 95,
+        growthRate: this.seededRandom(seed, 6) * 10 + 5,
+        category: 'soft'
+      },
+      {
+        skillName: 'حل المشكلات',
+        currentLevel: Math.min(100, completionRate * 80 + this.seededRandom(seed, 7) * 25),
+        targetLevel: 90,
+        growthRate: this.seededRandom(seed, 8) * 18 + 2,
+        category: 'technical'
+      },
+      {
+        skillName: 'العمل الجماعي',
+        currentLevel: Math.min(100, 55 + this.seededRandom(seed, 9) * 35),
+        targetLevel: 85,
+        growthRate: this.seededRandom(seed, 10) * 8 + 4,
+        category: 'soft'
+      },
+      {
+        skillName: 'الإبداع والابتكار',
+        currentLevel: Math.min(100, 45 + this.seededRandom(seed, 11) * 40),
+        targetLevel: 80,
+        growthRate: this.seededRandom(seed, 12) * 20 + 5,
+        category: 'technical'
+      }
+    ];
+
+    const performanceScore = Math.min(100, completionRate * 100);
+    const collaborationScore = Math.min(100, 50 + this.seededRandom(seed, 13) * 40);
+    const innovationScore = Math.min(100, 40 + this.seededRandom(seed, 14) * 50);
+    const leadershipPotential = Math.min(100, employee.points / 15 + this.seededRandom(seed, 15) * 30);
+    const learningAgility = Math.min(100, 60 + this.seededRandom(seed, 16) * 35);
+    const adaptabilityScore = Math.min(100, 55 + this.seededRandom(seed, 17) * 40);
+
+    const overallRating = (
+      performanceScore * 0.25 +
+      collaborationScore * 0.15 +
+      innovationScore * 0.15 +
+      leadershipPotential * 0.15 +
+      learningAgility * 0.15 +
+      adaptabilityScore * 0.15
+    );
+
+    return {
+      employeeId: employee.id,
+      employeeName: employee.name,
+      skillMatrix,
+      performanceScore,
+      collaborationScore,
+      innovationScore,
+      leadershipPotential,
+      learningAgility,
+      adaptabilityScore,
+      overallRating: Math.round(overallRating)
+    };
+  }
+
+  // Turnover Risk Assessment - تقييم مخاطر دوران الموظفين
+  static assessTurnoverRisk(employee: Employee, tasks: Task[]): TurnoverRiskAssessment {
+    const psychProfile = this.analyzePsychologicalState(employee, tasks);
+    const completedTasks = tasks.filter(t => t.assignedTo?.includes(employee.id) && t.status === 'completed');
+    const totalTasks = tasks.filter(t => t.assignedTo?.includes(employee.id));
+    
+    const factors: TurnoverFactor[] = [];
+    let totalRisk = 0;
+
+    // Engagement Factor
+    const engagementImpact = psychProfile.engagement === 'low' ? 30 : psychProfile.engagement === 'medium' ? 15 : 5;
+    factors.push({
+      name: 'مستوى المشاركة',
+      impact: engagementImpact,
+      category: 'engagement',
+      description: psychProfile.engagement === 'low' 
+        ? 'مستوى مشاركة منخفض - يحتاج اهتمام فوري'
+        : psychProfile.engagement === 'medium'
+        ? 'مستوى مشاركة متوسط - يمكن تحسينه'
+        : 'مستوى مشاركة ممتاز'
+    });
+    totalRisk += engagementImpact;
+
+    // Workload Factor
+    const workloadImpact = psychProfile.stress === 'high' ? 25 : psychProfile.stress === 'medium' ? 12 : 3;
+    factors.push({
+      name: 'ضغط العمل',
+      impact: workloadImpact,
+      category: 'workload',
+      description: psychProfile.stress === 'high'
+        ? 'ضغط عمل مرتفع جداً - خطر الإرهاق'
+        : psychProfile.stress === 'medium'
+        ? 'ضغط عمل معتدل'
+        : 'توازن جيد في العمل'
+    });
+    totalRisk += workloadImpact;
+
+    // Growth Factor
+    const growthImpact = employee.points < 300 ? 20 : employee.points < 600 ? 10 : 2;
+    factors.push({
+      name: 'فرص النمو',
+      impact: growthImpact,
+      category: 'growth',
+      description: employee.points < 300
+        ? 'فرص نمو محدودة - يحتاج مسار وظيفي واضح'
+        : employee.points < 600
+        ? 'فرص نمو متوسطة'
+        : 'مسار وظيفي واضح وفرص ممتازة'
+    });
+    totalRisk += growthImpact;
+
+    // Burnout Factor
+    const burnoutImpact = psychProfile.burnout > 60 ? 25 : psychProfile.burnout > 30 ? 12 : 3;
+    factors.push({
+      name: 'الإرهاق الوظيفي',
+      impact: burnoutImpact,
+      category: 'workload',
+      description: psychProfile.burnout > 60
+        ? 'مستوى إرهاق خطير - تدخل عاجل مطلوب'
+        : psychProfile.burnout > 30
+        ? 'علامات إرهاق ناشئة'
+        : 'مستوى طاقة صحي'
+    });
+    totalRisk += burnoutImpact;
+
+    const riskScore = Math.min(100, totalRisk);
+    let riskLevel: 'low' | 'medium' | 'high' | 'critical';
+    if (riskScore >= 70) riskLevel = 'critical';
+    else if (riskScore >= 50) riskLevel = 'high';
+    else if (riskScore >= 30) riskLevel = 'medium';
+    else riskLevel = 'low';
+
+    const retentionStrategies = this.generateRetentionStrategies(riskLevel, factors);
+
+    return {
+      employeeId: employee.id,
+      employeeName: employee.name,
+      riskScore,
+      riskLevel,
+      factors,
+      retentionStrategies,
+      predictedTimeToLeave: riskLevel === 'critical' ? 30 : riskLevel === 'high' ? 90 : riskLevel === 'medium' ? 180 : undefined,
+      lastAssessmentDate: new Date()
+    };
+  }
+
+  private static generateRetentionStrategies(riskLevel: string, factors: TurnoverFactor[]): string[] {
+    const strategies: string[] = [];
+    
+    if (riskLevel === 'critical' || riskLevel === 'high') {
+      strategies.push('عقد اجتماع فوري مع الموظف لمناقشة مخاوفه');
+      strategies.push('مراجعة الحوافز والمكافآت المادية');
+      strategies.push('تقديم فرص تطوير مهني مخصصة');
+    }
+
+    factors.forEach(factor => {
+      if (factor.impact > 15) {
+        switch (factor.category) {
+          case 'engagement':
+            strategies.push('تنظيم أنشطة بناء الفريق');
+            strategies.push('إشراكه في مشاريع مهمة ومحفزة');
+            break;
+          case 'workload':
+            strategies.push('إعادة توزيع المهام لتخفيف الضغط');
+            strategies.push('توفير دعم إضافي من الفريق');
+            break;
+          case 'growth':
+            strategies.push('وضع خطة تطوير وظيفي واضحة');
+            strategies.push('توفير برامج تدريب وشهادات');
+            break;
+        }
+      }
+    });
+
+    return [...new Set(strategies)]; // Remove duplicates
+  }
+
+  // Intelligent Task Assignment - التوزيع الذكي للمهام
+  static generateIntelligentTaskAssignment(task: Task, employees: Employee[], allTasks: Task[]): IntelligentTaskAssignment {
+    const recommendedEmployees: EmployeeMatch[] = employees.map(employee => {
+      const employeeTasks = allTasks.filter(t => t.assignedTo?.includes(employee.id));
+      const pendingTasks = employeeTasks.filter(t => t.status !== 'completed');
+      const completedTasks = employeeTasks.filter(t => t.status === 'completed');
+      
+      const workload = Math.min(100, pendingTasks.length * 15);
+      const completionRate = employeeTasks.length > 0 ? completedTasks.length / employeeTasks.length : 0.5;
+      const skillAlignment = Math.min(100, 40 + this.seededRandom(employee.id + task.id, 1) * 50 + employee.points / 20);
+      
+      const matchScore = (
+        (100 - workload) * 0.3 +
+        completionRate * 100 * 0.35 +
+        skillAlignment * 0.35
+      );
+
+      const matchReasons: string[] = [];
+      if (workload < 50) matchReasons.push('عبء عمل خفيف حالياً');
+      if (completionRate > 0.7) matchReasons.push('معدل إنجاز ممتاز');
+      if (skillAlignment > 70) matchReasons.push('مهارات متوافقة مع المهمة');
+      if (employee.points > 500) matchReasons.push('خبرة عالية');
+
+      return {
+        employeeId: employee.id,
+        employeeName: employee.name,
+        matchScore: Math.round(matchScore),
+        matchReasons,
+        currentWorkload: workload,
+        skillAlignment: Math.round(skillAlignment),
+        availability: workload < 70
+      };
+    }).sort((a, b) => b.matchScore - a.matchScore);
+
+    const topEmployee = recommendedEmployees[0];
+    const urgencyScore = task.priority ? task.priority * 20 : 50;
+
+    return {
+      taskId: task.id,
+      taskTitle: task.title,
+      recommendedEmployees: recommendedEmployees.slice(0, 5),
+      assignmentReason: topEmployee 
+        ? `${topEmployee.employeeName} هو الأنسب بناءً على ${topEmployee.matchReasons.join(' و ')}`
+        : 'لا يوجد موظف متاح حالياً',
+      predictedCompletionTime: Math.round(8 + this.seededRandom(task.id, 2) * 40),
+      predictedSuccessRate: topEmployee ? Math.round(60 + topEmployee.matchScore * 0.35) : 50,
+      urgencyScore
+    };
+  }
+
+  // System Usage Tracking - تتبع استخدام النظام
+  static analyzeSystemUsage(employee: Employee, _tasks: Task[]): SystemUsageMetrics {
+    const baseActivity = employee.points / 100;
+    const seed = employee.id;
+    
+    const featuresUsed: FeatureUsage[] = [
+      {
+        featureName: 'إدارة المهام',
+        usageCount: Math.round(15 + this.seededRandom(seed, 20) * 30),
+        timeSpent: Math.round(60 + this.seededRandom(seed, 21) * 120),
+        efficiency: Math.round(65 + this.seededRandom(seed, 22) * 30)
+      },
+      {
+        featureName: 'لوحة التحكم',
+        usageCount: Math.round(20 + this.seededRandom(seed, 23) * 25),
+        timeSpent: Math.round(30 + this.seededRandom(seed, 24) * 60),
+        efficiency: Math.round(70 + this.seededRandom(seed, 25) * 25)
+      },
+      {
+        featureName: 'التقارير والتحليلات',
+        usageCount: Math.round(5 + this.seededRandom(seed, 26) * 15),
+        timeSpent: Math.round(20 + this.seededRandom(seed, 27) * 40),
+        efficiency: Math.round(60 + this.seededRandom(seed, 28) * 35)
+      },
+      {
+        featureName: 'إدارة المشاريع',
+        usageCount: Math.round(8 + this.seededRandom(seed, 29) * 20),
+        timeSpent: Math.round(45 + this.seededRandom(seed, 30) * 90),
+        efficiency: Math.round(55 + this.seededRandom(seed, 31) * 40)
+      },
+      {
+        featureName: 'التواصل والإشعارات',
+        usageCount: Math.round(25 + this.seededRandom(seed, 32) * 40),
+        timeSpent: Math.round(15 + this.seededRandom(seed, 33) * 30),
+        efficiency: Math.round(75 + this.seededRandom(seed, 34) * 20)
+      }
+    ];
+
+    const activeHoursPerDay = Math.min(10, 4 + baseActivity + this.seededRandom(seed, 35) * 4);
+    const productiveTime = activeHoursPerDay * 0.7;
+    const idleTime = activeHoursPerDay * 0.3;
+
+    return {
+      employeeId: employee.id,
+      employeeName: employee.name,
+      activeHoursPerDay: Math.round(activeHoursPerDay * 10) / 10,
+      featuresUsed,
+      loginFrequency: Math.round(2 + this.seededRandom(seed, 36) * 4),
+      productiveTime: Math.round(productiveTime * 10) / 10,
+      idleTime: Math.round(idleTime * 10) / 10,
+      lastActive: new Date(),
+      weeklyTrend: this.seededRandom(seed, 37) > 0.6 ? 'increasing' : this.seededRandom(seed, 37) > 0.3 ? 'stable' : 'decreasing'
+    };
+  }
+
+  // Burnout Monitoring - مراقبة الإرهاق
+  static analyzeBurnoutIndicators(employee: Employee, tasks: Task[]): BurnoutIndicator {
+    const psychProfile = this.analyzePsychologicalState(employee, tasks);
+    const employeeTasks = tasks.filter(t => t.assignedTo?.includes(employee.id));
+    const pendingTasks = employeeTasks.filter(t => t.status !== 'completed');
+    const overdueTasks = pendingTasks.filter(t => new Date(t.dueDate) < new Date());
+
+    const indicators: BurnoutFactor[] = [];
+    
+    // Workload indicator
+    const workloadSeverity = Math.min(100, pendingTasks.length * 12);
+    indicators.push({
+      name: 'عبء العمل',
+      severity: workloadSeverity,
+      trend: workloadSeverity > 60 ? 'worsening' : workloadSeverity > 30 ? 'stable' : 'improving',
+      description: `${pendingTasks.length} مهمة معلقة حالياً`
+    });
+
+    // Overdue tasks indicator
+    const overdueSeverity = Math.min(100, overdueTasks.length * 20);
+    indicators.push({
+      name: 'المهام المتأخرة',
+      severity: overdueSeverity,
+      trend: overdueSeverity > 40 ? 'worsening' : 'stable',
+      description: `${overdueTasks.length} مهمة متأخرة عن موعدها`
+    });
+
+    // Stress level indicator
+    const stressSeverity = psychProfile.stress === 'high' ? 80 : psychProfile.stress === 'medium' ? 50 : 20;
+    indicators.push({
+      name: 'مستوى التوتر',
+      severity: stressSeverity,
+      trend: stressSeverity > 60 ? 'worsening' : stressSeverity > 40 ? 'stable' : 'improving',
+      description: `مستوى توتر ${psychProfile.stress === 'high' ? 'مرتفع' : psychProfile.stress === 'medium' ? 'متوسط' : 'منخفض'}`
+    });
+
+    // Motivation indicator
+    const motivationSeverity = psychProfile.motivation === 'low' ? 70 : psychProfile.motivation === 'medium' ? 40 : 15;
+    indicators.push({
+      name: 'الدافعية',
+      severity: motivationSeverity,
+      trend: motivationSeverity > 50 ? 'worsening' : 'stable',
+      description: `مستوى دافعية ${psychProfile.motivation === 'low' ? 'منخفض' : psychProfile.motivation === 'medium' ? 'متوسط' : 'مرتفع'}`
+    });
+
+    const burnoutScore = Math.min(100, psychProfile.burnout + (overdueSeverity * 0.3));
+    let burnoutLevel: 'healthy' | 'mild' | 'moderate' | 'severe';
+    if (burnoutScore >= 70) burnoutLevel = 'severe';
+    else if (burnoutScore >= 50) burnoutLevel = 'moderate';
+    else if (burnoutScore >= 30) burnoutLevel = 'mild';
+    else burnoutLevel = 'healthy';
+
+    const workloadBalance = 50 - pendingTasks.length * 8 - overdueTasks.length * 15;
+
+    const recommendations = this.generateBurnoutRecommendations(burnoutLevel, indicators);
+    const recoveryActions = this.generateRecoveryActions(burnoutLevel);
+
+    return {
+      employeeId: employee.id,
+      employeeName: employee.name,
+      burnoutScore: Math.round(burnoutScore),
+      burnoutLevel,
+      indicators,
+      recommendations,
+      workloadBalance: Math.max(-100, Math.min(100, workloadBalance)),
+      recoveryActions,
+      lastCheckDate: new Date()
+    };
+  }
+
+  private static generateBurnoutRecommendations(burnoutLevel: string, indicators: BurnoutFactor[]): string[] {
+    const recommendations: string[] = [];
+
+    if (burnoutLevel === 'severe') {
+      recommendations.push('إجازة قصيرة للتعافي مطلوبة');
+      recommendations.push('تقليل المهام المسندة فوراً');
+      recommendations.push('جلسة دعم نفسي موصى بها');
+    } else if (burnoutLevel === 'moderate') {
+      recommendations.push('مراجعة توزيع المهام');
+      recommendations.push('تشجيع فترات راحة منتظمة');
+      recommendations.push('مراجعة الأهداف المرحلية');
+    } else if (burnoutLevel === 'mild') {
+      recommendations.push('مراقبة مستمرة للحالة');
+      recommendations.push('تنويع المهام لتجنب الملل');
+    }
+
+    indicators.forEach(indicator => {
+      if (indicator.severity > 60) {
+        if (indicator.name === 'عبء العمل') {
+          recommendations.push('إعادة توزيع بعض المهام على الفريق');
+        }
+        if (indicator.name === 'المهام المتأخرة') {
+          recommendations.push('مراجعة المواعيد النهائية وتمديدها إذا لزم');
+        }
+      }
+    });
+
+    return [...new Set(recommendations)];
+  }
+
+  private static generateRecoveryActions(burnoutLevel: string): string[] {
+    const actions: string[] = [];
+
+    if (burnoutLevel === 'severe' || burnoutLevel === 'moderate') {
+      actions.push('جدولة استراحات قصيرة كل ساعتين');
+      actions.push('تحديد أوقات عمل مرنة');
+      actions.push('تقليل الاجتماعات غير الضرورية');
+      actions.push('تفويض بعض المهام للزملاء');
+    }
+
+    if (burnoutLevel === 'severe') {
+      actions.push('النظر في إجازة مدفوعة');
+      actions.push('توفير دعم نفسي متخصص');
+    }
+
+    actions.push('تشجيع النشاط البدني');
+    actions.push('ضمان التوازن بين العمل والحياة');
+
+    return actions;
   }
 }
