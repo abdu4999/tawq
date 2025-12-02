@@ -277,11 +277,7 @@ export default function TaskManagement() {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return 'غير محدد';
-    return new Date(dateString).toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return formatDateDMY(dateString);
   };
 
   if (loading) {

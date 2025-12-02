@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Task, Employee } from '@/lib/types';
 import { useStore } from '@/lib/store';
 import { Clock, User, Target, CheckCircle, AlertCircle, Calendar } from 'lucide-react';
+import { formatDateDMY } from '@/lib/date-utils';
 
 interface TaskCardProps {
   task: Task;
@@ -190,7 +191,7 @@ export default function TaskCard({ task }: TaskCardProps) {
         {/* Completion Info */}
         {task.status === 'completed' && task.completedAt && (
           <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
-            ✅ تم الإكمال في: {task.completedAt.toLocaleDateString('ar-SA')}
+            ✅ تم الإكمال في: {formatDateDMY(task.completedAt)}
           </div>
         )}
       </CardContent>

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Sidebar from '@/components/Sidebar';
 import { Target, TrendingUp, Award, Zap, Calendar, CheckCircle, Clock } from 'lucide-react';
+import { formatDateDMY } from '@/lib/date-utils';
 
 export default function EmployeeDashboard() {
   const [employee] = useState({
@@ -170,7 +171,7 @@ export default function EmployeeDashboard() {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <Calendar className="h-3 w-3" />
-                        <span>الاستحقاق: {task.dueDate}</span>
+                        <span>الاستحقاق: {formatDateDMY(task.dueDate)}</span>
                       </div>
                     </div>
                     <Button size="sm">عرض التفاصيل</Button>
