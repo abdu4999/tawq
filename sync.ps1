@@ -4,24 +4,11 @@
 Write-Host "Starting GitHub Sync..." -ForegroundColor Cyan
 Set-Location $PSScriptRoot
 
-# Sync workspace submodule first
-Write-Host "`nChecking workspace..." -ForegroundColor Yellow
-if (Test-Path "workspace") {
-    Push-Location workspace
-    $workspaceStatus = git status --porcelain 2>&1
-    if ($workspaceStatus -and $workspaceStatus -notlike "*fatal*") {
-        Write-Host "Changes found in workspace" -ForegroundColor Green
-        git add -A 2>&1 | Out-Null
-        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-        git commit -m "Workspace: $timestamp" 2>&1 | Out-Null
-        git push 2>&1 | Out-Null
-        Write-Host "Workspace synced!" -ForegroundColor Green
-    }
-    Pop-Location
-}
+# Sync workspace folder (part of main repo, not submodule)
+Write-Host "`nChecking workspace files..." -ForegroundColor Yellow
 
 # Fetch updates
-Write-Host "`nFetching from GitHub..." -ForegroundColor Yellow
+Write-Host "Fetching from GitHub..." -ForegroundColor Yellow
 git fetch origin main 2>&1 | Out-Null
 
 # Check for local changes
