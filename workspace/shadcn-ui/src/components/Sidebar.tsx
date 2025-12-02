@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useScrollMemory } from '@/contexts/ScrollContext';
 import {
   Home,
   CheckSquare,
@@ -56,6 +57,10 @@ export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigationRef = useRef<HTMLDivElement>(null);
+  
+  // حفظ واستعادة موضع التمرير في قائمة التنقل
+  useScrollMemory('sidebar-navigation', navigationRef);
 
   const handleNavigation = (path: string, label: string) => {
     navigate(path);
@@ -288,7 +293,10 @@ export default function Sidebar() {
           </div>
 
           {/* Navigation */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          <div 
+            ref={navigationRef}
+            className="flex-1 overflow-y-auto p-4 space-y-2"
+          >
             {navigationItems.map((item) => {
               const isActive = location.pathname === item.path;
               return (
