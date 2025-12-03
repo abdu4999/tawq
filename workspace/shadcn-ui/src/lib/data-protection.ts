@@ -590,6 +590,62 @@ export class BackupManager {
       if (!backup) {
         console.error('النسخة الاحتياطية غير موجودة');
         return null;
+      }
+      
+      // تحميل البيانات من التخزين
+      const data = this.loadBackupFromStorage(backupId);
+      
+      // إنشاء Blob للتحميل
+      const blob = new Blob([data], { type: 'application/octet-stream' });
+      
+      console.log(`📤 تصدير النسخة الاحتياطية: ${backup.fileName}`);
+      
+      return blob;
+    } catch (error) {
+      console.error('فشل تصدير النسخة:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * استيراد نسخة احتياطية من ملف
+   */
+  async importBackup(file: File, userId: string): Promise<BackupMetadata | null> {
+    try {
+      const encrypted = await file.text();
+      
+      console.log(`📥 استيراد نسخة احتياطية من: ${file.name}`);
+      
+      // التحقق من صحة البيانات
+      const checksum = this.calculateChecksum(encrypted);
+      
+      const timestamp = Date.now();
+      const backup: BackupMetadata = {
+        id: `backup_${timestamp}`,
+        timestamp: new Date(),
+        type: 'full',
+        size: encrypted.length,
+        encrypted: true,
+        createdBy: userId,
+        location: `${this.backupBasePath}/imported`,
+        fileName: file.name,
+        checksum
+      };
+      
+      // حفظ النسخة
+      await this.saveBackupToStorage(backup.id, encrypted, backup.fileName);
+      this.backups.push(backup);
+      this.saveBackupMetadata();
+      
+      console.log(`✅ تم استيراد النسخة الاحتياطية بنجاح`);
+      
+      return backup;
+    } catch (error) {
+      console.error('فشل استيراد النسخة:', error);
+      return null;
+    }
+  }
+  
   // مساعدات داخلية
   
   private collectSystemData(): any {
@@ -779,8 +835,6 @@ export class BackupManager {
     };
     
     return stats;
-  }
-}   });
   }
   
   private calculateChecksum(data: string): string {
