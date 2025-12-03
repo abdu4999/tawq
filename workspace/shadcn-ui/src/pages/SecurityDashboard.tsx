@@ -525,6 +525,23 @@ export default function SecurityDashboard() {
                         <p>👤 {threat.userId || 'غير محدد'}</p>
                         {threat.indicators.length > 0 && (
                           <div className="mt-2">
+                            <p className="font-semibold text-xs mb-1">المؤشرات:</p>
+                            {threat.indicators.map((indicator, i) => (
+                              <span key={i} className="inline-block bg-gray-200 text-gray-700 px-2 py-1 rounded text-xs mr-1 mb-1">
+                                {indicator}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Backups Tab */}
         <TabsContent value="backups">
           <div className="space-y-4">
