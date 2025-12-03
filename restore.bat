@@ -9,8 +9,8 @@ echo              RESTORE BACKUP SYSTEM
 echo ====================================================
 echo.
 
-set "BACKUP_DIR=D:\joker\backups"
-set "RESTORE_PATH=D:\joker\workspace\shadcn-ui"
+set "BACKUP_DIR=backups"
+set "RESTORE_PATH=workspace\shadcn-ui"
 
 REM Check if backups directory exists
 if not exist "%BACKUP_DIR%" (
