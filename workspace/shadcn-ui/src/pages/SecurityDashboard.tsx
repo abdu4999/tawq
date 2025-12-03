@@ -24,6 +24,7 @@ import {
   type SecurityTestReport 
 } from '@/lib/security-testing';
 import { backupManager } from '@/lib/data-protection';
+import Sidebar from '@/components/Sidebar';
 
 export default function SecurityDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -197,7 +198,9 @@ export default function SecurityDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6" dir="rtl">
+    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50" dir="rtl">
+      <Sidebar />
+      <div className="flex-1 p-6 mr-80">
       {/* Header */}
       <div className="mb-6">
         {message && (
@@ -688,6 +691,7 @@ export default function SecurityDashboard() {
           </div>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }
