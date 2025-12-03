@@ -51,6 +51,7 @@ const navigationItems = [
   { path: '/policies-log', icon: FileText, label: 'السياسات والسجل', badge: null },
   { path: '/notifications-challenges', icon: Trophy, label: 'الإشعارات والتحديات', badge: '5' },
   { path: '/admin-permissions', icon: Shield, label: 'إدارة الصلاحيات', badge: null },
+  { path: '/security', icon: Shield, label: 'الأمن السيبراني', badge: '🛡️' },
   { path: '/error-management', icon: AlertTriangle, label: 'إدارة الأخطاء', badge: null }
 ];
 
