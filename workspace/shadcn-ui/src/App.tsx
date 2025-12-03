@@ -34,6 +34,8 @@ import EmployeeDashboard from './pages/EmployeeDashboard';
 import AnalyticsScreen from './pages/AnalyticsScreen';
 import PoliciesLogScreen from './pages/PoliciesLogScreen';
 import NotificationsChallengesScreen from './pages/NotificationsChallengesScreen';
+import MicroMeasurementScreen from './pages/MicroMeasurementScreen';
+import BehaviorAnalyticsScreen from './pages/BehaviorAnalyticsScreen';
 
 const queryClient = new QueryClient();
 
@@ -63,6 +65,8 @@ const App = () => (
               <Route path="/ai-analytics" element={<AIAnalytics />} />
               <Route path="/ai-insights" element={<AIInsights />} />
               <Route path="/analytics-predictions" element={<AnalyticsScreen />} />
+              <Route path="/micro-measurement" element={<MicroMeasurementScreen />} />
+              <Route path="/behavior-analytics" element={<BehaviorAnalyticsScreen />} />
               <Route path="/training-platform" element={<TrainingPlatform />} />
               <Route path="/gamification" element={<GamificationSystem />} />
               <Route path="/accounting" element={<Accounting />} />
