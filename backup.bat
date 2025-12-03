@@ -1,11 +1,11 @@
 @echo off
 chcp 65001 >nul
-title 🔒 نظام النسخ الاحتياطي - Backup System
+title Backup System
 color 0A
 
 echo.
 echo ====================================================
-echo          🔒 نظام النسخ الاحتياطي الشامل
+echo              BACKUP SYSTEM - Full Backup
 echo ====================================================
 echo.
 
@@ -15,22 +15,22 @@ set "BACKUP_NAME=backup_%date:~-4,4%%date:~-10,2%%date:~-7,2%_%time:~0,2%%time:~
 set "BACKUP_NAME=%BACKUP_NAME: =0%"
 set "BACKUP_PATH=%DEST%\%BACKUP_NAME%"
 
-echo 📁 المصدر: %SOURCE%
-echo 📁 الوجهة: %BACKUP_PATH%
+echo Source: %SOURCE%
+echo Destination: %BACKUP_PATH%
 echo.
 
-REM إنشاء مجلد النسخ الاحتياطية
+REM Create backups directory
 if not exist "%DEST%" (
     mkdir "%DEST%"
-    echo ✅ تم إنشاء مجلد النسخ الاحتياطية
+    echo Created backups directory
 )
 
-REM إنشاء مجلد النسخة الحالية
+REM Create current backup directory
 mkdir "%BACKUP_PATH%"
-echo ✅ تم إنشاء مجلد النسخة: %BACKUP_NAME%
+echo Created backup folder: %BACKUP_NAME%
 echo.
 
-echo 📦 جاري نسخ الملفات...
+echo Copying files...
 echo.
 
 REM نسخ المجلدات والملفات المهمة
@@ -53,10 +53,10 @@ copy "D:\joker\*.bat" "%BACKUP_PATH%\" >nul 2>nul
 copy "D:\joker\*.ps1" "%BACKUP_PATH%\" >nul 2>nul
 
 echo.
-echo ✅ تم نسخ جميع الملفات بنجاح!
+echo All files copied successfully!
 echo.
 
-REM إنشاء ملف معلومات النسخة
+REM Create backup info file
 (
 echo {
 echo   "backupName": "%BACKUP_NAME%",
@@ -66,47 +66,47 @@ echo   "destination": "%BACKUP_PATH%"
 echo }
 ) > "%BACKUP_PATH%\backup-info.json"
 
-echo 📋 تم إنشاء ملف معلومات النسخة
+echo Backup info file created
 echo.
 
-REM حساب حجم النسخة
-echo 📊 جاري حساب حجم النسخة...
+REM Calculate backup size
+echo Calculating backup size...
 dir "%BACKUP_PATH%" /s /-c 2>nul | find "File(s)"
 echo.
 
-REM ضغط النسخة (اختياري)
+REM Compress backup (optional)
 echo.
-set /p COMPRESS="هل تريد ضغط النسخة؟ (Y/N): "
+set /p COMPRESS="Compress backup? (Y/N): "
 if /i "%COMPRESS%"=="Y" (
     echo.
-    echo 🗜️  جاري ضغط النسخة...
+    echo Compressing backup...
     powershell -command "Compress-Archive -Path '%BACKUP_PATH%' -DestinationPath '%BACKUP_PATH%.zip' -Force"
     if exist "%BACKUP_PATH%.zip" (
-        echo ✅ تم ضغط النسخة بنجاح!
-        echo 📦 الملف المضغوط: %BACKUP_NAME%.zip
+        echo Backup compressed successfully!
+        echo Compressed file: %BACKUP_NAME%.zip
         
-        REM حذف المجلد غير المضغوط
+        REM Delete uncompressed folder
         rmdir /s /q "%BACKUP_PATH%"
-        echo 🗑️  تم حذف المجلد غير المضغوط
+        echo Deleted uncompressed folder
     )
 )
 
 echo.
 echo ====================================================
-echo          ✅ اكتملت عملية النسخ الاحتياطي!
+echo          BACKUP COMPLETED SUCCESSFULLY!
 echo ====================================================
 echo.
-echo 📁 موقع النسخة: %DEST%
-echo ⏰ الوقت: %date% %time%
+echo Backup location: %DEST%
+echo Time: %date% %time%
 echo.
 
-REM عرض جميع النسخ المتوفرة
-echo 📊 النسخ الاحتياطية المتوفرة:
+REM Show all available backups
+echo Available backups:
 echo.
 dir "%DEST%\backup_*" /b 2>nul
 echo.
 
-set /p OPEN="هل تريد فتح مجلد النسخ الاحتياطية؟ (Y/N): "
+set /p OPEN="Open backups folder? (Y/N): "
 if /i "%OPEN%"=="Y" (
     start "" "%DEST%"
 )

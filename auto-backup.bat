@@ -1,33 +1,33 @@
 @echo off
 chcp 65001 >nul
-title ⏰ نسخ احتياطي تلقائي - Auto Backup
+title Auto Backup
 color 0E
 
 echo.
 echo ====================================================
-echo          ⏰ نظام النسخ الاحتياطي التلقائي
+echo          AUTOMATIC BACKUP SYSTEM
 echo ====================================================
 echo.
 
 set "INTERVAL=21600"
-REM 21600 ثانية = 6 ساعات
+REM 21600 seconds = 6 hours
 
-echo 📅 الفترة الزمنية: كل 6 ساعات
-echo 🚀 بدء خدمة النسخ الاحتياطي التلقائي...
-echo اضغط Ctrl+C للإيقاف
+echo Interval: Every 6 hours
+echo Starting automatic backup service...
+echo Press Ctrl+C to stop
 echo.
 
 :LOOP
 echo ====================================================
-echo 🔄 بدء النسخ الاحتياطي التلقائي
-echo ⏰ %date% %time%
+echo Starting automatic backup
+echo Time: %date% %time%
 echo ====================================================
 echo.
 
 call "%~dp0backup.bat"
 
 echo.
-echo ⏳ النسخة التالية بعد 6 ساعات...
+echo Next backup in 6 hours...
 echo.
 
 timeout /t %INTERVAL% /nobreak
