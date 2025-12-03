@@ -669,23 +669,6 @@ export default function SecurityDashboard() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>  <Badge variant={backup.type === 'full' ? 'default' : 'secondary'}>
-                          {backup.type}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        {new Date(backup.timestamp).toLocaleString('ar-SA')} • 
-                        {Math.round(backup.size / 1024)} KB
-                      </p>
-                    </div>
-                    {backup.encrypted && (
-                      <Lock className="w-4 h-4 text-green-600" />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
