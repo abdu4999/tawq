@@ -21,6 +21,174 @@ export interface PsychologicalProfile {
   lastUpdated: Date;
 }
 
+// خريطة ذكاء الموظف
+export interface EmployeeIntelligenceMap {
+  employeeId: string;
+  skills: {
+    learningSpeed: number; // 0-100
+    taskCompletion: number;
+    adaptability: number;
+    instructionComprehension: number;
+    decisionQuality: number;
+    dataAnalysis: number;
+    responseToChange: number;
+    stressHandling: number;
+    communicationSkills: number;
+    dataEntryAccuracy: number;
+    problemSolving: number;
+    attentionToDetail: number;
+  };
+  strengths: string[];
+  weaknesses: string[];
+  developmentSuggestions: string[];
+  suitableTasks: string[];
+  growthPrediction: {
+    threeMonths: number;
+    sixMonths: number;
+  };
+  lastUpdated: Date;
+}
+
+// مؤشر مخاطر الاستقالة
+export interface TurnoverRisk {
+  employeeId: string;
+  riskScore: number; // 0-100
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
+  factors: {
+    passionDecline: number;
+    errorIncrease: number;
+    usageDecrease: number;
+    lackOfCommunication: number;
+    burnoutLevel: number;
+    taskIncompletion: number;
+    stressIndicators: number;
+    behaviorChange: number;
+    loginPatternChange: number;
+    lackOfInitiative: number;
+    distraction: number;
+    productivityDecline: number;
+  };
+  reasons: string[];
+  recommendations: string[];
+  urgency: 'immediate' | 'urgent' | 'monitor' | 'stable';
+  lastUpdated: Date;
+}
+
+// خطة التطوير الفردية
+export interface IndividualDevelopmentPlan {
+  employeeId: string;
+  strengths: string[];
+  weaknesses: string[];
+  goals: {
+    thirtyDays: Goal[];
+    ninetyDays: Goal[];
+    sixMonths: Goal[];
+  };
+  training: {
+    courses: string[];
+    videos: string[];
+    practicalTasks: string[];
+    mentoringSessions: string[];
+  };
+  performanceImprovement: {
+    taskTypes: string[];
+    taskVolume: string;
+    restPeriods: string;
+    stressDistribution: string;
+    workPatternChanges: string[];
+  };
+  readinessLevel: number; // 0-100
+  lastUpdated: Date;
+}
+
+interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  targetValue: number;
+  currentValue: number;
+  priority: 'high' | 'medium' | 'low';
+}
+
+// تحليل سلوك التصفح
+export interface NavigationBehavior {
+  employeeId: string;
+  metrics: {
+    totalNavigations: number;
+    averageTimePerPage: Record<string, number>;
+    frequentlyVisitedPages: Array<{ page: string; visits: number }>;
+    confusionPoints: Array<{ page: string; indicators: string[] }>;
+    errorPronePages: Array<{ page: string; errorCount: number }>;
+    avoidedPages: string[];
+  };
+  uxIssues: {
+    page: string;
+    issue: string;
+    severity: 'high' | 'medium' | 'low';
+    suggestion: string;
+  }[];
+  lastUpdated: Date;
+}
+
+// جودة إدخال البيانات
+export interface DataEntryQuality {
+  employeeId: string;
+  metrics: {
+    averageEntryTime: number;
+    entrySpeed: number; // chars per minute
+    errorsDuringEntry: number;
+    fieldsModified: number;
+    difficultFields: string[];
+    ignoredFields: string[];
+    accuracy: number; // 0-100
+  };
+  comparison: {
+    rankAmongPeers: number;
+    averageTeamAccuracy: number;
+  };
+  recommendations: string[];
+  trainingNeeds: string[];
+  lastUpdated: Date;
+}
+
+// مراقبة استخدام النظام
+export interface SystemUsageMonitor {
+  employeeId: string;
+  sessions: {
+    loginTime: Date;
+    logoutTime: Date;
+    duration: number;
+    longestSession: number;
+    averageSession: number;
+  };
+  pageUsage: {
+    mostUsed: Array<{ page: string; time: number }>;
+    leastUsed: string[];
+    timeConsumingPages: Array<{ page: string; avgTime: number }>;
+    frictionPages: Array<{ page: string; reason: string }>;
+  };
+  productivity: {
+    peakHours: string[];
+    lowActivityPeriods: string[];
+    overallProductivity: number; // 0-100
+  };
+  lastUpdated: Date;
+}
+
+// تنبيهات فورية
+export interface RealTimeAlert {
+  id: string;
+  type: 'performance' | 'burnout' | 'quality' | 'behavior' | 'turnover';
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  employeeId: string;
+  employeeName: string;
+  title: string;
+  message: string;
+  timestamp: Date;
+  actionRequired: boolean;
+  suggestedActions: string[];
+}
+
 interface TrendData {
   pointsTrend: number;
   earningsTrend: number;
