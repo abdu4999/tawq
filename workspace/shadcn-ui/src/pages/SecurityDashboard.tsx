@@ -3,13 +3,14 @@
  * لوحة تحكم الأمن السيبراني الشاملة
  */
 
-import React, { useState, useEffect } from 'react';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, Eye, Lock, Database, Activity, FileText } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Clock, Eye, Lock, Database, Activity, FileText, Download, Upload, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   securityFramework, 
   AuditAction, 
@@ -30,9 +31,15 @@ export default function SecurityDashboard() {
   const [isRunningTests, setIsRunningTests] = useState(false);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [threats, setThreats] = useState<any[]>([]);
+  const [backups, setBackups] = useState<any[]>([]);
+  const [backupStats, setBackupStats] = useState<any>(null);
+  const [isCreatingBackup, setIsCreatingBackup] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     loadSecurityData();
+    loadBackups();
   }, []);
 
   const loadSecurityData = () => {
@@ -43,34 +50,172 @@ export default function SecurityDashboard() {
     setThreats(threats_data);
   };
 
+  const loadBackups = () => {
+    const backupList = backupManager.getBackups();
+    setBackups(backupList);
+    
+    const stats = backupManager.getBackupStats();
+    setBackupStats(stats);
+  };
+
   const runSecurityTests = async () => {
     setIsRunningTests(true);
     try {
       const report = await securityTestRunner.runAllTests();
       setTestReport(report);
+      showMessage('success', '✅ تم إكمال الاختبارات الأمنية بنجاح');
     } catch (error) {
       console.error('Error running tests:', error);
+      showMessage('error', '❌ حدث خطأ أثناء تشغيل الاختبارات');
     } finally {
       setIsRunningTests(false);
     }
   };
 
   const createBackup = async () => {
+    setIsCreatingBackup(true);
     try {
       const user = securityFramework.getCurrentUser();
       if (user) {
-        await backupManager.createBackup('full', user.id);
-        alert('✅ تم إنشاء النسخة الاحتياطية بنجاح');
+        const backup = await backupManager.createBackup('full', user.id);
+        showMessage('success', `✅ تم إنشاء النسخة الاحتياطية: ${backup.fileName}`);
+        loadBackups();
+      } else {
+        showMessage('error', '❌ يجب تسجيل الدخول أولاً');
       }
     } catch (error) {
-      alert('❌ فشل إنشاء النسخة الاحتياطية');
+      showMessage('error', '❌ فشل إنشاء النسخة الاحتياطية');
+    } finally {
+      setIsCreatingBackup(false);
     }
+  };
+
+  const restoreBackup = async (backupId: string) => {
+    if (!confirm('⚠️ هل أنت متأكد من استرجاع هذه النسخة؟ سيتم استبدال جميع البيانات الحالية.')) {
+      return;
+    }
+
+    try {
+      showMessage('info', '🔄 جارِ استرجاع النسخة الاحتياطية...');
+      const success = await backupManager.restoreBackup(backupId);
+      
+      if (success) {
+        showMessage('success', '✅ تم استرجاع النسخة الاحتياطية بنجاح! سيتم إعادة تحميل الصفحة...');
+      } else {
+        showMessage('error', '❌ فشل استرجاع النسخة الاحتياطية');
+      }
+    } catch (error: any) {
+      showMessage('error', `❌ خطأ: ${error.message}`);
+    }
+  };
+
+  const exportBackup = async (backupId: string) => {
+    try {
+      const backup = backupManager.getBackupInfo(backupId);
+      if (!backup) return;
+
+      const blob = await backupManager.exportBackup(backupId);
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = backup.fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showMessage('success', `✅ تم تحميل الملف: ${backup.fileName}`);
+      }
+    } catch (error) {
+      showMessage('error', '❌ فشل تصدير النسخة الاحتياطية');
+    }
+  };
+
+  const importBackup = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      showMessage('info', '📥 جارِ استيراد النسخة الاحتياطية...');
+      
+      const user = securityFramework.getCurrentUser();
+      if (!user) {
+        showMessage('error', '❌ يجب تسجيل الدخول أولاً');
+        return;
+      }
+
+      const backup = await backupManager.importBackup(file, user.id);
+      
+      if (backup) {
+        showMessage('success', `✅ تم استيراد النسخة: ${backup.fileName}`);
+        loadBackups();
+      } else {
+        showMessage('error', '❌ فشل استيراد النسخة الاحتياطية');
+      }
+    } catch (error) {
+      showMessage('error', '❌ خطأ في استيراد الملف');
+    }
+    
+    // إعادة تعيين input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const deleteBackup = async (backupId: string) => {
+    if (!confirm('⚠️ هل أنت متأكد من حذف هذه النسخة؟')) {
+      return;
+    }
+
+    try {
+      // حذف من القائمة (في التطبيق الفعلي سيكون من الخادم)
+      setBackups(backups.filter(b => b.id !== backupId));
+      showMessage('success', '✅ تم حذف النسخة الاحتياطية');
+    } catch (error) {
+      showMessage('error', '❌ فشل حذف النسخة');
+    }
+  };
+
+  const cleanOldBackups = () => {
+    if (!confirm('⚠️ سيتم حذف جميع النسخ الأقدم من 30 يوم. هل تريد المتابعة؟')) {
+      return;
+    }
+
+    try {
+      const deletedCount = backupManager.cleanOldBackups(30);
+      showMessage('success', `✅ تم حذف ${deletedCount} نسخة احتياطية قديمة`);
+      loadBackups();
+    } catch (error) {
+      showMessage('error', '❌ فشل تنظيف النسخ القديمة');
+    }
+  };
+
+  const showMessage = (type: 'success' | 'error' | 'info', text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 5000);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6" dir="rtl">
       {/* Header */}
       <div className="mb-6">
+        {message && (
+          <Alert className={`mb-4 ${
+            message.type === 'success' ? 'bg-green-50 border-green-200' :
+            message.type === 'error' ? 'bg-red-50 border-red-200' :
+            'bg-blue-50 border-blue-200'
+          }`}>
+            <AlertDescription className={
+              message.type === 'success' ? 'text-green-800' :
+              message.type === 'error' ? 'text-red-800' :
+              'text-blue-800'
+            }>
+              {message.text}
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center shadow-lg">
@@ -96,9 +241,10 @@ export default function SecurityDashboard() {
             </Button>
             <Button 
               onClick={createBackup}
+              disabled={isCreatingBackup}
               variant="outline"
             >
-              💾 نسخة احتياطية
+              {isCreatingBackup ? '⏳ جارِ الإنشاء...' : '💾 نسخة احتياطية'}
             </Button>
           </div>
         </div>
@@ -379,44 +525,151 @@ export default function SecurityDashboard() {
                         <p>👤 {threat.userId || 'غير محدد'}</p>
                         {threat.indicators.length > 0 && (
                           <div className="mt-2">
-                            <p className="font-medium mb-1">مؤشرات:</p>
-                            <ul className="list-disc list-inside">
-                              {threat.indicators.map((ind: string, i: number) => (
-                                <li key={i}>{ind}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         {/* Backups Tab */}
         <TabsContent value="backups">
-          <Card>
-            <CardHeader>
-              <CardTitle>💾 النسخ الاحتياطية</CardTitle>
-              <CardDescription>
-                إدارة النسخ الاحتياطية للنظام
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {backupManager.getBackups().slice(0, 10).map((backup, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-3 p-3 rounded-lg border hover:bg-gray-50"
-                  >
-                    <Database className="w-5 h-5 text-blue-600" />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{backup.id}</span>
-                        <Badge variant={backup.type === 'full' ? 'default' : 'secondary'}>
+          <div className="space-y-4">
+            {/* Backup Stats */}
+            {backupStats && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-gray-600">إجمالي النسخ</div>
+                    <div className="text-2xl font-bold">{backupStats.total}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-gray-600">الحجم الإجمالي</div>
+                    <div className="text-2xl font-bold">
+                      {Math.round(backupStats.totalSize / 1024)} KB
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-gray-600">نسخ كاملة</div>
+                    <div className="text-2xl font-bold">{backupStats.byType.full}</div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-sm text-gray-600">نسخ تزايدية</div>
+                    <div className="text-2xl font-bold">{backupStats.byType.incremental}</div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>💾 النسخ الاحتياطية</CardTitle>
+                    <CardDescription>
+                      إدارة النسخ الاحتياطية للنظام
+                    </CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".enc"
+                      onChange={importBackup}
+                      className="hidden"
+                    />
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Upload className="w-4 h-4 ml-2" />
+                      استيراد
+                    </Button>
+                    <Button
+                      onClick={cleanOldBackups}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Trash2 className="w-4 h-4 ml-2" />
+                      تنظيف القديمة
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {backups.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Database className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">
+                      لا توجد نسخ احتياطية بعد
+                    </p>
+                    <Button onClick={createBackup} disabled={isCreatingBackup}>
+                      💾 إنشاء أول نسخة
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {backups.map((backup, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-3 p-4 rounded-lg border hover:bg-gray-50 transition-colors"
+                      >
+                        <Database className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium truncate">
+                              {backup.fileName || backup.id}
+                            </span>
+                            <Badge variant={backup.type === 'full' ? 'default' : 'secondary'}>
+                              {backup.type === 'full' ? 'كاملة' : 'تزايدية'}
+                            </Badge>
+                            {backup.encrypted && (
+                              <Lock className="w-3 h-3 text-green-600" />
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {new Date(backup.timestamp).toLocaleString('ar-SA')} • 
+                            {Math.round(backup.size / 1024)} KB •
+                            {backup.location && (
+                              <span className="text-gray-400"> {backup.location}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button
+                            onClick={() => restoreBackup(backup.id)}
+                            variant="outline"
+                            size="sm"
+                            title="استرجاع"
+                          >
+                            🔄
+                          </Button>
+                          <Button
+                            onClick={() => exportBackup(backup.id)}
+                            variant="outline"
+                            size="sm"
+                            title="تحميل"
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            onClick={() => deleteBackup(backup.id)}
+                            variant="outline"
+                            size="sm"
+                            title="حذف"
+                            className="text-red-600 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>  <Badge variant={backup.type === 'full' ? 'default' : 'secondary'}>
                           {backup.type}
                         </Badge>
                       </div>
