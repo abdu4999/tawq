@@ -537,6 +537,22 @@ export class BackupManager {
       // فك التشفير
       const decrypted = this.encryption.decrypt(encrypted);
       const data = JSON.parse(decrypted);
+      
+      console.log('♻️ استرجاع البيانات...');
+      
+      // استرجاع البيانات
+      const restoredCount = this.restoreSystemData(data);
+      
+      console.log(`✅ تم استرجاع ${restoredCount} عنصر بنجاح`);
+      console.log(`📊 النسخة الاحتياطية: ${backup.fileName}`);
+      
+      return true;
+    } catch (error) {
+      console.error('❌ فشل استرجاع النسخة الاحتياطية:', error);
+      return false;
+    }
+  }
+  
   /**
    * حذف النسخ القديمة
    */
@@ -755,39 +771,6 @@ export class BackupManager {
       throw new Error('Backup data not found in storage');
     }
     return data;
-  }
-  
-  private deleteBackupFromStorage(id: string): void {
-    localStorage.removeItem(`backup_data_${id}`);
-  }
-  
-  private loadBackups(): void {
-    try {
-      const data = localStorage.getItem('backup_metadata');
-      if (data) {
-        const parsedBackups = JSON.parse(data);
-        // تحويل timestamps من string إلى Date
-        this.backups = parsedBackups.map((b: any) => ({
-          ...b,
-          timestamp: new Date(b.timestamp)
-        }));
-        console.log(`📋 تم تحميل ${this.backups.length} نسخة احتياطية`);
-      } else {
-        console.log('📋 لا توجد نسخ احتياطية محفوظة');
-      }
-    } catch (error) {
-      console.error('خطأ في تحميل النسخ الاحتياطية:', error);
-      this.backups = [];
-    }
-  }
-  
-  private saveBackupMetadata(): void {
-    try {
-      localStorage.setItem('backup_metadata', JSON.stringify(this.backups));
-      console.log(`💾 تم حفظ معلومات ${this.backups.length} نسخة احتياطية`);
-    } catch (error) {
-      console.error('خطأ في حفظ معلومات النسخ:', error);
-    }
   }
   
   /**
