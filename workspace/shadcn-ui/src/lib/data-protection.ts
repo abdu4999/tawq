@@ -401,16 +401,57 @@ export interface BackupMetadata {
   createdBy: string;
   location: string;
   checksum: string;
+  fileName: string;
 }
 
 export class BackupManager {
   private static instance: BackupManager;
   private backups: BackupMetadata[] = [];
   private encryption: DataEncryption;
+  private backupBasePath: string;
   
   private constructor() {
     this.encryption = DataEncryption.getInstance();
+    // استخدام المسار الفعلي للمشروع
+    this.backupBasePath = this.getProjectBasePath();
+    this.ensureBackupDirectory();
     this.loadBackups();
+  }
+  
+  /**
+   * الحصول على المسار الأساسي للمشروع
+   */
+  private getProjectBasePath(): string {
+    // في بيئة المتصفح، نستخدم IndexedDB أو localStorage
+    // في بيئة Node.js، نستخدم المسار الفعلي
+    if (typeof window !== 'undefined') {
+      // بيئة المتصفح - نستخدم IndexedDB
+      return 'indexeddb://backups';
+    }
+    
+    // بيئة Node.js - نستخدم المسار الحقيقي
+    const currentPath = typeof process !== 'undefined' && process.cwd 
+      ? process.cwd() 
+      : '';
+    
+    return `${currentPath}/backups`;
+  }
+  
+  /**
+   * التأكد من وجود مجلد النسخ الاحتياطية
+   */
+  private ensureBackupDirectory(): void {
+    try {
+      // في بيئة المتصفح، نستخدم localStorage للتخزين
+      if (typeof window !== 'undefined') {
+        // التأكد من وجود مساحة في localStorage
+        const testKey = 'backup_storage_test';
+        localStorage.setItem(testKey, 'test');
+        localStorage.removeItem(testKey);
+      }
+    } catch (error) {
+      console.error('Error ensuring backup directory:', error);
+    }
   }
   
   static getInstance(): BackupManager {
@@ -424,26 +465,45 @@ export class BackupManager {
    * إنشاء نسخة احتياطية
    */
   async createBackup(type: 'full' | 'incremental', userId: string): Promise<BackupMetadata> {
-    const data = this.collectSystemData();
-    const encrypted = this.encryption.encryptObject(data);
-    
-    const backup: BackupMetadata = {
-      id: `backup_${Date.now()}`,
-      timestamp: new Date(),
-      type,
-      size: encrypted.length,
-      encrypted: true,
-      createdBy: userId,
-      location: `backups/${type}/${Date.now()}.enc`,
-      checksum: this.calculateChecksum(encrypted)
-    };
-    
-    // حفظ النسخة
-    this.saveBackupToStorage(backup.id, encrypted);
-    this.backups.push(backup);
-    this.saveBackupMetadata();
-    
-    return backup;
+    try {
+      // جمع البيانات
+      const data = this.collectSystemData();
+      const jsonData = JSON.stringify(data);
+      
+      // تشفير البيانات
+      const encrypted = this.encryption.encrypt(jsonData);
+      
+      // توليد اسم الملف
+      const timestamp = Date.now();
+      const dateStr = new Date(timestamp).toISOString().split('T')[0];
+      const fileName = `backup_${type}_${dateStr}_${timestamp}.enc`;
+      
+      const backup: BackupMetadata = {
+        id: `backup_${timestamp}`,
+        timestamp: new Date(),
+        type,
+        size: encrypted.length,
+        encrypted: true,
+        createdBy: userId,
+        location: `${this.backupBasePath}/${type}`,
+        fileName: fileName,
+        checksum: this.calculateChecksum(encrypted)
+      };
+      
+      // حفظ النسخة
+      await this.saveBackupToStorage(backup.id, encrypted, backup.fileName);
+      this.backups.push(backup);
+      this.saveBackupMetadata();
+      
+      console.log(`✅ تم إنشاء النسخة الاحتياطية: ${fileName}`);
+      console.log(`📁 الموقع: ${backup.location}/${fileName}`);
+      console.log(`📊 الحجم: ${Math.round(backup.size / 1024)} KB`);
+      
+      return backup;
+    } catch (error) {
+      console.error('❌ فشل إنشاء النسخة الاحتياطية:', error);
+      throw error;
+    }
   }
   
   /**
@@ -452,27 +512,175 @@ export class BackupManager {
   async restoreBackup(backupId: string): Promise<boolean> {
     const backup = this.backups.find(b => b.id === backupId);
     if (!backup) {
+      console.error('❌ النسخة الاحتياطية غير موجودة:', backupId);
       throw new Error('النسخة الاحتياطية غير موجودة');
     }
     
+    console.log(`🔄 بدء استرجاع النسخة الاحتياطية: ${backup.fileName}`);
+    console.log(`📁 من الموقع: ${backup.location}/${backup.fileName}`);
+    
     try {
+      // تحميل البيانات المشفرة
       const encrypted = this.loadBackupFromStorage(backupId);
+      
+      console.log('🔐 التحقق من سلامة النسخة...');
       
       // التحقق من السلامة
       const checksum = this.calculateChecksum(encrypted);
       if (checksum !== backup.checksum) {
-        throw new Error('النسخة الاحتياطية تالفة');
+        console.error('❌ النسخة الاحتياطية تالفة - checksum غير متطابق');
+        throw new Error('النسخة الاحتياطية تالفة - فشل التحقق من السلامة');
       }
       
+      console.log('✅ النسخة سليمة، جارِ فك التشفير...');
+      
       // فك التشفير
-      const data = this.encryption.decryptObject(encrypted);
-      
-      // استرجاع البيانات
-      this.restoreSystemData(data);
-      
+      const decrypted = this.encryption.decrypt(encrypted);
+      const data = JSON.parse(decrypted);
+  /**
+   * حذف النسخ القديمة
+   */
+  cleanOldBackups(daysToKeep: number = 30): number {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+    
+    let deletedCount = 0;
+    
+    this.backups = this.backups.filter(backup => {
+      if (backup.timestamp < cutoffDate) {
+        console.log(`🗑️ حذف نسخة قديمة: ${backup.fileName}`);
+        this.deleteBackupFromStorage(backup.id);
+        deletedCount++;
+        return false;
+      }
       return true;
+    });
+    
+    this.saveBackupMetadata();
+    
+    if (deletedCount > 0) {
+      console.log(`✅ تم حذف ${deletedCount} نسخة احتياطية قديمة`);
+    }
+    
+    return deletedCount;
+  }
+  
+  /**
+   * الحصول على جميع النسخ الاحتياطية
+   */
+  getBackups(): BackupMetadata[] {
+    return [...this.backups].sort((a, b) => 
+      b.timestamp.getTime() - a.timestamp.getTime()
+    );
+  }
+  
+  /**
+   * الحصول على معلومات النسخة الاحتياطية
+   */
+  getBackupInfo(backupId: string): BackupMetadata | undefined {
+    return this.backups.find(b => b.id === backupId);
+  }
+  
+  /**
+   * تصدير النسخة الاحتياطية كملف
+   */
+  async exportBackup(backupId: string): Promise<Blob | null> {
+    try {
+      const backup = this.backups.find(b => b.id === backupId);
+      if (!backup) {
+        console.error('النسخة الاحتياطية غير موجودة');
+        return null;
+  // مساعدات داخلية
+  
+  private collectSystemData(): any {
+    // جمع كل البيانات من localStorage
+    const data: Record<string, any> = {
+      metadata: {
+        version: '1.0',
+        createdAt: new Date().toISOString(),
+        platform: typeof window !== 'undefined' ? 'browser' : 'node'
+      }
+    };
+    
+    // جمع جميع مفاتيح localStorage
+    if (typeof localStorage !== 'undefined') {
+      const keys = Object.keys(localStorage);
+      console.log(`📦 جمع ${keys.length} عنصر من localStorage...`);
+      
+      keys.forEach(key => {
+        // تجاهل مفاتيح النسخ الاحتياطية نفسها
+        if (!key.startsWith('backup_')) {
+          try {
+            data[key] = localStorage.getItem(key);
+          } catch (error) {
+            console.warn(`تحذير: فشل جمع ${key}:`, error);
+          }
+        }
+      });
+    }
+    
+    return data;
+  }
+  
+  private restoreSystemData(data: any): number {
+    // استرجاع البيانات إلى localStorage
+    let restoredCount = 0;
+    
+    Object.keys(data).forEach(key => {
+      if (key !== 'metadata' && data[key] !== null && data[key] !== undefined) {
+        try {
+          localStorage.setItem(key, data[key]);
+          restoredCount++;
+        } catch (error) {
+          console.warn(`تحذير: فشل استرجاع ${key}:`, error);
+        }
+      }
+    });
+    
+    // إعادة تحميل الصفحة لتطبيق التغييرات
+    if (typeof window !== 'undefined' && restoredCount > 0) {
+      console.log('🔄 سيتم إعادة تحميل الصفحة لتطبيق التغييرات...');
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    }
+    
+    return restoredCount;
+  }   const encrypted = await file.text();
+      
+      console.log(`📥 استيراد نسخة احتياطية من: ${file.name}`);
+      
+      // التحقق من صحة البيانات
+      const checksum = this.calculateChecksum(encrypted);
+      
+      const timestamp = Date.now();
+      const backup: BackupMetadata = {
+        id: `backup_${timestamp}`,
+        timestamp: new Date(),
+        type: 'full',
+        size: encrypted.length,
+        encrypted: true,
+        createdBy: userId,
+        location: `${this.backupBasePath}/imported`,
+        fileName: file.name,
+        checksum
+      };
+      
+      // حفظ النسخة
+      await this.saveBackupToStorage(backup.id, encrypted, backup.fileName);
+      this.backups.push(backup);
+      this.saveBackupMetadata();
+      
+      console.log(`✅ تم استيراد النسخة الاحتياطية بنجاح`);
+      
+      return backup;
     } catch (error) {
-      console.error('Backup restoration failed:', error);
+      console.error('فشل استيراد النسخة:', error);
+      return null;
+    }
+  }   return true;
+    } catch (error) {
+      console.error('❌ فشل استرجاع النسخة الاحتياطية:', error);
       return false;
     }
   }
@@ -500,28 +708,79 @@ export class BackupManager {
       b.timestamp.getTime() - a.timestamp.getTime()
     );
   }
-  
-  // مساعدات داخلية
-  
-  private collectSystemData(): any {
-    // جمع كل البيانات من localStorage
-    return {
-      users: localStorage.getItem('users'),
-      tasks: localStorage.getItem('tasks'),
-      revenues: localStorage.getItem('revenues'),
-      points: localStorage.getItem('points'),
-      settings: localStorage.getItem('settings'),
-      timestamp: new Date().toISOString()
-    };
+  private async saveBackupToStorage(id: string, data: string, fileName: string): Promise<void> {
+    try {
+      // حفظ في localStorage مع الـ ID
+      localStorage.setItem(`backup_data_${id}`, data);
+      console.log(`💾 تم حفظ النسخة في التخزين المحلي: ${fileName}`);
+    } catch (error) {
+      console.error('فشل حفظ النسخة:', error);
+      throw new Error('فشل حفظ النسخة الاحتياطية - مساحة التخزين ممتلئة');
+    }
   }
   
-  private restoreSystemData(data: any): void {
-    // استرجاع البيانات إلى localStorage
-    Object.keys(data).forEach(key => {
-      if (key !== 'timestamp' && data[key]) {
-        localStorage.setItem(key, data[key]);
+  private loadBackupFromStorage(id: string): string {
+    const data = localStorage.getItem(`backup_data_${id}`);
+    if (!data) {
+      console.error(`النسخة الاحتياطية غير موجودة في التخزين: ${id}`);
+      throw new Error('Backup data not found in storage');
+  private loadBackups(): void {
+    try {
+      const data = localStorage.getItem('backup_metadata');
+      if (data) {
+        const parsedBackups = JSON.parse(data);
+        // تحويل timestamps من string إلى Date
+        this.backups = parsedBackups.map((b: any) => ({
+          ...b,
+          timestamp: new Date(b.timestamp)
+        }));
+        console.log(`📋 تم تحميل ${this.backups.length} نسخة احتياطية`);
+      } else {
+        console.log('📋 لا توجد نسخ احتياطية محفوظة');
       }
-    });
+    } catch (error) {
+      console.error('خطأ في تحميل النسخ الاحتياطية:', error);
+      this.backups = [];
+    }
+  }
+  
+  private saveBackupMetadata(): void {
+    try {
+      localStorage.setItem('backup_metadata', JSON.stringify(this.backups));
+      console.log(`💾 تم حفظ معلومات ${this.backups.length} نسخة احتياطية`);
+    } catch (error) {
+      console.error('خطأ في حفظ معلومات النسخ:', error);
+    }
+  }
+  
+  /**
+   * الحصول على إحصائيات النسخ الاحتياطية
+   */
+  getBackupStats(): {
+    total: number;
+    totalSize: number;
+    byType: { full: number; incremental: number };
+    oldest?: Date;
+    newest?: Date;
+  } {
+    const stats = {
+      total: this.backups.length,
+      totalSize: this.backups.reduce((sum, b) => sum + b.size, 0),
+      byType: {
+        full: this.backups.filter(b => b.type === 'full').length,
+        incremental: this.backups.filter(b => b.type === 'incremental').length
+      },
+      oldest: this.backups.length > 0 
+        ? new Date(Math.min(...this.backups.map(b => b.timestamp.getTime())))
+        : undefined,
+      newest: this.backups.length > 0
+        ? new Date(Math.max(...this.backups.map(b => b.timestamp.getTime())))
+        : undefined
+    };
+    
+    return stats;
+  }
+}   });
   }
   
   private calculateChecksum(data: string): string {
