@@ -702,68 +702,41 @@ export class BackupManager {
     }
     
     return restoredCount;
-  }   const encrypted = await file.text();
-      
-      console.log(`📥 استيراد نسخة احتياطية من: ${file.name}`);
-      
-      // التحقق من صحة البيانات
-      const checksum = this.calculateChecksum(encrypted);
-      
-      const timestamp = Date.now();
-      const backup: BackupMetadata = {
-        id: `backup_${timestamp}`,
-        timestamp: new Date(),
-        type: 'full',
-        size: encrypted.length,
-        encrypted: true,
-        createdBy: userId,
-        location: `${this.backupBasePath}/imported`,
-        fileName: file.name,
-        checksum
-      };
-      
-      // حفظ النسخة
-      await this.saveBackupToStorage(backup.id, encrypted, backup.fileName);
-      this.backups.push(backup);
-      this.saveBackupMetadata();
-      
-      console.log(`✅ تم استيراد النسخة الاحتياطية بنجاح`);
-      
-      return backup;
-    } catch (error) {
-      console.error('فشل استيراد النسخة:', error);
-      return null;
-    }
-  }   return true;
-    } catch (error) {
-      console.error('❌ فشل استرجاع النسخة الاحتياطية:', error);
-      return false;
-    }
   }
   
-  /**
-   * حذف النسخ القديمة
-   */
-  cleanOldBackups(daysToKeep: number = 30): void {
-    const cutoffDate = new Date();
-    cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-    
-    this.backups = this.backups.filter(backup => {
-      if (backup.timestamp < cutoffDate) {
-        this.deleteBackupFromStorage(backup.id);
-        return false;
+  private deleteBackupFromStorage(id: string): void {
+    localStorage.removeItem(`backup_data_${id}`);
+  }
+  
+  private loadBackups(): void {
+    try {
+      const data = localStorage.getItem('backup_metadata');
+      if (data) {
+        const parsedBackups = JSON.parse(data);
+        // تحويل timestamps من string إلى Date
+        this.backups = parsedBackups.map((b: any) => ({
+          ...b,
+          timestamp: new Date(b.timestamp)
+        }));
+        console.log(`📋 تم تحميل ${this.backups.length} نسخة احتياطية`);
+      } else {
+        console.log('📋 لا توجد نسخ احتياطية محفوظة');
       }
-      return true;
-    });
-    
-    this.saveBackupMetadata();
+    } catch (error) {
+      console.error('خطأ في تحميل النسخ الاحتياطية:', error);
+      this.backups = [];
+    }
   }
   
-  getBackups(): BackupMetadata[] {
-    return [...this.backups].sort((a, b) => 
-      b.timestamp.getTime() - a.timestamp.getTime()
-    );
+  private saveBackupMetadata(): void {
+    try {
+      localStorage.setItem('backup_metadata', JSON.stringify(this.backups));
+      console.log(`💾 تم حفظ معلومات ${this.backups.length} نسخة احتياطية`);
+    } catch (error) {
+      console.error('خطأ في حفظ معلومات النسخ:', error);
+    }
   }
+  
   private async saveBackupToStorage(id: string, data: string, fileName: string): Promise<void> {
     try {
       // حفظ في localStorage مع الـ ID
@@ -780,6 +753,14 @@ export class BackupManager {
     if (!data) {
       console.error(`النسخة الاحتياطية غير موجودة في التخزين: ${id}`);
       throw new Error('Backup data not found in storage');
+    }
+    return data;
+  }
+  
+  private deleteBackupFromStorage(id: string): void {
+    localStorage.removeItem(`backup_data_${id}`);
+  }
+  
   private loadBackups(): void {
     try {
       const data = localStorage.getItem('backup_metadata');
@@ -846,37 +827,6 @@ export class BackupManager {
       hash = hash & hash;
     }
     return hash.toString(16);
-  }
-  
-  private saveBackupToStorage(id: string, data: string): void {
-    localStorage.setItem(`backup_${id}`, data);
-  }
-  
-  private loadBackupFromStorage(id: string): string {
-    const data = localStorage.getItem(`backup_${id}`);
-    if (!data) {
-      throw new Error('Backup data not found');
-    }
-    return data;
-  }
-  
-  private deleteBackupFromStorage(id: string): void {
-    localStorage.removeItem(`backup_${id}`);
-  }
-  
-  private loadBackups(): void {
-    try {
-      const data = localStorage.getItem('backup_metadata');
-      if (data) {
-        this.backups = JSON.parse(data);
-      }
-    } catch (error) {
-      console.error('Error loading backups:', error);
-    }
-  }
-  
-  private saveBackupMetadata(): void {
-    localStorage.setItem('backup_metadata', JSON.stringify(this.backups));
   }
 }
 
