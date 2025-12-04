@@ -21,14 +21,18 @@
 | `influencer-campaign.spec.ts` | E2E | 🟡 RUNNING | N/A | Influencer ROI & Workflow |
 | `smart-distribution.spec.ts` | E2E | 🟡 RUNNING | N/A | AI Task Assignment |
 
+| `Dashboard.test.tsx` | UI | 🟡 CREATED | N/A | Dashboard Components |
+| `TasksScreen.test.tsx` | UI | 🟡 CREATED | N/A | Task Management UI |
+
 ## 🟡 In Progress
-- Verifying All E2E Scenarios
+- Running UI Tests
 
 ## 🟢 Completed Unit Tests
 - All 9 Core Engines (100% Passing)
 
 ## 🔴 Pending
-- UI Component Tests
+- Remaining UI Tests
+- CI/CD Pipeline
 
 ## 🐛 Recent Fixes
 1. **E2E Login**: Fixed missing `/login` route in `App.tsx`.
