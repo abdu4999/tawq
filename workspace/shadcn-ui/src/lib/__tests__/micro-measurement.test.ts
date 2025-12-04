@@ -8,9 +8,8 @@ describe('MicroMeasurementEngine', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     microMeasurement.clearAllData();
-    // Mock localStorage
-    vi.spyOn(Storage.prototype, 'setItem');
-    vi.spyOn(Storage.prototype, 'getItem');
+    // Clear mocks
+    vi.clearAllMocks();
   });
 
   afterEach(() => {

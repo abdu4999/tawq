@@ -34,18 +34,18 @@ Object.defineProperty(window, 'matchMedia', {
 const localStorageMock = (function() {
   let store: Record<string, string> = {};
   return {
-    getItem: function(key: string) {
+    getItem: vi.fn((key: string) => {
       return store[key] || null;
-    },
-    setItem: function(key: string, value: string) {
+    }),
+    setItem: vi.fn((key: string, value: string) => {
       store[key] = value.toString();
-    },
-    clear: function() {
+    }),
+    clear: vi.fn(() => {
       store = {};
-    },
-    removeItem: function(key: string) {
+    }),
+    removeItem: vi.fn((key: string) => {
       delete store[key];
-    }
+    })
   };
 })();
 
