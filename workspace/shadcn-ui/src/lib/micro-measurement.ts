@@ -255,10 +255,10 @@ class MicroMeasurementEngine {
     const focusEvents = employeeEvents.filter(e => e.eventType === 'focus');
     const blurEvents = employeeEvents.filter(e => e.eventType === 'blur');
 
-    const totalFocusTime = focusEvents.reduce((sum, e) => sum + (e.duration || 0), 0);
-    const totalBlurTime = blurEvents.reduce((sum, e) => sum + (e.duration || 0), 0);
+    const totalFocusTime = blurEvents.reduce((sum, e) => sum + (e.duration || 0), 0);
+    const totalBlurTime = Math.max(0, sessionDuration - totalFocusTime);
     
-    const focusScore = totalFocusTime / (totalFocusTime + totalBlurTime) * 100 || 0;
+    const focusScore = totalFocusTime / sessionDuration * 100 || 0;
     const distractionScore = 100 - focusScore;
 
     const screenTimes = this.calculateScreenTimeMetrics();
