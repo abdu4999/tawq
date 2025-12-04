@@ -15,6 +15,7 @@
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 | `burnout-detection.spec.ts` | E2E | 🟡 RUNNING | N/A | Burnout Lab Flow |
 | `auth.security.test.ts` | Security | 🟡 CREATED | N/A | Auth & Role Security |
+| `idor.security.test.ts` | Security | 🟡 CREATED | N/A | IDOR Prevention |
 
 ## 🟡 In Progress
 - Security Tests Execution
