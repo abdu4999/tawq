@@ -14,30 +14,18 @@
 | `smart-task-distribution.ts` | Unit | ✅ PASS | 100% | RAG scoring & assignment |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 | `burnout-detection.spec.ts` | E2E | 🟡 RUNNING | N/A | Burnout Lab Flow |
+| `auth.security.test.ts` | Security | 🟡 CREATED | N/A | Auth & Role Security |
 
 ## 🟡 In Progress
-- Security Tests
+- Security Tests Execution
+- E2E Tests Verification
 
 ## 🟢 Completed Unit Tests
-- `micro-measurement.ts`
-- `behavior-analytics.ts`
-- `burnout-lab.ts`
-- `mandatory-workflow.ts`
-- `idp-system.ts`
-- `best-practices.ts`
-- `influencer-prediction.ts`
-- `ai-auto-decision.ts`
-- `smart-task-distribution.ts`
+- All 9 Core Engines (100% Passing)
 
 ## 🔴 Pending
-- `mandatory-workflow.ts`
-- `idp-system.ts`
-- `best-practices.ts`
-- `influencer-prediction.ts`
-- `ai-auto-decision.ts`
-- `smart-task-distribution.ts`
-- Security Tests
 - UI Component Tests
+- Remaining E2E Scenarios (Influencer, Smart Distribution)
 
 ## 🐛 Recent Fixes
 1. **E2E Login**: Fixed missing `/login` route in `App.tsx`.
