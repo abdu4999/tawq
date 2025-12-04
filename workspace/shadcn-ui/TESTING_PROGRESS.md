@@ -18,18 +18,17 @@
 | `idor.security.test.ts` | Security | 🟡 RUNNING | N/A | IDOR Prevention |
 | `business-logic.security.test.ts` | Security | 🟡 RUNNING | N/A | Logic Manipulation |
 | `data-leak.security.test.ts` | Security | 🟡 RUNNING | N/A | Data Leakage Prevention |
+| `influencer-campaign.spec.ts` | E2E | 🟡 CREATED | N/A | Influencer ROI & Workflow |
+| `smart-distribution.spec.ts` | E2E | 🟡 CREATED | N/A | AI Task Assignment |
 
 ## 🟡 In Progress
-- Verifying Security Tests Results
-- Security Tests Execution
-- E2E Tests Verification
+- Running Remaining E2E Tests
 
 ## 🟢 Completed Unit Tests
 - All 9 Core Engines (100% Passing)
 
 ## 🔴 Pending
 - UI Component Tests
-- Remaining E2E Scenarios (Influencer, Smart Distribution)
 
 ## 🐛 Recent Fixes
 1. **E2E Login**: Fixed missing `/login` route in `App.tsx`.
