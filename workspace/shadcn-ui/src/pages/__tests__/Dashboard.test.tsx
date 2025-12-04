@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import Dashboard from '../Dashboard';
 import { BrowserRouter } from 'react-router-dom';
+import { NotificationProvider } from '@/components/NotificationSystem';
 
 // Mock components that might cause issues or need data
 vi.mock('@/components/ui/card', () => ({
@@ -9,6 +10,22 @@ vi.mock('@/components/ui/card', () => ({
   CardHeader: ({ children }: any) => <div className="mock-card-header">{children}</div>,
   CardTitle: ({ children }: any) => <div className="mock-card-title">{children}</div>,
   CardContent: ({ children }: any) => <div className="mock-card-content">{children}</div>,
+  CardDescription: ({ children }: any) => <div className="mock-card-description">{children}</div>,
+}));
+
+vi.mock('@/components/Sidebar', () => ({
+  default: () => <div data-testid="sidebar">Sidebar</div>
+}));
+
+// Mock Supabase API
+vi.mock('@/lib/supabaseClient', () => ({
+  supabaseAPI: {
+    getTasks: vi.fn().mockResolvedValue([]),
+    getProjects: vi.fn().mockResolvedValue([]),
+    getCelebrities: vi.fn().mockResolvedValue([]),
+    getTransactions: vi.fn().mockResolvedValue([]),
+    getAdminUsers: vi.fn().mockResolvedValue([]),
+  }
 }));
 
 // Mock Recharts to avoid rendering issues in JSDOM
@@ -26,31 +43,27 @@ describe('Dashboard Page', () => {
   const renderDashboard = () => {
     return render(
       <BrowserRouter>
-        <Dashboard />
+        <NotificationProvider>
+          <Dashboard />
+        </NotificationProvider>
       </BrowserRouter>
     );
   };
 
-  it('should render without crashing', () => {
+  it('should render without crashing', async () => {
     renderDashboard();
-    // Basic check if the page loads
-    // Assuming there is a main heading or some text
-    // We might need to adjust based on actual content
+    // Wait for loading to finish
+    await waitFor(() => {
+      expect(screen.queryByText(/جاري تحميل بيانات/i)).not.toBeInTheDocument();
+    });
   });
 
-  it('should render stat cards', () => {
+  it('should render stat cards', async () => {
     renderDashboard();
-    // Look for common dashboard elements
-    // This depends on the actual content of Dashboard.tsx
-    // For now, we check if any "mock-card" is rendered
-    const cards = document.getElementsByClassName('mock-card');
-    expect(cards.length).toBeGreaterThan(0);
-  });
-
-  it('should show performance metrics', () => {
-    renderDashboard();
-    // Check for text that likely appears in the dashboard
-    // e.g., "Performance", "Tasks", "Revenue"
-    // expect(screen.getByText(/Performance/i)).toBeInTheDocument();
+    await waitFor(() => {
+      const cards = document.getElementsByClassName('mock-card');
+      expect(cards.length).toBeGreaterThan(0);
+    });
   });
 });
+
