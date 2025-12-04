@@ -44,6 +44,20 @@ vi.mock('@/hooks/use-toast', () => ({
   }),
 }));
 
+// Mock Lucide React
+vi.mock('lucide-react', () => ({
+  CheckSquare: () => <div />,
+  Plus: () => <div />,
+  Filter: () => <div />,
+  Calendar: () => <div />,
+  Clock: () => <div />,
+  User: () => <div />,
+  DollarSign: () => <div />,
+  FileText: () => <div />,
+  Search: () => <div />,
+  AlertCircle: () => <div />,
+}));
+
 describe('TasksScreen Page', () => {
   const renderTasksScreen = () => {
     return render(

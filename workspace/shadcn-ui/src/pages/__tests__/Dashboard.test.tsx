@@ -47,6 +47,21 @@ vi.mock('recharts', () => ({
   Legend: () => <div>Legend</div>,
 }));
 
+// Mock Lucide React
+vi.mock('lucide-react', () => ({
+  CheckSquare: () => <div />,
+  FolderOpen: () => <div />,
+  Star: () => <div />,
+  DollarSign: () => <div />,
+  TrendingUp: () => <div />,
+  TrendingDown: () => <div />,
+  Calendar: () => <div />,
+  Activity: () => <div />,
+  BarChart3: () => <div />,
+  PieChart: () => <div />,
+  Users: () => <div />,
+}));
+
 describe('Dashboard Page', () => {
   const renderDashboard = () => {
     return render(
