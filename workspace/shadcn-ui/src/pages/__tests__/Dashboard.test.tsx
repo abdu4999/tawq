@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import Dashboard from '../Dashboard';
 import { BrowserRouter } from 'react-router-dom';
-import { NotificationProvider } from '@/components/NotificationSystem';
 
 // Mock components that might cause issues or need data
 vi.mock('@/components/ui/card', () => ({
@@ -15,6 +14,15 @@ vi.mock('@/components/ui/card', () => ({
 
 vi.mock('@/components/Sidebar', () => ({
   default: () => <div data-testid="sidebar">Sidebar</div>
+}));
+
+// Mock NotificationSystem to avoid context issues
+vi.mock('@/components/NotificationSystem', () => ({
+  useNotifications: () => ({
+    addNotification: vi.fn(),
+    addErrorNotification: vi.fn(),
+  }),
+  NotificationProvider: ({ children }: any) => <div>{children}</div>
 }));
 
 // Mock Supabase API
@@ -43,9 +51,7 @@ describe('Dashboard Page', () => {
   const renderDashboard = () => {
     return render(
       <BrowserRouter>
-        <NotificationProvider>
-          <Dashboard />
-        </NotificationProvider>
+        <Dashboard />
       </BrowserRouter>
     );
   };
@@ -66,4 +72,5 @@ describe('Dashboard Page', () => {
     });
   });
 });
+
 
