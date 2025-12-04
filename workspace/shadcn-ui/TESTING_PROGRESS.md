@@ -13,9 +13,9 @@
 | `ai-auto-decision.ts` | Unit | ✅ PASS | 100% | Context-aware decision making |
 | `smart-task-distribution.ts` | Unit | ✅ PASS | 100% | RAG scoring & assignment |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
+| `burnout-detection.spec.ts` | E2E | 🟡 RUNNING | N/A | Burnout Lab Flow |
 
 ## 🟡 In Progress
-- `burnout-detection.spec.ts` (E2E)
 - Security Tests
 
 ## 🟢 Completed Unit Tests
