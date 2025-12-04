@@ -7,10 +7,11 @@
 | `behavior-analytics.ts` | Unit | ✅ PASS | 100% | Distraction & confusion analysis |
 | `burnout-lab.ts` | Unit | ✅ PASS | 100% | Burnout score & risk prediction |
 | `mandatory-workflow.ts` | Unit | ✅ PASS | 100% | Project steps & dependencies |
+| `idp-system.ts` | Unit | ✅ PASS | 100% | Individual Development Plans |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 
 ## 🟡 In Progress
-- `idp-system.ts` (Unit)
+- `best-practices.ts` (Unit)
 - `burnout-detection.spec.ts` (E2E)
 
 ## 🔴 Pending
