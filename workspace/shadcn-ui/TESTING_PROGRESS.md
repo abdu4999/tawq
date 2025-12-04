@@ -14,13 +14,13 @@
 | `smart-task-distribution.ts` | Unit | ✅ PASS | 100% | RAG scoring & assignment |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 | `burnout-detection.spec.ts` | E2E | 🟡 RUNNING | N/A | Burnout Lab Flow |
-| `auth.security.test.ts` | Security | 🟡 CREATED | N/A | Auth & Role Security |
-| `idor.security.test.ts` | Security | 🟡 CREATED | N/A | IDOR Prevention |
-| `business-logic.security.test.ts` | Security | 🟡 CREATED | N/A | Logic Manipulation |
-| `data-leak.security.test.ts` | Security | 🟡 CREATED | N/A | Data Leakage Prevention |
+| `auth.security.test.ts` | Security | 🟡 RUNNING | N/A | Auth & Role Security |
+| `idor.security.test.ts` | Security | 🟡 RUNNING | N/A | IDOR Prevention |
+| `business-logic.security.test.ts` | Security | 🟡 RUNNING | N/A | Logic Manipulation |
+| `data-leak.security.test.ts` | Security | 🟡 RUNNING | N/A | Data Leakage Prevention |
 
 ## 🟡 In Progress
-- Security Tests Execution
+- Verifying Security Tests Results
 - Security Tests Execution
 - E2E Tests Verification
 
