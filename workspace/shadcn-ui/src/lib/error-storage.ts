@@ -32,6 +32,7 @@ export class ErrorStorage {
   }
 
   private loadFromStorage() {
+    if (typeof localStorage === 'undefined') return;
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       if (stored) {
@@ -44,6 +45,7 @@ export class ErrorStorage {
   }
 
   private saveToStorage() {
+    if (typeof localStorage === 'undefined') return;
     try {
       const obj = Object.fromEntries(this.errors);
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(obj));
