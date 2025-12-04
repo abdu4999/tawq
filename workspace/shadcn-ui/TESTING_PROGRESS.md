@@ -5,10 +5,11 @@
 |--------|------|--------|----------|-------|
 | `micro-measurement.ts` | Unit | ✅ PASS | 100% | Core tracking engine |
 | `behavior-analytics.ts` | Unit | ✅ PASS | 100% | Distraction & confusion analysis |
+| `burnout-lab.ts` | Unit | ✅ PASS | 100% | Burnout score & risk prediction |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 
 ## 🟡 In Progress
-- `burnout-lab.ts` (Unit)
+- `mandatory-workflow.ts` (Unit)
 - `burnout-detection.spec.ts` (E2E)
 
 ## 🔴 Pending
