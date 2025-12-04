@@ -9,10 +9,12 @@
 | `mandatory-workflow.ts` | Unit | ✅ PASS | 100% | Project steps & dependencies |
 | `idp-system.ts` | Unit | ✅ PASS | 100% | Individual Development Plans |
 | `best-practices.ts` | Unit | ✅ PASS | 100% | Knowledge base & analysis |
+| `influencer-prediction.ts` | Unit | ✅ PASS | 100% | ROI & performance prediction |
+| `ai-auto-decision.ts` | Unit | ✅ PASS | 100% | Context-aware decision making |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 
 ## 🟡 In Progress
-- `influencer-prediction.ts` (Unit)
+- `smart-task-distribution.ts` (Unit)
 - `burnout-detection.spec.ts` (E2E)
 
 ## 🔴 Pending
