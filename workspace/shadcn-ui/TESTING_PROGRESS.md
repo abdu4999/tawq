@@ -8,10 +8,11 @@
 | `burnout-lab.ts` | Unit | ✅ PASS | 100% | Burnout score & risk prediction |
 | `mandatory-workflow.ts` | Unit | ✅ PASS | 100% | Project steps & dependencies |
 | `idp-system.ts` | Unit | ✅ PASS | 100% | Individual Development Plans |
+| `best-practices.ts` | Unit | ✅ PASS | 100% | Knowledge base & analysis |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 
 ## 🟡 In Progress
-- `best-practices.ts` (Unit)
+- `influencer-prediction.ts` (Unit)
 - `burnout-detection.spec.ts` (E2E)
 
 ## 🔴 Pending
