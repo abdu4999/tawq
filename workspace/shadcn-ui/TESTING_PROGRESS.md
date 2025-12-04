@@ -11,11 +11,23 @@
 | `best-practices.ts` | Unit | ✅ PASS | 100% | Knowledge base & analysis |
 | `influencer-prediction.ts` | Unit | ✅ PASS | 100% | ROI & performance prediction |
 | `ai-auto-decision.ts` | Unit | ✅ PASS | 100% | Context-aware decision making |
+| `smart-task-distribution.ts` | Unit | ✅ PASS | 100% | RAG scoring & assignment |
 | `employee-journey.spec.ts` | E2E | ✅ PASS | N/A | Login -> Dashboard -> Analytics |
 
 ## 🟡 In Progress
-- `smart-task-distribution.ts` (Unit)
 - `burnout-detection.spec.ts` (E2E)
+- Security Tests
+
+## 🟢 Completed Unit Tests
+- `micro-measurement.ts`
+- `behavior-analytics.ts`
+- `burnout-lab.ts`
+- `mandatory-workflow.ts`
+- `idp-system.ts`
+- `best-practices.ts`
+- `influencer-prediction.ts`
+- `ai-auto-decision.ts`
+- `smart-task-distribution.ts`
 
 ## 🔴 Pending
 - `mandatory-workflow.ts`
