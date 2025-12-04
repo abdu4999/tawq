@@ -6,7 +6,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint --quiet ./src",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
