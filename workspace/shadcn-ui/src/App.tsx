@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NotificationProvider } from '@/components/NotificationSystem';
 import { AuthProvider } from '@/components/AuthProvider';
 import { ScrollProvider } from '@/contexts/ScrollContext';
+import Login from './pages/Login';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
 import Dashboard from './pages/Dashboard';
@@ -49,6 +50,7 @@ const App = () => (
             <Toaster position="bottom-left" dir="rtl" />
             <BrowserRouter>
               <Routes>
+              <Route path="/login" element={<Login />} />
               <Route path="/" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
