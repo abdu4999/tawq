@@ -94,12 +94,15 @@ describe('MicroMeasurementEngine', () => {
       microMeasurement.recordEvent({ eventType: 'click', screenName: 'Settings' });
       
       // Simulate focus/blur for focus score
+      // Keep duration short enough to avoid batch flush (interval is 5000ms)
       microMeasurement.onFocus('Home');
-      vi.advanceTimersByTime(10000); // 10s focus
-      microMeasurement.onBlur('Home'); // 10s duration recorded
+      vi.advanceTimersByTime(4000); // 4s focus
+      microMeasurement.onBlur('Home'); // 4s duration recorded
 
-      // Simulate session duration of 1 minute
-      vi.setSystemTime(new Date(Date.now() + 60000));
+      // Simulate session duration of 1 minute by jumping ahead without triggering intervals
+      // Note: advanceTimersByTime triggers intervals. setSystemTime just changes the clock.
+      // We need to ensure we don't trigger the 5s batch interval.
+      vi.setSystemTime(new Date(Date.now() + 56000));
 
       const metrics = microMeasurement.calculateBehaviorMetrics(mockEmployeeId);
 
