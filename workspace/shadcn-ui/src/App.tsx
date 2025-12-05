@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NotificationProvider } from '@/components/NotificationSystem';
 import { AuthProvider } from '@/components/AuthProvider';
 import { ScrollProvider } from '@/contexts/ScrollContext';
+import AppLayout from '@/components/AppLayout';
 
 // Auth & Core
 import Login from './pages/Login';
@@ -82,62 +83,64 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/welcome" element={<Index />} />
                 
-                {/* Dashboards */}
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/decision-center" element={<DecisionCenterScreen />} />
-                <Route path="/security" element={<SecurityDashboard />} />
+                <Route element={<AppLayout />}>
+                  {/* Dashboards */}
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/decision-center" element={<DecisionCenterScreen />} />
+                  <Route path="/security" element={<SecurityDashboard />} />
 
-                {/* Operations */}
-                <Route path="/projects" element={<ProjectManagement />} />
-                <Route path="/tasks" element={<TaskManagement />} />
-                <Route path="/tasks/:id" element={<TaskDetailScreen />} />
-                <Route path="/mandatory-workflow" element={<MandatoryWorkflowScreen />} />
+                  {/* Operations */}
+                  <Route path="/projects" element={<ProjectManagement />} />
+                  <Route path="/tasks" element={<TaskManagement />} />
+                  <Route path="/tasks/:id" element={<TaskDetailScreen />} />
+                  <Route path="/mandatory-workflow" element={<MandatoryWorkflowScreen />} />
 
-                {/* HR & Team */}
-                <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-                <Route path="/employee-behavior" element={<EmployeeBehaviorScreen />} />
-                <Route path="/employee-idp" element={<EmployeeIdpScreen />} />
-                <Route path="/gamification" element={<GamificationSystem />} />
-                <Route path="/micro-measurement" element={<MicroMeasurementScreen />} />
+                  {/* HR & Team */}
+                  <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+                  <Route path="/employee-behavior" element={<EmployeeBehaviorScreen />} />
+                  <Route path="/employee-idp" element={<EmployeeIdpScreen />} />
+                  <Route path="/gamification" element={<GamificationSystem />} />
+                  <Route path="/micro-measurement" element={<MicroMeasurementScreen />} />
 
-                {/* CRM */}
-                <Route path="/donors" element={<DonorsScreen />} />
-                <Route path="/donors/:id" element={<DonorProfileScreen />} />
-                <Route path="/influencers" element={<InfluencersScreen />} />
-                <Route path="/influencers/:id" element={<InfluencerProfileScreen />} />
-                <Route path="/celebrities" element={<CelebrityManagement />} />
+                  {/* CRM */}
+                  <Route path="/donors" element={<DonorsScreen />} />
+                  <Route path="/donors/:id" element={<DonorProfileScreen />} />
+                  <Route path="/influencers" element={<InfluencersScreen />} />
+                  <Route path="/influencers/:id" element={<InfluencerProfileScreen />} />
+                  <Route path="/celebrities" element={<CelebrityManagement />} />
 
-                {/* Marketing */}
-                <Route path="/campaigns" element={<CampaignsScreen />} />
-                <Route path="/channels-performance" element={<ChannelsPerformanceScreen />} />
+                  {/* Marketing */}
+                  <Route path="/campaigns" element={<CampaignsScreen />} />
+                  <Route path="/channels-performance" element={<ChannelsPerformanceScreen />} />
 
-                {/* Finance */}
-                <Route path="/accounting" element={<Accounting />} />
-                <Route path="/influencer-revenue" element={<InfluencerRevenueScreen />} />
-                <Route path="/targets-roi" element={<TargetsRoiScreen />} />
+                  {/* Finance */}
+                  <Route path="/accounting" element={<Accounting />} />
+                  <Route path="/influencer-revenue" element={<InfluencerRevenueScreen />} />
+                  <Route path="/targets-roi" element={<TargetsRoiScreen />} />
 
-                {/* Analytics */}
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/donor-funnel" element={<DonorFunnelScreen />} />
-                <Route path="/ai-analytics" element={<AIAnalytics />} />
-                <Route path="/ai-insights" element={<AIInsights />} />
-                <Route path="/analytics-predictions" element={<AnalyticsScreen />} />
-                <Route path="/behavior-analytics" element={<BehaviorAnalyticsScreen />} />
+                  {/* Analytics */}
+                  <Route path="/analytics" element={<Analytics />} />
+                  <Route path="/donor-funnel" element={<DonorFunnelScreen />} />
+                  <Route path="/ai-analytics" element={<AIAnalytics />} />
+                  <Route path="/ai-insights" element={<AIInsights />} />
+                  <Route path="/analytics-predictions" element={<AnalyticsScreen />} />
+                  <Route path="/behavior-analytics" element={<BehaviorAnalyticsScreen />} />
 
-                {/* Training & Knowledge */}
-                <Route path="/training-platform" element={<TrainingPlatform />} />
-                <Route path="/best-practices" element={<BestPracticesScreen />} />
+                  {/* Training & Knowledge */}
+                  <Route path="/training-platform" element={<TrainingPlatform />} />
+                  <Route path="/best-practices" element={<BestPracticesScreen />} />
 
-                {/* System & Admin */}
-                <Route path="/admin-permissions" element={<AdminPermissions />} />
-                <Route path="/policies-log" element={<PoliciesLogScreen />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/notifications-challenges" element={<NotificationsChallengesScreen />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/error-management" element={<ErrorManagement />} />
-                <Route path="/test-errors" element={<TestErrorPage />} />
+                  {/* System & Admin */}
+                  <Route path="/admin-permissions" element={<AdminPermissions />} />
+                  <Route path="/policies-log" element={<PoliciesLogScreen />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/notifications-challenges" element={<NotificationsChallengesScreen />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/error-management" element={<ErrorManagement />} />
+                  <Route path="/test-errors" element={<TestErrorPage />} />
+                </Route>
 
                 {/* Fallback */}
                 <Route path="*" element={<NotFound />} />

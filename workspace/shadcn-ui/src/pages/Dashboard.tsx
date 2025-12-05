@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNotifications } from '@/components/NotificationSystem';
-import Sidebar from '@/components/Sidebar';
 import { supabaseAPI } from '@/lib/supabaseClient';
 import {
   Users,
@@ -117,10 +116,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      
-      <div className="flex-1 mr-80 p-6 space-y-8">
+      <div className="space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             لوحة التحكم الرئيسية
@@ -425,6 +421,5 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>
   );
 }
