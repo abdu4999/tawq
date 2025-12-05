@@ -61,7 +61,7 @@ export class ErrorStorage {
         ...error,
         id: errorId,
         timestamp: new Date().toISOString(),
-        resolved: false
+        resolved: error.resolved ?? false
       };
 
       // Store in memory and localStorage

@@ -44,7 +44,11 @@ describe('Error System', () => {
     
     expect(errorRef).toMatch(/^ERR-\d{8}-[A-Z0-9]{6}$/);
     
-    const savedError = await errorStorage.getErrorById(errorRef);
+    // handleApiError returns the error_code, not the internal ID.
+    // We need to find the error by code.
+    const allErrors = await errorStorage.getAllErrors();
+    const savedError = allErrors.find(e => e.error_code === errorRef);
+
     expect(savedError).toBeDefined();
     expect(savedError?.context).toBe('Test - API Call');
     expect(savedError?.severity).toBe('medium');
