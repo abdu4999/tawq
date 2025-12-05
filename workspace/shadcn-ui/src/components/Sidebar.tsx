@@ -30,28 +30,60 @@ import {
   TrendingUp,
   DollarSign,
   FileText,
-  Trophy
+  Trophy,
+  Megaphone,
+  Activity,
+  BookOpen,
+  Filter,
+  Briefcase,
+  PieChart,
+  Lock
 } from 'lucide-react';
 
 const navigationItems = [
+  // Dashboards
   { path: '/', icon: Home, label: 'لوحة التحكم', badge: null },
-  { path: '/employee-dashboard', icon: User, label: 'لوحتي', badge: null },
-  { path: '/tasks', icon: CheckSquare, label: 'إدارة المهام', badge: '12' },
+  { path: '/decision-center', icon: Brain, label: 'مركز اتخاذ القرار', badge: 'AI' },
+  { path: '/security', icon: Shield, label: 'الأمن السيبراني', badge: '🛡️' },
+
+  // Operations
   { path: '/projects', icon: FolderOpen, label: 'إدارة المشاريع', badge: '5' },
-  { path: '/targets-roi', icon: Target, label: 'الأهداف والعائد', badge: null },
+  { path: '/tasks', icon: CheckSquare, label: 'إدارة المهام', badge: '12' },
+  { path: '/mandatory-workflow', icon: Briefcase, label: 'سير العمل الإلزامي', badge: null },
+
+  // HR & Team
+  { path: '/employee-dashboard', icon: User, label: 'لوحتي', badge: null },
+  { path: '/employee-behavior', icon: Activity, label: 'سلوك الموظفين', badge: null },
+  { path: '/employee-idp', icon: TrendingUp, label: 'خطط التطوير IDP', badge: null },
+  { path: '/gamification', icon: Gamepad2, label: 'النقاط والتحفيز', badge: '🏆' },
+
+  // CRM
   { path: '/donors', icon: Heart, label: 'المتبرعون', badge: null },
   { path: '/influencers', icon: Star, label: 'المشاهير', badge: null },
-  { path: '/influencer-revenue', icon: DollarSign, label: 'إيرادات المشاهير', badge: null },
-  { path: '/analytics', icon: BarChart3, label: 'التحليلات والتقارير', badge: null },
-  { path: '/analytics-predictions', icon: Brain, label: 'التوقعات AI', badge: 'AI' },
-  { path: '/ai-insights', icon: Brain, label: 'مركز الذكاء الاصطناعي', badge: '🤖' },
-  { path: '/training-platform', icon: GraduationCap, label: 'منصة التدريب', badge: null },
-  { path: '/gamification', icon: Gamepad2, label: 'النقاط والتحفيز', badge: '🏆' },
+  { path: '/celebrities', icon: Users, label: 'إدارة المشاهير', badge: null },
+
+  // Marketing
+  { path: '/campaigns', icon: Megaphone, label: 'الحملات الإعلانية', badge: null },
+  { path: '/channels-performance', icon: BarChart3, label: 'أداء القنوات', badge: null },
+
+  // Finance
   { path: '/accounting', icon: Calculator, label: 'النظام المحاسبي', badge: null },
+  { path: '/influencer-revenue', icon: DollarSign, label: 'إيرادات المشاهير', badge: null },
+  { path: '/targets-roi', icon: Target, label: 'الأهداف والعائد', badge: null },
+
+  // Analytics
+  { path: '/analytics', icon: PieChart, label: 'التحليلات والتقارير', badge: null },
+  { path: '/donor-funnel', icon: Filter, label: 'قمع التبرعات', badge: null },
+  { path: '/ai-analytics', icon: Brain, label: 'تحليلات AI', badge: null },
+
+  // Training & Knowledge
+  { path: '/training-platform', icon: GraduationCap, label: 'منصة التدريب', badge: null },
+  { path: '/best-practices', icon: BookOpen, label: 'أفضل الممارسات', badge: null },
+
+  // System
+  { path: '/settings', icon: Settings, label: 'الإعدادات', badge: null },
+  { path: '/admin-permissions', icon: Lock, label: 'إدارة الصلاحيات', badge: null },
   { path: '/policies-log', icon: FileText, label: 'السياسات والسجل', badge: null },
-  { path: '/notifications-challenges', icon: Trophy, label: 'الإشعارات والتحديات', badge: '5' },
-  { path: '/admin-permissions', icon: Shield, label: 'إدارة الصلاحيات', badge: null },
-  { path: '/security', icon: Shield, label: 'الأمن السيبراني', badge: '🛡️' },
   { path: '/error-management', icon: AlertTriangle, label: 'إدارة الأخطاء', badge: null }
 ];
 
@@ -298,6 +330,51 @@ export default function Sidebar() {
           <div 
             ref={navigationRef}
             className="flex-1 overflow-y-auto p-4 space-y-2"
+          >
+            {navigationItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Tooltip key={item.path}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={isActive ? "default" : "ghost"}
+                      className={`w-full justify-start h-12 ${
+                        isActive 
+                          ? 'bg-blue-500 text-white shadow-md' 
+                          : 'hover:bg-gray-100 text-gray-700'
+                      } ${isCollapsed ? 'px-2' : 'px-4'}`}
+                      onClick={() => handleNavigation(item.path, item.label)}
+                    >
+                      <item.icon className={`h-5 w-5 ${isCollapsed ? '' : 'ml-3'}`} />
+                      {!isCollapsed && (
+                        <>
+                          <span className="flex-1 text-right">{item.label}</span>
+                          {item.badge && (
+                            <Badge 
+                              variant={isActive ? "secondary" : "outline"}
+                              className="text-xs"
+                            >
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  {isCollapsed && (
+                    <TooltipContent side="left">
+                      <p>{item.label}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </TooltipProvider>
+  );
+}
           >
             {navigationItems.map((item) => {
               const isActive = location.pathname === item.path;
