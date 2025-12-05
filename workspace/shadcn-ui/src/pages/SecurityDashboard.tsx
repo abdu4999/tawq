@@ -24,7 +24,6 @@ import {
   type SecurityTestReport 
 } from '@/lib/security-testing';
 import { backupManager } from '@/lib/data-protection';
-import Sidebar from '@/components/Sidebar';
 
 export default function SecurityDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
