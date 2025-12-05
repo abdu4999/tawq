@@ -15,7 +15,6 @@ import {
   UserX, Coffee, Award, BookOpen, Calendar, Play, Bell, Sparkles
 } from 'lucide-react';
 import { formatDateDMY } from '@/lib/date-utils';
-import Sidebar from '@/components/Sidebar';
 import { 
   AIEngine, 
   AIRecommendation, 
