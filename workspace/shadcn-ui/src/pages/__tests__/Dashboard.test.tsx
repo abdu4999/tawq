@@ -56,19 +56,14 @@ vi.mock('recharts', () => ({
 }));
 
 // Mock Lucide React
-vi.mock('lucide-react', () => ({
-  CheckSquare: () => <div />,
-  FolderOpen: () => <div />,
-  Star: () => <div />,
-  DollarSign: () => <div />,
-  TrendingUp: () => <div />,
-  TrendingDown: () => <div />,
-  Calendar: () => <div />,
-  Activity: () => <div />,
-  BarChart3: () => <div />,
-  PieChart: () => <div />,
-  Users: () => <div />,
-}));
+vi.mock('lucide-react', () => {
+  return new Proxy({}, {
+    get: (target, prop) => {
+      // Return a component for any import
+      return () => <div className={`lucide-${String(prop)}`} />;
+    }
+  });
+});
 
 describe('Dashboard Page', () => {
   const renderDashboard = () => {

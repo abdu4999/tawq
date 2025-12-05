@@ -45,18 +45,13 @@ vi.mock('@/hooks/use-toast', () => ({
 }));
 
 // Mock Lucide React
-vi.mock('lucide-react', () => ({
-  CheckSquare: () => <div />,
-  Plus: () => <div />,
-  Filter: () => <div />,
-  Calendar: () => <div />,
-  Clock: () => <div />,
-  User: () => <div />,
-  DollarSign: () => <div />,
-  FileText: () => <div />,
-  Search: () => <div />,
-  AlertCircle: () => <div />,
-}));
+vi.mock('lucide-react', () => {
+  return new Proxy({}, {
+    get: (target, prop) => {
+      return () => <div className={`lucide-${String(prop)}`} />;
+    }
+  });
+});
 
 describe('TasksScreen Page', () => {
   const renderTasksScreen = () => {
