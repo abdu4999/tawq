@@ -136,11 +136,9 @@ export default function DonorsScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
+      <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Heart className="h-12 w-12 text-red-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 bg-clip-text text-transparent">
@@ -393,7 +391,6 @@ export default function DonorsScreen() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   );
 }

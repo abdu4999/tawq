@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import Sidebar from '@/components/Sidebar';
 import { Target, TrendingUp, Award, Zap, Calendar, CheckCircle, Clock } from 'lucide-react';
 import { formatDateDMY } from '@/lib/date-utils';
 
@@ -45,11 +44,9 @@ export default function EmployeeDashboard() {
   const progress = Math.round((employee.revenue / employee.target) * 100);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Welcome */}
-        <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+    <div className="space-y-6" dir="rtl">
+      {/* Welcome */}
+      <Card className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
           <CardContent className="p-6">
             <h1 className="text-3xl font-bold mb-2">مرحباً، {employee.name}</h1>
             <p className="text-blue-100">لديك {employee.tasksInProgress} مهام قيد التنفيذ</p>
@@ -208,7 +205,6 @@ export default function EmployeeDashboard() {
             </CardContent>
           </Card>
         </div>
-      </div>
     </div>
   );
 }
