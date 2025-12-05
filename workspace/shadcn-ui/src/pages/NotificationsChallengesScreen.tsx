@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Sidebar from '@/components/Sidebar';
 import { Bell, Trophy, Zap, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -93,10 +92,8 @@ export default function NotificationsChallengesScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        <div className="text-center space-y-2">
+    <div className="space-y-6" dir="rtl">
+      <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Bell className="h-12 w-12 text-blue-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -254,7 +251,6 @@ export default function NotificationsChallengesScreen() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }

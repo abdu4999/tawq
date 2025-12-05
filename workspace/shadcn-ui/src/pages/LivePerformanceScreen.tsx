@@ -177,7 +177,6 @@ export default function LivePerformanceScreen() {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }
