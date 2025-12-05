@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Sidebar from '@/components/Sidebar';
 import { Brain, TrendingUp, TrendingDown, AlertTriangle, Target, Activity, Zap } from 'lucide-react';
 import { behaviorAnalytics, DistractionAnalysis, ConfusionMap, BehaviorScore } from '@/lib/behavior-analytics';
 import { microMeasurement } from '@/lib/micro-measurement';
@@ -68,11 +67,8 @@ export default function BehaviorAnalyticsScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 flex" dir="rtl">
-      <Sidebar />
-      
-      <div className="flex-1 lg:mr-80 p-6 space-y-6">
-        <div className="text-center space-y-4">
+    <div className="space-y-6" dir="rtl">
+      <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 bg-clip-text text-transparent">
             🧠 تحليل السلوك والتشتت
           </h1>
@@ -284,7 +280,6 @@ export default function BehaviorAnalyticsScreen() {
             </div>
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }

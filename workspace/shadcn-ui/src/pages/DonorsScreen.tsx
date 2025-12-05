@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { LoadingButton } from '@/components/ui/loading-button';
-import Sidebar from '@/components/Sidebar';
 import { Users, Search, DollarSign, TrendingUp, Heart, Plus, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
