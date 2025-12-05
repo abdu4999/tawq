@@ -182,13 +182,10 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-        <Sidebar />
-        <div className="flex-1 lg:mr-80 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">جاري تحميل الملف الشخصي...</p>
-          </div>
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل الملف الشخصي...</p>
         </div>
       </div>
     );
@@ -196,24 +193,18 @@ export default function Profile() {
 
   if (!profileData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-        <Sidebar />
-        <div className="flex-1 lg:mr-80 flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-gray-600">لا يمكن تحميل بيانات الملف الشخصي</p>
-          </div>
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <p className="text-gray-600">لا يمكن تحميل بيانات الملف الشخصي</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      
-      <div className="flex-1 lg:mr-80 p-6 space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
+    <div className="space-y-8" dir="rtl">
+      {/* Header */}
+      <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             الملف الشخصي
           </h1>
@@ -498,7 +489,6 @@ export default function Profile() {
             </CardContent>
           </Card>
         </div>
-      </div>
     </div>
   );
 }
