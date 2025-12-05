@@ -667,6 +667,7 @@ export default function Settings() {
             استيراد الإعدادات
           </Button>
         </div>
+      </div>
     </div>
   );
 }
