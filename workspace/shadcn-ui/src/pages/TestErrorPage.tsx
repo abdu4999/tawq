@@ -22,10 +22,7 @@ export default function TestErrorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      
-      <div className="flex-1 p-6 space-y-6 ml-0">
+    <div className="space-y-6" dir="rtl">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             صفحة اختبار الأخطاء
@@ -72,7 +69,6 @@ export default function TestErrorPage() {
             <li>• يمكن عرض التفاصيل الكاملة في صفحة إدارة الأخطاء</li>
           </ul>
         </div>
-      </div>
     </div>
   );
 }

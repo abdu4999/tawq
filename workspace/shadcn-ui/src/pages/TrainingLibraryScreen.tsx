@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import Sidebar from '@/components/Sidebar';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateDMY } from '@/lib/date-utils';
 import { 
@@ -127,10 +126,8 @@ export default function TrainingLibraryScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Book className="h-12 w-12 text-blue-600" />
@@ -279,7 +276,6 @@ export default function TrainingLibraryScreen() {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }
