@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import Sidebar from '@/components/Sidebar';
 import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateDMY } from '@/lib/date-utils';
@@ -63,11 +62,9 @@ export default function ProfileScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
+      <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             الملف الشخصي
           </h1>
@@ -269,7 +266,6 @@ export default function ProfileScreen() {
             </Card>
           </div>
         </div>
-      </div>
     </div>
   );
 }

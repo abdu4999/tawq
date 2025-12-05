@@ -6,7 +6,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Sidebar from '@/components/Sidebar';
 import { Shield, History, FileText, Plus, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -90,10 +89,8 @@ export default function PoliciesLogScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        <div className="text-center space-y-2">
+    <div className="space-y-6" dir="rtl">
+      <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Shield className="h-12 w-12 text-blue-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
@@ -229,7 +226,6 @@ export default function PoliciesLogScreen() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   );
 }
