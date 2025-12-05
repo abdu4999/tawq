@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { useNotifications } from '@/components/NotificationSystem';
-import Sidebar from '@/components/Sidebar';
 import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
 import ConfirmationDialog from '@/components/ConfirmationDialog';
 import { supabaseAPI, type Task, type Employee } from '@/lib/supabaseClient';
@@ -283,23 +282,17 @@ export default function TaskManagement() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-        <Sidebar />
-        <div className="flex-1 lg:mr-80 flex items-center justify-center">
+        <div className="flex items-center justify-center h-full min-h-[50vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
             <p className="text-gray-600">جاري تحميل المهام...</p>
           </div>
         </div>
-      </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      
-      <div className="flex-1 lg:mr-80 p-6 space-y-8">
+      <div className="space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -627,6 +620,5 @@ export default function TaskManagement() {
           onCancel={handleDeleteCancel}
         />
       </div>
-    </div>
   );
 }

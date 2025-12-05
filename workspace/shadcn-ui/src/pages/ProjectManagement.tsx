@@ -683,6 +683,5 @@ export default function ProjectManagement() {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
   );
 }
