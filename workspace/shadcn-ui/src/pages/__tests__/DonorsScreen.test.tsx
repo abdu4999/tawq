@@ -7,12 +7,12 @@ import * as useToastModule from '@/hooks/use-toast';
 // Mock dependencies
 vi.mock('lucide-react', () => {
   return new Proxy({}, {
-    get: (target, prop) => (props: any) => <span data-testid={\icon-\} {...props} />
+    get: (target, prop) => (props: any) => <span data-testid={`icon-${String(prop)}`} {...props} />
   });
 });
 
 vi.mock('@/components/Sidebar', () => ({
-  default: () => <div data-testid='sidebar'>Sidebar</div>
+  default: () => <div data-testid="sidebar">Sidebar</div>
 }));
 
 vi.mock('@/lib/error-handler', () => ({
@@ -22,26 +22,26 @@ vi.mock('@/lib/error-handler', () => ({
 
 // Mock UI components to avoid complex rendering issues
 vi.mock('@/components/ui/card', () => ({
-  Card: ({ children, className }: any) => <div className={className} data-testid='card'>{children}</div>,
-  CardHeader: ({ children }: any) => <div data-testid='card-header'>{children}</div>,
-  CardTitle: ({ children }: any) => <div data-testid='card-title'>{children}</div>,
-  CardContent: ({ children }: any) => <div data-testid='card-content'>{children}</div>,
+  Card: ({ children, className }: any) => <div className={className} data-testid="card">{children}</div>,
+  CardHeader: ({ children }: any) => <div data-testid="card-header">{children}</div>,
+  CardTitle: ({ children }: any) => <div data-testid="card-title">{children}</div>,
+  CardContent: ({ children }: any) => <div data-testid="card-content">{children}</div>,
 }));
 
 vi.mock('@/components/ui/dialog', () => ({
-  Dialog: ({ children, open }: any) => open ? <div data-testid='dialog'>{children}</div> : null,
-  DialogContent: ({ children }: any) => <div data-testid='dialog-content'>{children}</div>,
-  DialogHeader: ({ children }: any) => <div data-testid='dialog-header'>{children}</div>,
-  DialogTitle: ({ children }: any) => <div data-testid='dialog-title'>{children}</div>,
-  DialogFooter: ({ children }: any) => <div data-testid='dialog-footer'>{children}</div>,
+  Dialog: ({ children, open }: any) => open ? <div data-testid="dialog">{children}</div> : null,
+  DialogContent: ({ children }: any) => <div data-testid="dialog-content">{children}</div>,
+  DialogHeader: ({ children }: any) => <div data-testid="dialog-header">{children}</div>,
+  DialogTitle: ({ children }: any) => <div data-testid="dialog-title">{children}</div>,
+  DialogFooter: ({ children }: any) => <div data-testid="dialog-footer">{children}</div>,
 }));
 
 vi.mock('@/components/ui/select', () => ({
-  Select: ({ children, onValueChange }: any) => <div data-testid='select' onClick={() => onValueChange && onValueChange('vip')}>{children}</div>,
-  SelectTrigger: ({ children }: any) => <div data-testid='select-trigger'>{children}</div>,
-  SelectValue: () => <div data-testid='select-value'>Select Value</div>,
-  SelectContent: ({ children }: any) => <div data-testid='select-content'>{children}</div>,
-  SelectItem: ({ children, value, onClick }: any) => <div data-testid={\select-item-\} onClick={onClick}>{children}</div>,
+  Select: ({ children, onValueChange }: any) => <div data-testid="select" onClick={() => onValueChange && onValueChange('vip')}>{children}</div>,
+  SelectTrigger: ({ children }: any) => <div data-testid="select-trigger">{children}</div>,
+  SelectValue: () => <div data-testid="select-value">Select Value</div>,
+  SelectContent: ({ children }: any) => <div data-testid="select-content">{children}</div>,
+  SelectItem: ({ children, value, onClick }: any) => <div data-testid={`select-item-${value}`} onClick={onClick}>{children}</div>,
 }));
 
 vi.mock('@/components/ui/label', () => ({
@@ -63,8 +63,8 @@ describe('DonorsScreen', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText('ÇáãÊÈÑÚæä')).toBeInTheDocument();
-    expect(screen.getByText('ÅÏÇÑÉ æãÊÇÈÚÉ ÇáãÊÈÑÚíä æÊÈÑÚÇÊåã')).toBeInTheDocument();
+    expect(screen.getByText('Ø§Ù„Ù…ØªØ¨Ø±Ø¹ÙˆÙ†')).toBeInTheDocument();
+    expect(screen.getByText('Ø¥Ø¯Ø§Ø±Ø© ÙˆÙ…ØªØ§Ø¨Ø¹Ø© Ø§Ù„Ù…ØªØ¨Ø±Ø¹ÙŠÙ† ÙˆØªØ¨Ø±Ø¹Ø§ØªÙ‡Ù…')).toBeInTheDocument();
     expect(screen.getByTestId('sidebar')).toBeInTheDocument();
   });
 
@@ -75,10 +75,10 @@ describe('DonorsScreen', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText('ÅÌãÇáí ÇáãÊÈÑÚíä')).toBeInTheDocument();
-    expect(screen.getByText('ÅÌãÇáí ÇáÊÈÑÚÇÊ')).toBeInTheDocument();
-    expect(screen.getByText('ãÊæÓØ ÇáÊÈÑÚ')).toBeInTheDocument();
-    expect(screen.getByText('ãÊÈÑÚæä VIP')).toBeInTheDocument();
+    expect(screen.getByText('Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…ØªØ¨Ø±Ø¹ÙŠÙ†')).toBeInTheDocument();
+    expect(screen.getByText('Ø¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„ØªØ¨Ø±Ø¹Ø§Øª')).toBeInTheDocument();
+    expect(screen.getByText('Ù…ØªÙˆØ³Ø· Ø§Ù„ØªØ¨Ø±Ø¹')).toBeInTheDocument();
+    expect(screen.getByText('Ù…ØªØ¨Ø±Ø¹ÙˆÙ† VIP')).toBeInTheDocument();
   });
 
   it('filters donors by search term', async () => {
@@ -88,12 +88,12 @@ describe('DonorsScreen', () => {
       </BrowserRouter>
     );
 
-    const searchInput = screen.getByPlaceholderText('ÇáÈÍË ÈÇáÇÓã Ãæ ÇáÈÑíÏ...');
-    fireEvent.change(searchInput, { target: { value: 'ÃÍãÏ' } });
+    const searchInput = screen.getByPlaceholderText('Ø§Ù„Ø¨Ø­Ø« Ø¨Ø§Ù„Ø§Ø³Ù… Ø£Ùˆ Ø§Ù„Ø¨Ø±ÙŠØ¯...');
+    fireEvent.change(searchInput, { target: { value: 'Ø£Ø­Ù…Ø¯' } });
 
     await waitFor(() => {
-      expect(screen.getByText('ÃÍãÏ ãÍãÏ ÇáÓÚíÏ')).toBeInTheDocument();
-      expect(screen.queryByText('İÇØãÉ Úáí')).not.toBeInTheDocument();
+      expect(screen.getByText('Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯ Ø§Ù„Ø³Ø¹ÙŠØ¯')).toBeInTheDocument();
+      expect(screen.queryByText('ÙØ§Ø·Ù…Ø© Ø¹Ù„ÙŠ')).not.toBeInTheDocument();
     });
   });
 
@@ -104,11 +104,11 @@ describe('DonorsScreen', () => {
       </BrowserRouter>
     );
 
-    const addButton = screen.getByText('ãÊÈÑÚ ÌÏíÏ');
+    const addButton = screen.getByText('Ù…ØªØ¨Ø±Ø¹ Ø¬Ø¯ÙŠØ¯');
     fireEvent.click(addButton);
 
     expect(screen.getByTestId('dialog')).toBeInTheDocument();
-    expect(screen.getByText('ÅÖÇİÉ ãÊÈÑÚ ÌÏíÏ')).toBeInTheDocument();
+    expect(screen.getByText('Ø¥Ø¶Ø§ÙØ© Ù…ØªØ¨Ø±Ø¹ Ø¬Ø¯ÙŠØ¯')).toBeInTheDocument();
   });
 
   it('validates form inputs before submission', async () => {
@@ -119,10 +119,10 @@ describe('DonorsScreen', () => {
     );
 
     // Open dialog
-    fireEvent.click(screen.getByText('ãÊÈÑÚ ÌÏíÏ'));
+    fireEvent.click(screen.getByText('Ù…ØªØ¨Ø±Ø¹ Ø¬Ø¯ÙŠØ¯'));
 
     // Click save without filling data
-    const saveButton = screen.getByText('ÅÖÇİÉ ÇáãÊÈÑÚ');
+    const saveButton = screen.getByText('Ø¥Ø¶Ø§ÙØ© Ø§Ù„Ù…ØªØ¨Ø±Ø¹');
     fireEvent.click(saveButton);
 
     // Should show error toast (button is disabled actually, so we check if it's disabled)
@@ -136,7 +136,7 @@ describe('DonorsScreen', () => {
       </BrowserRouter>
     );
 
-    expect(screen.getByText('ÃÍãÏ ãÍãÏ ÇáÓÚíÏ')).toBeInTheDocument();
+    expect(screen.getByText('Ø£Ø­Ù…Ø¯ Ù…Ø­Ù…Ø¯ Ø§Ù„Ø³Ø¹ÙŠØ¯')).toBeInTheDocument();
     expect(screen.getByText('VIP')).toBeInTheDocument();
     expect(screen.getByText('150,000')).toBeInTheDocument();
   });
