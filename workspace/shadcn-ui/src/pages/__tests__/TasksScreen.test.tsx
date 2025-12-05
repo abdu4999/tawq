@@ -56,6 +56,7 @@ vi.mock('lucide-react', () => ({
   FileText: () => <div />,
   Search: () => <div />,
   AlertCircle: () => <div />,
+  X: () => <div />,
 }));
 
 describe('TasksScreen Page', () => {
