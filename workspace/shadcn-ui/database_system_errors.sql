@@ -1,6 +1,8 @@
 -- =====================================================
 -- جدول إدارة الأخطاء (System Errors)
 -- يحفظ جميع أخطاء النظام مع معلومات تفصيلية
+-- Note: Some deployments might use 'app_d5213450a8_error_logs' instead of 'system_errors'.
+-- Ensure your application configuration matches the actual table name in your database.
 -- =====================================================
 
 CREATE TABLE IF NOT EXISTS system_errors (

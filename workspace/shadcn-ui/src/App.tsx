@@ -85,12 +85,12 @@ const App = () => (
               <Route path="/welcome" element={<Index />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </NotificationProvider>
           </BrowserRouter>
         </TooltipProvider>
       </ScrollProvider>
-    </NotificationProvider>
-  </AuthProvider>
-</QueryClientProvider>
+    </AuthProvider>
+  </QueryClientProvider>
 );
 
 export default App;

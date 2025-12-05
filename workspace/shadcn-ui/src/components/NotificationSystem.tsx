@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useLocation } from 'react-router-dom';
 import { errorStorage, ErrorLog } from '@/lib/error-storage';
 
 interface Notification {
@@ -36,6 +37,12 @@ interface NotificationProviderProps {
 
 export const NotificationProvider: React.FC<NotificationProviderProps> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const location = useLocation();
+
+  // Clear toasts on route change
+  useEffect(() => {
+    toast.dismiss();
+  }, [location.pathname]);
 
   const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {
