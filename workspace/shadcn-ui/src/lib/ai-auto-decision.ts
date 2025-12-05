@@ -282,17 +282,27 @@ class AIAutoDecisionEngine {
    * تقييم الخيارات
    */
   private evaluateOptions(options: DecisionOption[], context: DecisionContext): DecisionOption[] {
-    return options.map(option => {
-      // تطبيق القيود
-      const violatesConstraints = context.constraints.some(constraint => {
-        if (constraint.type === 'budget' && constraint.strict) {
-          return option.cost > constraint.value;
+    return options.filter(option => {
+      // Check for strict constraint violations
+      const violatesStrict = context.constraints.some(constraint => {
+        if (constraint.strict) {
+          if (constraint.type === 'budget') return option.cost > constraint.value;
+          // Add other strict checks if needed
+        }
+        return false;
+      });
+      
+      return !violatesStrict;
+    }).map(option => {
+      // Apply non-strict constraints penalties
+      const violatesNonStrict = context.constraints.some(constraint => {
+        if (!constraint.strict) {
+          if (constraint.type === 'budget') return option.cost > constraint.value;
         }
         return false;
       });
 
-      // تعديل احتمالية النجاح بناءً على القيود
-      if (violatesConstraints) {
+      if (violatesNonStrict) {
         option.probability *= 0.5;
       }
 

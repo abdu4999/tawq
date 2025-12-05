@@ -89,6 +89,11 @@ class BehaviorAnalyticsEngine {
       }
     });
 
+    // Add the last group if it exists
+    if (currentGroup.length > 0) {
+      navigationGroups.push(currentGroup);
+    }
+
     // إذا كان هناك أكثر من 5 تنقلات في دقيقة = تشتت عالي
     navigationGroups.forEach(group => {
       if (group.length > 5) {
