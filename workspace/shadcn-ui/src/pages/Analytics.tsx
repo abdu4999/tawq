@@ -6,7 +6,6 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useNotifications } from '@/components/NotificationSystem';
-import Sidebar from '@/components/Sidebar';
 import { supabaseAPI } from '@/lib/supabaseClient';
 import {
   BarChart3,
