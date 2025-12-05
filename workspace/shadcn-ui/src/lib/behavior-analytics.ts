@@ -139,7 +139,9 @@ class BehaviorAnalyticsEngine {
       }
     }
 
-    confusionScore += (hesitationCount / clickEvents.length) * 50;
+    if (clickEvents.length > 0) {
+      confusionScore += (hesitationCount / clickEvents.length) * 50;
+    }
 
     // تحليل الرجوع للشاشات السابقة (backtracking)
     const navigationEvents = events.filter(e => e.eventType === 'navigation');
@@ -157,7 +159,9 @@ class BehaviorAnalyticsEngine {
       screenHistory.push(screenName);
     });
 
-    confusionScore += (backtrackCount / navigationEvents.length) * 50;
+    if (navigationEvents.length > 0) {
+      confusionScore += (backtrackCount / navigationEvents.length) * 50;
+    }
 
     return Math.min(Math.round(confusionScore), 100);
   }
