@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Sidebar from '@/components/Sidebar';
 import { ArrowRight, DollarSign, Calendar, TrendingUp, History, Phone, Mail, Heart, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -75,11 +74,9 @@ export default function DonorProfileScreen() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
+      <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate('/donors')} className="gap-2">
             <ArrowRight className="h-4 w-4" />
             العودة للمتبرعين
@@ -282,7 +279,6 @@ export default function DonorProfileScreen() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }

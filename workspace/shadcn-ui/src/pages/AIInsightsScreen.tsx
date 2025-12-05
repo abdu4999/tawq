@@ -209,7 +209,6 @@ export default function AIInsightsScreen() {
             ))
           )}
         </div>
-      </div>
     </div>
   );
 }
