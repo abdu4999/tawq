@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import Sidebar from '@/components/Sidebar';
 import { ArrowRight, Calendar, DollarSign, User, FileText, MessageSquare, Lightbulb, Paperclip, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -56,10 +55,8 @@ export default function TaskDetailScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
         <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate('/tasks')} className="gap-2">
             <ArrowRight className="h-4 w-4" />
@@ -292,7 +289,6 @@ export default function TaskDetailScreen() {
             </Card>
           </div>
         </div>
-      </div>
     </div>
   );
 }
