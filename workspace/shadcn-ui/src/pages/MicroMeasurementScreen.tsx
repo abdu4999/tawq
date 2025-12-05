@@ -112,12 +112,9 @@ export default function MicroMeasurementScreen() {
   const eventCounts = getTotalEventsByType();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex" dir="rtl">
-      <Sidebar />
-      
-      <div className="flex-1 lg:mr-80 p-6 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-4">
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
+      <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
             ⚡ محرك القياس الدقيق
           </h1>
@@ -358,7 +355,6 @@ export default function MicroMeasurementScreen() {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }

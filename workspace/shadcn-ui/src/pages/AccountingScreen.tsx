@@ -10,7 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatDateDMY } from '@/lib/date-utils';
-import Sidebar from '@/components/Sidebar';
 import { supabase } from '@/lib/supabase';
 import { errorStorage } from '@/lib/error-storage';
 import { useNotifications } from '@/components/NotificationSystem';
@@ -223,11 +222,9 @@ export default function AccountingScreen() {
   const netBalance = totalIncome - totalExpenses;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
+      <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Calculator className="h-12 w-12 text-green-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -496,7 +493,6 @@ export default function AccountingScreen() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   );
 }
