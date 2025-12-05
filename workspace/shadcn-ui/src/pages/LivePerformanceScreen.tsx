@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Sidebar from '@/components/Sidebar';
 import { supabaseAPI, type Employee } from '@/lib/supabaseClient';
 import { Activity, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
@@ -70,11 +69,9 @@ export default function LivePerformanceScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
-        <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
+      <Card className="bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-3">

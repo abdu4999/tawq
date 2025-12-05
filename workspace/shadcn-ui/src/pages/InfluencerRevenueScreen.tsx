@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import Sidebar from '@/components/Sidebar';
 import { DollarSign, TrendingUp, Calendar, Download } from 'lucide-react';
 
 export default function InfluencerRevenueScreen() {
@@ -25,10 +24,8 @@ export default function InfluencerRevenueScreen() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        <div className="text-center space-y-2">
+    <div className="space-y-6" dir="rtl">
+      <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-3 mb-4">
             <DollarSign className="h-12 w-12 text-green-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
@@ -146,7 +143,6 @@ export default function InfluencerRevenueScreen() {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }

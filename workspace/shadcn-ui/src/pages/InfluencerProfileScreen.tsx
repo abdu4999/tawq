@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Sidebar from '@/components/Sidebar';
 import { ArrowRight, Star, Users, TrendingUp, Instagram, Phone, Mail, Edit } from 'lucide-react';
 
 export default function InfluencerProfileScreen() {
@@ -54,11 +53,9 @@ export default function InfluencerProfileScreen() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex" dir="rtl">
-      <Sidebar />
-      <div className="flex-1 mr-80 p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="space-y-6" dir="rtl">
+      {/* Header */}
+      <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate('/influencers')} className="gap-2">
             <ArrowRight className="h-4 w-4" />
             العودة للمشاهير
@@ -250,7 +247,6 @@ export default function InfluencerProfileScreen() {
             </Card>
           </TabsContent>
         </Tabs>
-      </div>
     </div>
   );
 }
