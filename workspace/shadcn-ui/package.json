@@ -9,9 +9,12 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:unit": "vitest run",
+    "test:unit:ci": "vitest run src/lib/__tests__/",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test",
-    "test:ui": "vitest --ui"
+    "test:e2e": "playwright test tests/e2e",
+    "test:security": "playwright test tests/security",
+    "test:ui": "vitest --ui",
+    "test:ui:ci": "vitest run src/pages/__tests__/"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
