@@ -44,11 +44,11 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <NotificationProvider>
-        <ScrollProvider>
-          <TooltipProvider>
-            <Toaster position="bottom-left" dir="rtl" />
-            <BrowserRouter>
+      <ScrollProvider>
+        <TooltipProvider>
+          <Toaster position="bottom-left" dir="rtl" />
+          <BrowserRouter>
+            <NotificationProvider>
               <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<Dashboard />} />
