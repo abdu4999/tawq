@@ -12,6 +12,14 @@ vi.mock('@/components/ui/card', () => ({
   CardDescription: ({ children }: any) => <div className="mock-card-description">{children}</div>,
 }));
 
+vi.mock('@/components/ui/button', () => ({
+  Button: ({ children, onClick }: any) => <button onClick={onClick}>{children}</button>,
+}));
+
+vi.mock('@/components/ui/badge', () => ({
+  Badge: ({ children }: any) => <span className="mock-badge">{children}</span>,
+}));
+
 vi.mock('@/components/Sidebar', () => ({
   default: () => <div data-testid="sidebar">Sidebar</div>
 }));
@@ -72,21 +80,19 @@ describe('Dashboard Page', () => {
   };
 
   it('should render without crashing', async () => {
-    // renderDashboard();
-    render(<div>Test</div>);
+    renderDashboard();
     // Wait for loading to finish
-    // await waitFor(() => {
-    //   expect(screen.queryByText(/جاري تحميل بيانات/i)).not.toBeInTheDocument();
-    // });
+    await waitFor(() => {
+      expect(screen.queryByText(/جاري تحميل بيانات/i)).not.toBeInTheDocument();
+    });
   });
 
   it('should render stat cards', async () => {
-    // renderDashboard();
-    render(<div>Test</div>);
-    // await waitFor(() => {
-    //   const cards = document.getElementsByClassName('mock-card');
-    //   expect(cards.length).toBeGreaterThan(0);
-    // });
+    renderDashboard();
+    await waitFor(() => {
+      const cards = document.getElementsByClassName('mock-card');
+      expect(cards.length).toBeGreaterThan(0);
+    });
   });
 });
 
