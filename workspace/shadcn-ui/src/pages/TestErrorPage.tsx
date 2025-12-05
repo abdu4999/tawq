@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNotifications } from '@/components/NotificationSystem';
-import Sidebar from '@/components/Sidebar';
 
 export default function TestErrorPage() {
   const { addErrorNotification } = useNotifications();
