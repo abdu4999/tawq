@@ -21,7 +21,8 @@ export const TABLES = {
   SETTINGS: 'app_f226d1f8f5_settings',
   SUCCESS_STORIES: 'app_f226d1f8f5_success_stories',
   ACHIEVEMENTS: 'app_f226d1f8f5_achievements',
-  USER_ACHIEVEMENTS: 'app_f226d1f8f5_user_achievements'
+  USER_ACHIEVEMENTS: 'app_f226d1f8f5_user_achievements',
+  GAMIFICATION_PROFILES: 'app_f226d1f8f5_gamification_profiles'
 };
 
 // Types for roles and admin users
@@ -541,6 +542,38 @@ export const supabaseAPI = {
       .select('*')
       .order('date', { ascending: false });
     
+    if (error) throw error;
+    return data || [];
+  },
+
+  // Gamification
+  async getGamificationProfile(userId: string) {
+    const { data, error } = await supabase
+      .from(TABLES.GAMIFICATION_PROFILES)
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error;
+    return data;
+  },
+
+  async getAchievements() {
+     const { data, error } = await supabase
+      .from(TABLES.ACHIEVEMENTS)
+      .select('*');
+    if (error) throw error;
+    return data || [];
+  },
+  
+  async getUserAchievements(userId: string) {
+     const { data, error } = await supabase
+      .from(TABLES.USER_ACHIEVEMENTS)
+      .select('*, achievement:app_f226d1f8f5_achievements(*)') // Note: using table name or alias if set up, but supabase-js usually uses table name. 
+      // Actually, let's just fetch user achievements and then we might need to join manually or assume the relation is set up.
+      // To be safe, let's just fetch user achievements.
+      .eq('user_id', userId);
+      
     if (error) throw error;
     return data || [];
   },

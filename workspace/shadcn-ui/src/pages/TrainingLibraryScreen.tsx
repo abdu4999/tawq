@@ -17,51 +17,31 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
-const successStories = [
-  {
-    id: 1,
-    title: 'كيف حققت هدفي الشهري في أسبوعين',
-    author: 'أحمد محمد',
-    revenue: 150000,
-    date: '2025-11-15'
-  },
-  {
-    id: 2,
-    title: 'تقنية جديدة لزيادة معدل التحويل بنسبة 40%',
-    author: 'فاطمة علي',
-    revenue: 120000,
-    date: '2025-11-10'
-  },
-  {
-    id: 3,
-    title: 'من الصفر إلى المليون في 6 أشهر',
-    author: 'محمد سالم',
-    revenue: 1000000,
-    date: '2025-11-01'
-  },
-];
-
 export default function TrainingLibraryScreen() {
   const [trainingMaterials, setTrainingMaterials] = useState<any[]>([]);
+  const [successStories, setSuccessStories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
 
   useEffect(() => {
-    loadTrainingMaterials();
+    loadData();
   }, []);
 
-  const loadTrainingMaterials = async () => {
+  const loadData = async () => {
     try {
       setLoading(true);
-      const data = await supabaseAPI.getTrainingMaterials();
-      setTrainingMaterials(data);
+      const [materials, stories] = await Promise.all([
+        supabaseAPI.getTrainingMaterials(),
+        supabaseAPI.getSuccessStories()
+      ]);
+      setTrainingMaterials(materials || []);
+      setSuccessStories(stories || []);
     } catch (error) {
-      console.error('Error loading training materials:', error);
+      console.error('Error loading data:', error);
       toast({
         title: 'خطأ',
-        description: 'فشل تحميل المواد التدريبية',
+        description: 'فشل تحميل البيانات',
         variant: 'destructive'
       });
     } finally {
@@ -107,6 +87,11 @@ export default function TrainingLibraryScreen() {
       default: return null;
     }
   };
+
+  const filteredMaterials = trainingMaterials.filter(material => 
+    material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    material.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -200,37 +185,43 @@ export default function TrainingLibraryScreen() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {trainingMaterials.map((material) => (
-                <Card key={material.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="p-3 bg-gray-100 rounded-lg">
-                        {getTypeIcon(material.type)}
-                      </div>
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h3 className="font-semibold text-gray-900">{material.title}</h3>
-                          {getStatusBadge(material.status)}
+              {filteredMaterials.length > 0 ? (
+                filteredMaterials.map((material) => (
+                  <Card key={material.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="p-3 bg-gray-100 rounded-lg">
+                          {getTypeIcon(material.type)}
                         </div>
-                        <p className="text-sm text-gray-600">{material.category}</p>
-                        {material.duration && (
-                          <p className="text-xs text-gray-500">⏱️ {material.duration}</p>
-                        )}
-                        <div className="flex gap-2 pt-2">
-                          <Button size="sm" className="gap-1" onClick={() => handleStartTraining(material)}>
-                            <Play className="h-3 w-3" />
-                            بدء
-                          </Button>
-                          <Button size="sm" variant="outline" className="gap-1" onClick={() => handleDownload(material)}>
-                            <Download className="h-3 w-3" />
-                            تحميل
-                          </Button>
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-start justify-between">
+                            <h3 className="font-semibold text-gray-900">{material.title}</h3>
+                            {getStatusBadge(material.status)}
+                          </div>
+                          <p className="text-sm text-gray-600">{material.category}</p>
+                          {material.duration && (
+                            <p className="text-xs text-gray-500">⏱️ {material.duration}</p>
+                          )}
+                          <div className="flex gap-2 pt-2">
+                            <Button size="sm" className="gap-1" onClick={() => handleStartTraining(material)}>
+                              <Play className="h-3 w-3" />
+                              بدء
+                            </Button>
+                            <Button size="sm" variant="outline" className="gap-1" onClick={() => handleDownload(material)}>
+                              <Download className="h-3 w-3" />
+                              تحميل
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-8 text-gray-500">
+                  لا توجد مواد تدريبية مطابقة للبحث
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -245,28 +236,34 @@ export default function TrainingLibraryScreen() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {successStories.map((story) => (
-                <Card key={story.id} className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <h4 className="font-bold text-lg text-gray-900">{story.title}</h4>
-                        <p className="text-sm text-gray-600">بواسطة: {story.author}</p>
-                        <p className="text-sm text-gray-500">{formatDateDMY(story.date)}</p>
+              {successStories.length > 0 ? (
+                successStories.map((story) => (
+                  <Card key={story.id} className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <h4 className="font-bold text-lg text-gray-900">{story.title}</h4>
+                          <p className="text-sm text-gray-600">بواسطة: {story.author}</p>
+                          <p className="text-sm text-gray-500">{formatDateDMY(story.date)}</p>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm text-gray-600">الإيراد المحقق</p>
+                          <p className="text-2xl font-bold text-green-600">
+                            {story.revenue.toLocaleString()} ر.س
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-left">
-                        <p className="text-sm text-gray-600">الإيراد المحقق</p>
-                        <p className="text-2xl font-bold text-green-600">
-                          {story.revenue.toLocaleString()} ر.س
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm" className="mt-3" onClick={() => handleViewStory(story)}>
-                      عرض القصة الكاملة
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <Button variant="outline" size="sm" className="mt-3" onClick={() => handleViewStory(story)}>
+                        عرض القصة الكاملة
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  لا توجد قصص نجاح مسجلة حالياً
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
