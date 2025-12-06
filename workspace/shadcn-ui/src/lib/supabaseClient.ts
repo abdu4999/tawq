@@ -24,7 +24,8 @@ export const TABLES = {
   USER_ACHIEVEMENTS: 'app_f226d1f8f5_user_achievements',
   GAMIFICATION_PROFILES: 'app_f226d1f8f5_gamification_profiles',
   CHALLENGES: 'app_f226d1f8f5_challenges',
-  REWARDS: 'app_f226d1f8f5_rewards'
+  REWARDS: 'app_f226d1f8f5_rewards',
+  BEST_PRACTICES: 'app_f226d1f8f5_best_practices'
 };
 
 // Types for roles and admin users
@@ -591,6 +592,14 @@ export const supabaseAPI = {
   async getRewards() {
     const { data, error } = await supabase
       .from(TABLES.REWARDS)
+      .select('*');
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getBestPractices() {
+    const { data, error } = await supabase
+      .from(TABLES.BEST_PRACTICES)
       .select('*');
     if (error) throw error;
     return data || [];
