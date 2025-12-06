@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateDMY } from '@/lib/date-utils';
+import { supabaseAPI } from '@/lib/supabaseClient';
 import { 
   Book, 
   Video, 
@@ -15,47 +16,6 @@ import {
   Download,
   CheckCircle2
 } from 'lucide-react';
-
-const trainingMaterials = [
-  {
-    id: 1,
-    title: 'أساسيات التسويق الخيري',
-    type: 'video',
-    duration: '45 دقيقة',
-    status: 'completed',
-    category: 'تسويق'
-  },
-  {
-    id: 2,
-    title: 'مهارات الإقناع والتأثير',
-    type: 'document',
-    status: 'in-progress',
-    category: 'مهارات'
-  },
-  {
-    id: 3,
-    title: 'إدارة العلاقات مع المتبرعين',
-    type: 'video',
-    duration: '30 دقيقة',
-    status: 'new',
-    category: 'علاقات'
-  },
-  {
-    id: 4,
-    title: 'قصص نجاح ملهمة',
-    type: 'article',
-    status: 'new',
-    category: 'قصص'
-  },
-  {
-    id: 5,
-    title: 'استراتيجيات جمع التبرعات',
-    type: 'video',
-    duration: '60 دقيقة',
-    status: 'new',
-    category: 'استراتيجيات'
-  },
-];
 
 const successStories = [
   {
@@ -82,9 +42,32 @@ const successStories = [
 ];
 
 export default function TrainingLibraryScreen() {
+  const [trainingMaterials, setTrainingMaterials] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const { toast } = useToast();
+
+  useEffect(() => {
+    loadTrainingMaterials();
+  }, []);
+
+  const loadTrainingMaterials = async () => {
+    try {
+      setLoading(true);
+      const data = await supabaseAPI.getTrainingMaterials();
+      setTrainingMaterials(data);
+    } catch (error) {
+      console.error('Error loading training materials:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل تحميل المواد التدريبية',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleStartTraining = (material: any) => {
     toast({
@@ -124,6 +107,17 @@ export default function TrainingLibraryScreen() {
       default: return null;
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل المواد التدريبية...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">

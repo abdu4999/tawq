@@ -13,7 +13,12 @@ export const TABLES = {
   CELEBRITIES: 'app_f226d1f8f5_celebrities',
   TRANSACTIONS: 'app_f226d1f8f5_transactions',
   ROLES: 'app_f226d1f8f5_roles',
-  ADMIN_USERS: 'app_f226d1f8f5_admin_users'
+  ADMIN_USERS: 'app_f226d1f8f5_admin_users',
+  TRAINING_MATERIALS: 'app_f226d1f8f5_training_materials',
+  DONORS: 'app_f226d1f8f5_donors',
+  CAMPAIGNS: 'app_f226d1f8f5_campaigns',
+  TEAMS: 'app_f226d1f8f5_teams',
+  SETTINGS: 'app_f226d1f8f5_settings'
 };
 
 // Types for roles and admin users
@@ -50,6 +55,38 @@ export interface Transaction {
   project?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface Donor {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  type: 'individual' | 'organization';
+  segment: 'vip' | 'regular' | 'new';
+  total_donations: number;
+  donations_count: number;
+  last_donation_date?: string;
+  status: 'active' | 'inactive';
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Campaign {
+  id: string;
+  name: string;
+  platform: 'snapchat' | 'tiktok' | 'instagram' | 'google' | 'whatsapp' | 'other';
+  spend: number;
+  revenue: number;
+  impressions: number;
+  clicks: number;
+  conversions: number;
+  new_donors: number;
+  status: 'active' | 'completed' | 'paused';
+  start_date: string;
+  end_date?: string;
+  created_at?: string;
 }
 
 // Types for celebrities
@@ -95,6 +132,117 @@ export const supabaseAPI = {
       return data || [];
     } catch (error) {
       console.error('Error fetching employees:', error);
+      return [];
+    }
+  },
+
+  async getTeams() {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.TEAMS)
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching teams:', error);
+      return [];
+    }
+  },
+
+  async getTrainingMaterials() {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.TRAINING_MATERIALS)
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching training materials:', error);
+      return [];
+    }
+  },
+
+  async getDonors() {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.DONORS)
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching donors:', error);
+      return [];
+    }
+  },
+
+  async createDonor(donorData: Omit<Donor, 'id' | 'created_at' | 'updated_at'>) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.DONORS)
+        .insert([{ 
+          ...donorData, 
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating donor:', error);
+      throw error;
+    }
+  },
+
+  async updateDonor(id: string, updates: Partial<Donor>) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.DONORS)
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating donor:', error);
+      throw error;
+    }
+  },
+
+  async deleteDonor(id: string) {
+    try {
+      const { error } = await supabase
+        .from(TABLES.DONORS)
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting donor:', error);
+      throw error;
+    }
+  },
+
+  async getCampaigns() {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.CAMPAIGNS)
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
       return [];
     }
   },

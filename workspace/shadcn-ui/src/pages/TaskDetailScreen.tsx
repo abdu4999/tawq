@@ -8,27 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Calendar, DollarSign, User, FileText, MessageSquare, Lightbulb, Paperclip, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabaseAPI } from '@/lib/supabaseClient';
 
 export default function TaskDetailScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [task, setTask] = useState<any>({
-    id: id,
-    title: 'التواصل مع متبرع محتمل',
-    description: 'التواصل مع أحمد محمد للحصول على تبرع لمشروع رمضان',
-    status: 'in_progress',
-    priority: 'high',
-    project: 'مشروع رمضان',
-    assignedTo: 'أحمد محمد',
-    dueDate: '2025-12-10',
-    revenue: 5000,
-    notes: 'المتبرع أبدى اهتماماً كبيراً بالمشروع',
-    files: ['عرض_المشروع.pdf'],
-    comments: [
-      { id: 1, author: 'المشرف', text: 'ممتاز، حاول زيادة المبلغ', date: '2025-12-01' }
-    ]
-  });
+  const [loading, setLoading] = useState(true);
+  const [task, setTask] = useState<any>(null);
 
   const [newComment, setNewComment] = useState('');
   const [aiSuggestions] = useState([
@@ -37,22 +24,109 @@ export default function TaskDetailScreen() {
     'قدم خيارات متعددة للتبرع (شهري، سنوي، لمرة واحدة)'
   ]);
 
-  const handleSave = () => {
-    toast({
-      title: 'تم الحفظ',
-      description: 'تم حفظ تعديلات المهمة بنجاح'
-    });
+  useEffect(() => {
+    if (id) {
+      loadTask();
+    }
+  }, [id]);
+
+  const loadTask = async () => {
+    try {
+      setLoading(true);
+      const tasks = await supabaseAPI.getTasks();
+      const foundTask = tasks.find((t: any) => t.id === id);
+      
+      if (foundTask) {
+        setTask({
+          ...foundTask,
+          // Mock data for fields not in DB yet
+          comments: [
+            { id: 1, author: 'المشرف', text: 'ممتاز، حاول زيادة المبلغ', date: '2025-12-01' }
+          ],
+          files: ['عرض_المشروع.pdf']
+        });
+      } else {
+        toast({
+          title: 'خطأ',
+          description: 'لم يتم العثور على المهمة',
+          variant: 'destructive'
+        });
+        navigate('/tasks');
+      }
+    } catch (error) {
+      console.error('Error loading task:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل تحميل بيانات المهمة',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      if (!task) return;
+
+      await supabaseAPI.updateTask(task.id, {
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        // assigned_to: task.assigned_to, // Need to handle this properly with types
+        // due_date: task.due_date,
+        // revenue: task.revenue
+      });
+
+      toast({
+        title: 'تم الحفظ',
+        description: 'تم حفظ تعديلات المهمة بنجاح'
+      });
+    } catch (error) {
+      console.error('Error updating task:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل حفظ التعديلات',
+        variant: 'destructive'
+      });
+    }
   };
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
     
+    // In a real app, we would save the comment to the database
+    const newCommentObj = {
+      id: Date.now(),
+      author: 'أنت',
+      text: newComment,
+      date: new Date().toISOString().split('T')[0]
+    };
+    
+    setTask({
+      ...task,
+      comments: [...(task.comments || []), newCommentObj]
+    });
+
     toast({
       title: 'تم إضافة التعليق',
       description: 'تم إضافة تعليقك بنجاح'
     });
     setNewComment('');
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!task) return null;
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -98,84 +172,42 @@ export default function TaskDetailScreen() {
                   <Textarea
                     value={task.description}
                     onChange={(e) => setTask({ ...task, description: e.target.value })}
-                    rows={4}
+                    className="min-h-[100px]"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>المشروع</Label>
-                    <Input value={task.project} readOnly className="bg-gray-50" />
+                    <div className="flex items-center gap-2 p-2 border rounded-md bg-gray-50">
+                      <FileText className="h-4 w-4 text-gray-500" />
+                      <span>{task.project || 'غير محدد'}</span>
+                    </div>
                   </div>
-
                   <div className="space-y-2">
-                    <Label>المكلف</Label>
-                    <Input value={task.assignedTo} readOnly className="bg-gray-50" />
+                    <Label>المسؤول</Label>
+                    <div className="flex items-center gap-2 p-2 border rounded-md bg-gray-50">
+                      <User className="h-4 w-4 text-gray-500" />
+                      <span>{task.assigned_to || 'غير محدد'}</span>
+                    </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>تاريخ الاستحقاق</Label>
-                    <Input
-                      type="date"
-                      value={task.dueDate}
-                      onChange={(e) => setTask({ ...task, dueDate: e.target.value })}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>الإيراد المتوقع (ر.س)</Label>
-                    <Input
-                      type="number"
-                      value={task.revenue}
-                      onChange={(e) => setTask({ ...task, revenue: e.target.value })}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Notes */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  ملاحظات ومشاكل
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Textarea
-                  value={task.notes}
-                  onChange={(e) => setTask({ ...task, notes: e.target.value })}
-                  rows={4}
-                  placeholder="أضف ملاحظات عن المشاكل التي واجهتها..."
-                />
-              </CardContent>
-            </Card>
-
-            {/* Files */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Paperclip className="h-5 w-5" />
-                  الملفات المرفقة
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {task.files.map((file: string, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Paperclip className="h-4 w-4 text-gray-400" />
-                        <span className="text-sm">{file}</span>
-                      </div>
-                      <Button variant="ghost" size="sm">تحميل</Button>
+                    <div className="flex items-center gap-2 p-2 border rounded-md bg-gray-50">
+                      <Calendar className="h-4 w-4 text-gray-500" />
+                      <span>{task.due_date || 'غير محدد'}</span>
                     </div>
-                  ))}
-                  <Button variant="outline" className="w-full mt-2">
-                    رفع ملف جديد
-                  </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>العائد المتوقع</Label>
+                    <div className="flex items-center gap-2 p-2 border rounded-md bg-gray-50">
+                      <DollarSign className="h-4 w-4 text-gray-500" />
+                      <span>{task.revenue ? task.revenue.toLocaleString() : '0'} ر.س</span>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -185,30 +217,35 @@ export default function TaskDetailScreen() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <MessageSquare className="h-5 w-5" />
-                  التعليقات
+                  التعليقات والمناقشات
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {task.comments.map((comment: any) => (
-                  <div key={comment.id} className="bg-gray-50 p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold">{comment.author}</span>
-                      <span className="text-xs text-gray-500">{comment.date}</span>
+                <div className="space-y-4 max-h-[300px] overflow-y-auto">
+                  {task.comments?.map((comment: any) => (
+                    <div key={comment.id} className="flex gap-3 bg-gray-50 p-3 rounded-lg">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                        {comment.author[0]}
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-sm">{comment.author}</span>
+                          <span className="text-xs text-gray-500">{comment.date}</span>
+                        </div>
+                        <p className="text-sm text-gray-700 mt-1">{comment.text}</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-700">{comment.text}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
 
-                <div className="space-y-2">
-                  <Textarea
+                <div className="flex gap-2 mt-4">
+                  <Input
+                    placeholder="أضف تعليقاً..."
                     value={newComment}
                     onChange={(e) => setNewComment(e.target.value)}
-                    placeholder="أضف تعليقاً..."
-                    rows={3}
+                    onKeyPress={(e) => e.key === 'Enter' && handleAddComment()}
                   />
-                  <Button onClick={handleAddComment} disabled={!newComment.trim()}>
-                    إضافة تعليق
-                  </Button>
+                  <Button onClick={handleAddComment}>إرسال</Button>
                 </div>
               </CardContent>
             </Card>
@@ -216,79 +253,92 @@ export default function TaskDetailScreen() {
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Status */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">حالة المهمة</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Badge className="w-full justify-center py-2 text-sm" variant={
-                  task.status === 'completed' ? 'success' :
-                  task.status === 'in_progress' ? 'info' : 'warning'
-                }>
-                  {task.status === 'completed' ? 'مكتملة' :
-                   task.status === 'in_progress' ? 'قيد التنفيذ' : 'قيد الانتظار'}
-                </Badge>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setTask({ ...task, status: 'pending' })}>
-                    انتظار
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setTask({ ...task, status: 'in_progress' })}>
-                    تنفيذ
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => setTask({ ...task, status: 'completed' })}>
-                    إكمال
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">معلومات سريعة</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600">تاريخ الإنشاء:</span>
-                  <span className="font-semibold">2025-12-01</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600">المنشئ:</span>
-                  <span className="font-semibold">المشرف</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600">الإيراد:</span>
-                  <span className="font-semibold text-green-600">{task.revenue} ر.س</span>
-                </div>
-              </CardContent>
-            </Card>
-
             {/* AI Suggestions */}
-            <Card className="border-2 border-purple-200 bg-purple-50">
+            <Card className="bg-gradient-to-br from-purple-50 to-blue-50 border-blue-100">
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-purple-600" />
-                  توصيات AI
+                <CardTitle className="flex items-center gap-2 text-blue-700">
+                  <Lightbulb className="h-5 w-5" />
+                  اقتراحات الذكاء الاصطناعي
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {aiSuggestions.map((suggestion, index) => (
-                    <li key={index} className="text-sm bg-white p-3 rounded-lg flex items-start gap-2">
-                      <span className="text-purple-600 font-bold">•</span>
-                      <span>{suggestion}</span>
+                    <li key={index} className="flex gap-2 text-sm text-gray-700">
+                      <span className="text-blue-500">•</span>
+                      {suggestion}
                     </li>
                   ))}
                 </ul>
+                <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
+                  تطبيق الاقتراحات
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Files */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Paperclip className="h-5 w-5" />
+                  المرفقات
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {task.files?.map((file: string, index: number) => (
+                    <div key={index} className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-gray-500" />
+                        <span className="text-sm">{file}</span>
+                      </div>
+                      <Button variant="ghost" size="sm">تنزيل</Button>
+                    </div>
+                  ))}
+                  <Button variant="outline" className="w-full mt-2 border-dashed">
+                    <Plus className="h-4 w-4 ml-2" />
+                    إضافة ملف
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Notes */}
+            <Card>
+              <CardHeader>
+                <CardTitle>ملاحظات خاصة</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  placeholder="أضف ملاحظاتك الخاصة هنا..."
+                  className="min-h-[150px]"
+                  value={task.notes}
+                  onChange={(e) => setTask({ ...task, notes: e.target.value })}
+                />
               </CardContent>
             </Card>
           </div>
         </div>
     </div>
   );
+}
+
+function Plus(props: any) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+  )
 }

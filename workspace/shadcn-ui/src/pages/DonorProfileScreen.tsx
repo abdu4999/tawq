@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,71 +7,93 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowRight, DollarSign, Calendar, TrendingUp, History, Phone, Mail, Heart, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabaseAPI, Transaction } from '@/lib/supabaseClient';
 
 export default function DonorProfileScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [donor] = useState({
-    id: id,
-    name: 'أحمد محمد السعيد',
-    email: 'ahmed@example.com',
-    phone: '0501234567',
-    type: 'individual',
-    segment: 'vip',
-    totalDonations: 150000,
-    donationsCount: 12,
-    avgDonation: 12500,
-    firstDonation: '2024-01-15',
-    lastDonation: '2025-11-25',
-    status: 'active',
-    notes: 'متبرع منتظم يهتم بمشاريع التعليم'
-  });
+  const [donor, setDonor] = useState<any>(null);
+  const [donations, setDonations] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const [donations] = useState([
-    {
-      id: 1,
-      date: '2025-11-25',
-      amount: 25000,
-      project: 'مشروع رمضان',
-      method: 'bank_transfer',
-      status: 'completed'
-    },
-    {
-      id: 2,
-      date: '2025-10-15',
-      amount: 15000,
-      project: 'بناء مسجد',
-      method: 'credit_card',
-      status: 'completed'
-    },
-    {
-      id: 3,
-      date: '2025-09-10',
-      amount: 10000,
-      project: 'كفالة يتيم',
-      method: 'bank_transfer',
-      status: 'completed'
+  useEffect(() => {
+    if (id) {
+      loadData();
     }
-  ]);
+  }, [id]);
 
-  const [interactions] = useState([
-    {
-      id: 1,
-      date: '2025-11-20',
-      type: 'call',
-      employee: 'أحمد محمد',
-      notes: 'اتصال تذكيري بمشروع رمضان'
-    },
-    {
-      id: 2,
-      date: '2025-10-10',
-      type: 'email',
-      employee: 'فاطمة علي',
-      notes: 'إرسال تقرير أثر التبرعات'
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const [donorsData, transactionsData] = await Promise.all([
+        supabaseAPI.getDonors(),
+        supabaseAPI.getTransactions()
+      ]);
+
+      const foundDonor = donorsData.find((d: any) => d.id === id);
+      if (foundDonor) {
+        setDonor(foundDonor);
+        
+        // Filter transactions that might be related to this donor (mock logic for now as we lack foreign key)
+        // In a real app, we would filter by donor_id
+        const donorTransactions = transactionsData.filter((t: Transaction) => 
+          t.type === 'income' && t.description.includes(foundDonor.name)
+        );
+        setDonations(donorTransactions);
+      } else {
+        toast({
+          title: 'خطأ',
+          description: 'لم يتم العثور على المتبرع',
+          variant: 'destructive'
+        });
+        navigate('/donors');
+      }
+    } catch (error) {
+      console.error('Error loading donor profile:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل تحميل بيانات المتبرع',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  ]);
+  };
+
+  const stats = useMemo(() => {
+    if (!donations.length) return {
+      total: 0,
+      count: 0,
+      avg: 0,
+      first: '-',
+      last: '-'
+    };
+
+    const total = donations.reduce((sum, t) => sum + t.amount, 0);
+    const count = donations.length;
+    const avg = total / count;
+    
+    const sorted = [...donations].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const first = sorted[0]?.date || '-';
+    const last = sorted[sorted.length - 1]?.date || '-';
+
+    return { total, count, avg, first, last };
+  }, [donations]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!donor) return null;
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -103,7 +125,7 @@ export default function DonorProfileScreen() {
                         {donor.type === 'individual' ? 'فرد' : 'مؤسسة'}
                       </Badge>
                       <Badge className="bg-yellow-400 text-yellow-900">
-                        {donor.segment === 'vip' ? 'VIP' : donor.segment === 'regular' ? 'منتظم' : 'جديد'}
+                        {stats.total > 100000 ? 'VIP' : stats.total > 10000 ? 'منتظم' : 'جديد'}
                       </Badge>
                     </div>
                   </div>
@@ -124,7 +146,7 @@ export default function DonorProfileScreen() {
               <div className="text-left">
                 <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center">
                   <p className="text-sm text-white/80">إجمالي التبرعات</p>
-                  <p className="text-4xl font-bold mt-1">{donor.totalDonations.toLocaleString()}</p>
+                  <p className="text-4xl font-bold mt-1">{stats.total.toLocaleString()}</p>
                   <p className="text-sm text-white/80">ر.س</p>
                 </div>
               </div>
@@ -139,7 +161,7 @@ export default function DonorProfileScreen() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">عدد التبرعات</p>
-                  <p className="text-2xl font-bold">{donor.donationsCount}</p>
+                  <p className="text-2xl font-bold">{stats.count}</p>
                 </div>
                 <Heart className="h-8 w-8 text-red-500" />
               </div>
@@ -151,7 +173,7 @@ export default function DonorProfileScreen() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">متوسط التبرع</p>
-                  <p className="text-2xl font-bold">{donor.avgDonation.toLocaleString()}</p>
+                  <p className="text-2xl font-bold">{Math.round(stats.avg).toLocaleString()}</p>
                   <p className="text-xs text-gray-500">ر.س</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-green-500" />
@@ -164,7 +186,7 @@ export default function DonorProfileScreen() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">أول تبرع</p>
-                  <p className="text-lg font-bold">{donor.firstDonation}</p>
+                  <p className="text-lg font-bold">{stats.first}</p>
                 </div>
                 <Calendar className="h-8 w-8 text-blue-500" />
               </div>
@@ -176,7 +198,7 @@ export default function DonorProfileScreen() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">آخر تبرع</p>
-                  <p className="text-lg font-bold">{donor.lastDonation}</p>
+                  <p className="text-lg font-bold">{stats.last}</p>
                 </div>
                 <History className="h-8 w-8 text-purple-500" />
               </div>
@@ -193,64 +215,49 @@ export default function DonorProfileScreen() {
           </TabsList>
 
           <TabsContent value="donations" className="space-y-4 mt-6">
-            {donations.map((donation) => (
-              <Card key={donation.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <span className="font-semibold text-lg">{donation.project}</span>
-                        <Badge variant={donation.status === 'completed' ? 'success' : 'warning'}>
-                          {donation.status === 'completed' ? 'مكتمل' : 'قيد المعالجة'}
-                        </Badge>
+            {donations.length > 0 ? (
+              donations.map((donation) => (
+                <Card key={donation.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <span className="font-semibold text-lg">{donation.category}</span>
+                          <Badge variant="success">
+                            مكتمل
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-gray-600">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {donation.date}
+                          </span>
+                          <span>
+                            {donation.description}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          {donation.date}
-                        </span>
-                        <span>
-                          {donation.method === 'bank_transfer' ? 'تحويل بنكي' :
-                           donation.method === 'credit_card' ? 'بطاقة ائتمان' : 'نقدي'}
-                        </span>
+                      <div className="text-left">
+                        <p className="text-2xl font-bold text-green-600">
+                          {donation.amount.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-500">ر.س</p>
                       </div>
                     </div>
-                    <div className="text-left">
-                      <p className="text-2xl font-bold text-green-600">
-                        {donation.amount.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">ر.س</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                لا توجد تبرعات مسجلة
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="interactions" className="space-y-4 mt-6">
-            {interactions.map((interaction) => (
-              <Card key={interaction.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className={`p-2 rounded-lg ${
-                      interaction.type === 'call' ? 'bg-blue-100' :
-                      interaction.type === 'email' ? 'bg-green-100' : 'bg-purple-100'
-                    }`}>
-                      {interaction.type === 'call' ? '📞' :
-                       interaction.type === 'email' ? '📧' : '💬'}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold">{interaction.employee}</span>
-                        <span className="text-sm text-gray-500">{interaction.date}</span>
-                      </div>
-                      <p className="text-sm text-gray-700">{interaction.notes}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
+            <div className="text-center py-8 text-gray-500">
+              لا توجد تفاعلات مسجلة
+            </div>
             <Button className="w-full">إضافة تفاعل جديد</Button>
           </TabsContent>
 
@@ -260,7 +267,7 @@ export default function DonorProfileScreen() {
                 <div className="space-y-2">
                   <p className="text-sm text-gray-600">الملاحظات الحالية:</p>
                   <div className="bg-gray-50 p-4 rounded-lg">
-                    <p>{donor.notes}</p>
+                    <p>{donor.notes || 'لا توجد ملاحظات'}</p>
                   </div>
                 </div>
 

@@ -1,27 +1,98 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DollarSign, TrendingUp, Calendar, Download } from 'lucide-react';
+import { supabaseAPI, Campaign } from '@/lib/supabaseClient';
+import { useToast } from '@/hooks/use-toast';
 
 export default function InfluencerRevenueScreen() {
   const [period, setPeriod] = useState('monthly');
+  const [stats, setStats] = useState({
+    totalRevenue: 0,
+    paidOut: 0,
+    pending: 0,
+    monthlyAvg: 0
+  });
+  const [revenueData, setRevenueData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const stats = {
-    totalRevenue: 450000,
-    paidOut: 320000,
-    pending: 130000,
-    monthlyAvg: 56250
+  useEffect(() => {
+    loadRevenueData();
+  }, []);
+
+  const loadRevenueData = async () => {
+    try {
+      setLoading(true);
+      const campaigns = await supabaseAPI.getCampaigns();
+      
+      let totalRevenue = 0;
+      let paidOut = 0;
+      let pending = 0;
+      
+      // Group by month for the chart/table
+      const monthlyData: Record<string, { revenue: number, commission: number, paid: boolean }> = {};
+
+      campaigns.forEach((campaign: Campaign) => {
+        const revenue = campaign.revenue || 0;
+        const commission = revenue * 0.10; // Assuming 10% commission
+        
+        totalRevenue += revenue;
+        
+        if (campaign.status === 'completed') {
+          paidOut += commission;
+        } else {
+          pending += commission;
+        }
+
+        // Date processing
+        const date = new Date(campaign.created_at || new Date());
+        const monthKey = date.toLocaleString('ar-SA', { month: 'long' });
+        
+        if (!monthlyData[monthKey]) {
+          monthlyData[monthKey] = { revenue: 0, commission: 0, paid: campaign.status === 'completed' };
+        }
+        monthlyData[monthKey].revenue += revenue;
+        monthlyData[monthKey].commission += commission;
+      });
+
+      const monthsCount = Object.keys(monthlyData).length || 1;
+
+      setStats({
+        totalRevenue,
+        paidOut,
+        pending,
+        monthlyAvg: totalRevenue / monthsCount
+      });
+
+      setRevenueData(Object.keys(monthlyData).map(key => ({
+        month: key,
+        ...monthlyData[key]
+      })));
+
+    } catch (error) {
+      console.error('Error loading revenue data:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل تحميل بيانات الإيرادات',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const revenueData = [
-    { month: 'يناير', revenue: 45000, commission: 6750, paid: true },
-    { month: 'فبراير', revenue: 38000, commission: 5700, paid: true },
-    { month: 'مارس', revenue: 52000, commission: 7800, paid: true },
-    { month: 'أبريل', revenue: 61000, commission: 9150, paid: true },
-    { month: 'مايو', revenue: 48000, commission: 7200, paid: false },
-    { month: 'يونيو', revenue: 55000, commission: 8250, paid: false }
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل البيانات المالية...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -54,7 +125,7 @@ export default function InfluencerRevenueScreen() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-blue-100">المدفوع</p>
+                  <p className="text-sm text-blue-100">المدفوع (العمولات)</p>
                   <p className="text-2xl font-bold">{stats.paidOut.toLocaleString()}</p>
                   <p className="text-xs text-blue-100">ر.س</p>
                 </div>
@@ -99,12 +170,13 @@ export default function InfluencerRevenueScreen() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="weekly">أسبوعي</SelectItem>
                   <SelectItem value="monthly">شهري</SelectItem>
+                  <SelectItem value="quarterly">ربع سنوي</SelectItem>
                   <SelectItem value="yearly">سنوي</SelectItem>
                 </SelectContent>
               </Select>
-              <Button className="gap-2">
+              
+              <Button variant="outline" className="gap-2">
                 <Download className="h-4 w-4" />
                 تصدير التقرير
               </Button>
@@ -118,28 +190,33 @@ export default function InfluencerRevenueScreen() {
             <CardTitle>تفاصيل الإيرادات</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
-              {revenueData.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-3 h-3 rounded-full ${item.paid ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                    <div>
-                      <p className="font-semibold">{item.month}</p>
-                      <p className="text-sm text-gray-500">
-                        {item.paid ? 'مدفوع' : 'قيد الانتظار'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-left">
-                    <p className="text-lg font-bold text-gray-900">
-                      {item.revenue.toLocaleString()} ر.س
-                    </p>
-                    <p className="text-sm text-green-600">
-                      عمولة: {item.commission.toLocaleString()} ر.س
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-right">
+                <thead>
+                  <tr className="border-b">
+                    <th className="pb-3">الشهر</th>
+                    <th className="pb-3">الإيراد</th>
+                    <th className="pb-3">العمولة (10%)</th>
+                    <th className="pb-3">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {revenueData.map((row, index) => (
+                    <tr key={index} className="border-b last:border-0">
+                      <td className="py-3">{row.month}</td>
+                      <td className="py-3 font-bold">{row.revenue.toLocaleString()} ر.س</td>
+                      <td className="py-3 text-green-600">{row.commission.toLocaleString()} ر.س</td>
+                      <td className="py-3">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          row.paid ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>
+                          {row.paid ? 'تم الدفع' : 'قيد الانتظار'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>

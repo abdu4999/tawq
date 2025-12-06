@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/AuthProvider';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateDMY } from '@/lib/date-utils';
+import { supabaseAPI } from '@/lib/supabaseClient';
 import { 
   User, 
   Mail, 
@@ -24,6 +25,8 @@ import {
 export default function ProfileScreen() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+  const [employeeData, setEmployeeData] = useState<any>(null);
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
@@ -31,13 +34,45 @@ export default function ProfileScreen() {
     weekly: true
   });
 
-  const userStats = {
-    level: 12,
-    points: 8500,
-    tasksCompleted: 156,
-    revenue: 450000,
-    achievements: 24,
-    joinDate: '2024-01-15'
+  useEffect(() => {
+    if (user) {
+      loadProfile();
+    }
+  }, [user]);
+
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      const employees = await supabaseAPI.getEmployees();
+      // Find employee by email matching the auth user
+      const foundEmployee = employees.find((e: any) => e.email === user?.email);
+      
+      if (foundEmployee) {
+        setEmployeeData(foundEmployee);
+      } else {
+        // Fallback if no employee record found, use auth user data
+        setEmployeeData({
+          name: user?.email?.split('@')[0] || 'User',
+          email: user?.email,
+          role: 'User',
+          level: 1,
+          points: 0,
+          tasksCompleted: 0,
+          revenue: 0,
+          achievements: 0,
+          joinDate: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل تحميل بيانات الملف الشخصي',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSaveChanges = () => {
@@ -61,6 +96,17 @@ export default function ProfileScreen() {
     });
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6" dir="rtl">
       {/* Header */}
@@ -77,7 +123,7 @@ export default function ProfileScreen() {
             <CardContent className="p-6 text-center space-y-4">
               <div className="relative inline-block">
                 <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 flex items-center justify-center text-white text-4xl font-bold mx-auto">
-                  أم
+                  {employeeData?.name?.[0] || 'U'}
                 </div>
                 <button className="absolute bottom-0 right-0 p-2 bg-blue-600 rounded-full text-white hover:bg-blue-700" onClick={handleUploadPhoto}>
                   <Camera className="h-4 w-4" />
@@ -85,183 +131,122 @@ export default function ProfileScreen() {
               </div>
               
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">أحمد محمد</h2>
-                <p className="text-gray-600">موظف - فريق التسويق</p>
-                <Badge className="mt-2" variant="info">المستوى {userStats.level}</Badge>
+                <h2 className="text-2xl font-bold text-gray-900">{employeeData?.name}</h2>
+                <p className="text-gray-600">{employeeData?.role || 'موظف'}</p>
+                <Badge className="mt-2" variant="info">المستوى {employeeData?.level || 1}</Badge>
               </div>
 
               <div className="pt-4 border-t space-y-2 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">النقاط</span>
-                  <span className="font-bold text-blue-600">{userStats.points.toLocaleString()}</span>
+                  <span className="font-bold text-blue-600">{(employeeData?.points || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">المهام المكتملة</span>
-                  <span className="font-bold text-green-600">{userStats.tasksCompleted}</span>
+                  <span className="font-bold text-green-600">{employeeData?.tasksCompleted || 0}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">الإيراد الكلي</span>
-                  <span className="font-bold text-purple-600">{userStats.revenue.toLocaleString()} ر.س</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">الإنجازات</span>
-                  <span className="font-bold text-orange-600">{userStats.achievements}</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t text-xs text-gray-500">
-                <div className="flex items-center justify-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>انضم في {formatDateDMY(userStats.joinDate)}</span>
+                  <span className="text-gray-600">العوائد المحققة</span>
+                  <span className="font-bold text-purple-600">{(employeeData?.revenue || 0).toLocaleString()} ر.س</span>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Details & Settings */}
+          {/* Settings & Info */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Personal Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <User className="h-6 w-6 text-blue-600" />
+                  <User className="h-5 w-5" />
                   المعلومات الشخصية
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      الاسم الكامل
-                    </label>
-                    <Input defaultValue="أحمد محمد السالم" />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">الاسم الكامل</label>
+                    <div className="relative">
+                      <User className="absolute right-3 top-2.5 h-4 w-4 text-gray-500" />
+                      <Input defaultValue={employeeData?.name} className="pr-10" />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      المسمى الوظيفي
-                    </label>
-                    <Input defaultValue="موظف تسويق" />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">البريد الإلكتروني</label>
+                    <div className="relative">
+                      <Mail className="absolute right-3 top-2.5 h-4 w-4 text-gray-500" />
+                      <Input defaultValue={employeeData?.email} className="pr-10" readOnly />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-                      <Mail className="h-4 w-4" />
-                      البريد الإلكتروني
-                    </label>
-                    <Input type="email" defaultValue="ahmed@mgx.com" />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">رقم الهاتف</label>
+                    <div className="relative">
+                      <Phone className="absolute right-3 top-2.5 h-4 w-4 text-gray-500" />
+                      <Input defaultValue={employeeData?.phone || ''} placeholder="05xxxxxxxx" className="pr-10" />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-                      <Phone className="h-4 w-4" />
-                      رقم الجوال
-                    </label>
-                    <Input type="tel" defaultValue="+966 50 123 4567" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      العنوان
-                    </label>
-                    <Input defaultValue="الرياض، المملكة العربية السعودية" />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">تاريخ الانضمام</label>
+                    <div className="relative">
+                      <Calendar className="absolute right-3 top-2.5 h-4 w-4 text-gray-500" />
+                      <Input defaultValue={formatDateDMY(employeeData?.joinDate || new Date().toISOString())} className="pr-10" readOnly />
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-end">
-                  <Button onClick={handleSaveChanges}>حفظ التغييرات</Button>
-                </div>
+                <Button onClick={handleSaveChanges} className="w-full md:w-auto">حفظ التغييرات</Button>
               </CardContent>
             </Card>
 
-            {/* Notification Settings */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-6 w-6 text-purple-600" />
+                  <Bell className="h-5 w-5" />
                   إعدادات الإشعارات
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { key: 'email', label: 'إشعارات البريد الإلكتروني', icon: Mail },
-                  { key: 'push', label: 'الإشعارات الفورية', icon: Bell },
-                  { key: 'sms', label: 'رسائل SMS', icon: Phone },
-                  { key: 'weekly', label: 'التقرير الأسبوعي', icon: Calendar },
-                ].map((setting) => {
-                  const Icon = setting.icon;
-                  return (
-                    <div key={setting.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Icon className="h-5 w-5 text-gray-600" />
-                        <span className="font-medium text-gray-800">{setting.label}</span>
-                      </div>
-                      <button
-                        onClick={() => setNotifications(prev => ({ ...prev, [setting.key]: !prev[setting.key as keyof typeof prev] }))}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          notifications[setting.key as keyof typeof notifications] ? 'bg-blue-600' : 'bg-gray-300'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            notifications[setting.key as keyof typeof notifications] ? 'translate-x-6' : 'translate-x-1'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
-
-            {/* Performance Pattern */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-6 w-6 text-green-600" />
-                  نمط الأداء (تحليل AI)
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-green-50 rounded-lg border-2 border-green-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Target className="h-5 w-5 text-green-600" />
-                      <span className="font-semibold text-gray-800">النمط</span>
-                    </div>
-                    <p className="text-lg font-bold text-green-600">المنجز المتميز</p>
-                    <p className="text-xs text-gray-600 mt-1">أداء مستقر وعالي</p>
+                <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                  <div className="space-y-0.5">
+                    <label className="text-sm font-medium">إشعارات البريد الإلكتروني</label>
+                    <p className="text-xs text-gray-500">استلام ملخص أسبوعي وتحديثات المهام</p>
                   </div>
-                  
-                  <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <TrendingUp className="h-5 w-5 text-blue-600" />
-                      <span className="font-semibold text-gray-800">نقاط القوة</span>
-                    </div>
-                    <p className="text-sm text-gray-700">• التسويق الإبداعي</p>
-                    <p className="text-sm text-gray-700">• إدارة العلاقات</p>
+                  <input 
+                    type="checkbox" 
+                    checked={notifications.email}
+                    onChange={(e) => setNotifications({...notifications, email: e.target.checked})}
+                    className="toggle"
+                  />
+                </div>
+                <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                  <div className="space-y-0.5">
+                    <label className="text-sm font-medium">إشعارات المتصفح</label>
+                    <p className="text-xs text-gray-500">تنبيهات فورية عند تحديث المهام</p>
                   </div>
-                  
-                  <div className="p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Award className="h-5 w-5 text-purple-600" />
-                      <span className="font-semibold text-gray-800">التوصية</span>
-                    </div>
-                    <p className="text-sm text-gray-700">مؤهل لقيادة فريق</p>
-                  </div>
+                  <input 
+                    type="checkbox" 
+                    checked={notifications.push}
+                    onChange={(e) => setNotifications({...notifications, push: e.target.checked})}
+                    className="toggle"
+                  />
                 </div>
               </CardContent>
             </Card>
 
-            {/* Security */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock className="h-6 w-6 text-red-600" />
+                <CardTitle className="flex items-center gap-2 text-red-600">
+                  <Lock className="h-5 w-5" />
                   الأمان
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <Button variant="outline" className="gap-2" onClick={handleChangePassword}>
-                  <Lock className="h-4 w-4" />
-                  تغيير كلمة المرور
-                </Button>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">كلمة المرور</p>
+                    <p className="text-sm text-gray-500">آخر تغيير: منذ 3 أشهر</p>
+                  </div>
+                  <Button variant="outline" onClick={handleChangePassword}>تغيير كلمة المرور</Button>
+                </div>
               </CardContent>
             </Card>
           </div>

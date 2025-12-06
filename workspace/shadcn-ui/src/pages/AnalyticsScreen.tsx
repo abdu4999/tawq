@@ -1,38 +1,96 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TrendingUp, BarChart3, LineChart, PieChart, Lightbulb } from 'lucide-react';
+import { supabaseAPI } from '@/lib/supabaseClient';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AnalyticsScreen() {
   const [period, setPeriod] = useState('monthly');
+  const [loading, setLoading] = useState(true);
+  const [predictions, setPredictions] = useState<any[]>([]);
+  const [insights, setInsights] = useState<string[]>([]);
+  const { toast } = useToast();
 
-  const predictions = [
-    {
-      title: 'توقع الإيراد للشهر القادم',
-      value: '580,000 ر.س',
-      confidence: 85,
-      trend: 'up'
-    },
-    {
-      title: 'أفضل موظف متوقع',
-      value: 'أحمد محمد',
-      confidence: 92,
-      trend: 'up'
-    },
-    {
-      title: 'نسبة إنجاز المشاريع',
-      value: '78%',
-      confidence: 88,
-      trend: 'stable'
+  useEffect(() => {
+    loadAnalytics();
+  }, []);
+
+  const loadAnalytics = async () => {
+    try {
+      setLoading(true);
+      const [tasks, projects, transactions, employees] = await Promise.all([
+        supabaseAPI.getTasks().catch(() => []),
+        supabaseAPI.getProjects().catch(() => []),
+        supabaseAPI.getTransactions().catch(() => []),
+        supabaseAPI.getEmployees().catch(() => [])
+      ]);
+
+      // Calculate Predictions
+      const totalIncome = transactions
+        .filter((t: any) => t.type === 'income')
+        .reduce((sum: number, t: any) => sum + (t.amount || 0), 0);
+      
+      const predictedRevenue = totalIncome > 0 ? totalIncome * 1.1 : 50000; // 10% growth or default
+
+      const completedProjects = projects.filter((p: any) => p.status === 'completed').length;
+      const totalProjects = projects.length;
+      const completionRate = totalProjects > 0 ? Math.round((completedProjects / totalProjects) * 100) : 0;
+
+      const bestEmployee = employees.length > 0 ? employees[0].name : 'غير محدد';
+
+      setPredictions([
+        {
+          title: 'توقع الإيراد للشهر القادم',
+          value: `${Math.round(predictedRevenue).toLocaleString()} ر.س`,
+          confidence: 85,
+          trend: 'up'
+        },
+        {
+          title: 'أفضل موظف متوقع',
+          value: bestEmployee,
+          confidence: 92,
+          trend: 'up'
+        },
+        {
+          title: 'نسبة إنجاز المشاريع',
+          value: `${completionRate}%`,
+          confidence: 88,
+          trend: 'stable'
+        }
+      ]);
+
+      // Generate Insights
+      const newInsights = [
+        `تم تحقيق ${Math.round(totalIncome).toLocaleString()} ر.س من الإيرادات حتى الآن`,
+        `هناك ${tasks.filter((t: any) => t.status === 'pending').length} مهمة معلقة تحتاج إلى متابعة`,
+        `نسبة إنجاز المشاريع الحالية هي ${completionRate}%`
+      ];
+      setInsights(newInsights);
+
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+      toast({
+        title: 'خطأ',
+        description: 'فشل تحميل التحليلات',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const insights = [
-    'الموظفون الذين يتواصلون مع المتبرعين صباحاً يحققون إيراداً أعلى بنسبة 23%',
-    'المشاريع التي تستهدف التعليم تحقق أعلى معدل تبرعات',
-    'حملات المشاهير على Instagram تحقق أفضل النتائج في عطلة نهاية الأسبوع'
-  ];
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحليل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6" dir="rtl">
