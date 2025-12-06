@@ -22,7 +22,8 @@ export const TABLES = {
   SUCCESS_STORIES: 'app_f226d1f8f5_success_stories',
   ACHIEVEMENTS: 'app_f226d1f8f5_achievements',
   USER_ACHIEVEMENTS: 'app_f226d1f8f5_user_achievements',
-  GAMIFICATION_PROFILES: 'app_f226d1f8f5_gamification_profiles'
+  GAMIFICATION_PROFILES: 'app_f226d1f8f5_gamification_profiles',
+  CHALLENGES: 'app_f226d1f8f5_challenges'
 };
 
 // Types for roles and admin users
@@ -573,6 +574,25 @@ export const supabaseAPI = {
       // Actually, let's just fetch user achievements and then we might need to join manually or assume the relation is set up.
       // To be safe, let's just fetch user achievements.
       .eq('user_id', userId);
+      
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getChallenges() {
+    const { data, error } = await supabase
+      .from(TABLES.CHALLENGES)
+      .select('*');
+    if (error) throw error;
+    return data || [];
+  },
+
+  async getLeaderboard() {
+    const { data, error } = await supabase
+      .from(TABLES.GAMIFICATION_PROFILES)
+      .select('*')
+      .order('points', { ascending: false })
+      .limit(10);
       
     if (error) throw error;
     return data || [];
