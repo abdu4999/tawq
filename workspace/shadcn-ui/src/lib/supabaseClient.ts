@@ -18,7 +18,10 @@ export const TABLES = {
   DONORS: 'app_f226d1f8f5_donors',
   CAMPAIGNS: 'app_f226d1f8f5_campaigns',
   TEAMS: 'app_f226d1f8f5_teams',
-  SETTINGS: 'app_f226d1f8f5_settings'
+  SETTINGS: 'app_f226d1f8f5_settings',
+  SUCCESS_STORIES: 'app_f226d1f8f5_success_stories',
+  ACHIEVEMENTS: 'app_f226d1f8f5_achievements',
+  USER_ACHIEVEMENTS: 'app_f226d1f8f5_user_achievements'
 };
 
 // Types for roles and admin users
@@ -529,6 +532,17 @@ export const supabaseAPI = {
       console.error('Error deleting celebrity:', error);
       throw error;
     }
+  },
+
+  // Success Stories
+  async getSuccessStories() {
+    const { data, error } = await supabase
+      .from(TABLES.SUCCESS_STORIES)
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (error) throw error;
+    return data || [];
   },
 
   // Employee methods
