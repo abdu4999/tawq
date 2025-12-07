@@ -9,7 +9,6 @@ import {
   Star,
   Award,
   Gift,
-  TrendingUp,
   Zap,
   Target,
   Flame
