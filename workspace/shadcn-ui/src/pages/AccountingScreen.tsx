@@ -69,6 +69,17 @@ export default function AccountingScreen() {
   const { toast } = useToast();
   const { addErrorNotification } = useNotifications();
 
+  const ensureError = (err: unknown): Error => {
+    if (err instanceof Error) return err;
+    if (typeof err === 'string') return new Error(err);
+    try {
+      return new Error(JSON.stringify(err));
+    } catch (jsonError) {
+      console.error('Failed to stringify error payload', jsonError);
+      return new Error('Unknown error');
+    }
+  };
+
   const formatCurrencyValue = (value: number) => `${value.toLocaleString()} ر.س`;
 
   const periodStartDate = useMemo(() => {
@@ -210,6 +221,7 @@ export default function AccountingScreen() {
       calculateTotals(data);
     } catch (error) {
       console.error('Error loading transactions:', error);
+      await addErrorNotification(ensureError(error), 'AccountingScreen - Load');
       toast({
         title: 'خطأ',
         description: 'فشل تحميل المعاملات المالية',
@@ -274,6 +286,7 @@ export default function AccountingScreen() {
       loadTransactions();
       
     } catch (error) {
+      await addErrorNotification(ensureError(error), 'AccountingScreen - Create');
       await handleApiError(error, {
         message: 'فشل في حفظ المعاملة',
         context: 'AccountingScreen - Create',
