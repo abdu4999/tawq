@@ -361,10 +361,145 @@ export default function AccountingScreen() {
         </Card>
       </div>
 
+      {/* Filters & Category Breakdown */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <Card className="xl:col-span-2">
+          <CardHeader>
+            <CardTitle>تصفية السجل المالي</CardTitle>
+            <p className="text-sm text-gray-500">حدد ما تريد تحليله بدقة لمراقبة المصروفات والإيرادات المتغيرة</p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label>نوع المعاملة</Label>
+                <Select value={filters.type} onValueChange={(value) => setFilters((prev) => ({ ...prev, type: value as FilterType }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="جميع الأنواع" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الأنواع</SelectItem>
+                    <SelectItem value="income">إيرادات</SelectItem>
+                    <SelectItem value="expense">مصروفات</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>الفترة الزمنية</Label>
+                <Select value={filters.period} onValueChange={(value) => setFilters((prev) => ({ ...prev, period: value as PeriodFilter }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="اختر الفترة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="30">آخر 30 يوم</SelectItem>
+                    <SelectItem value="90">آخر 90 يوم</SelectItem>
+                    <SelectItem value="365">آخر 12 شهر</SelectItem>
+                    <SelectItem value="all">كامل السجل</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>التصنيف</Label>
+                <Select value={filters.category} onValueChange={(value) => setFilters((prev) => ({ ...prev, category: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="كل التصنيفات" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">كل التصنيفات</SelectItem>
+                    {uniqueCategories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>البحث</Label>
+                <Input
+                  placeholder="ابحث بالوصف أو المشروع"
+                  value={filters.search}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, search: e.target.value }))}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-gray-600">
+              <div>
+                <p className="text-xs text-gray-500">إجمالي الإيرادات المتطابقة</p>
+                <p className="font-semibold text-green-600">{formatCurrencyValue(filteredSummary.income)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">إجمالي المصروفات المتطابقة</p>
+                <p className="font-semibold text-red-600">{formatCurrencyValue(filteredSummary.expense)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">صافي الفترة</p>
+                <p className="font-semibold">{formatCurrencyValue(filteredSummary.net)}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-gray-500">
+              <span>الفترة المختارة: {currentPeriodLabel}</span>
+              <span>عدد النتائج: <span className="font-semibold text-gray-800">{filteredTransactions.length}</span></span>
+              <Button variant="outline" size="sm" onClick={resetFilters} disabled={!hasActiveFilters}>
+                إعادة التعيين
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>تفصيل التصنيفات</CardTitle>
+            <p className="text-sm text-gray-500">أكثر التصنيفات تأثيراً في الفترة المحددة</p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {categoryBreakdown.length ? (
+              categoryBreakdown.slice(0, 5).map((category) => (
+                <div key={category.category} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{category.category}</span>
+                    <span className="text-gray-600">{formatCurrencyValue(category.value)}</span>
+                  </div>
+                  <Progress value={category.percentage} className="h-2" />
+                  <p className="text-xs text-gray-500">{category.percentage}% من إجمالي المعاملات المحددة</p>
+                </div>
+              ))
+            ) : (
+              <div className="text-sm text-gray-500 text-center py-6">
+                لا يوجد تفصيل متاح للتصنيفات ضمن عوامل التصفية الحالية
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Insight Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        {insightCards.map(({ title, value, description, icon: Icon }) => (
+          <Card key={title}>
+            <CardContent className="p-4 flex items-start justify-between">
+              <div>
+                <p className="text-sm text-gray-500">{title}</p>
+                <p className="text-2xl font-bold mt-2">{value}</p>
+                <p className="text-xs text-gray-500 mt-1">{description}</p>
+              </div>
+              <div className="p-3 rounded-full bg-gray-50 text-primary">
+                <Icon className="h-5 w-5" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
       {/* Transactions Table */}
       <Card>
         <CardHeader>
           <CardTitle>سجل المعاملات</CardTitle>
+          <p className="text-sm text-gray-500">{currentPeriodLabel} · {filteredTransactions.length} نتيجة</p>
         </CardHeader>
         <CardContent>
           {loading ? (
