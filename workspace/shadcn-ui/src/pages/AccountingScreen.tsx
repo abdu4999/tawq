@@ -65,8 +65,138 @@ export default function AccountingScreen() {
     project: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [filters, setFilters] = useState<FilterState>({ ...FILTER_DEFAULTS });
   const { toast } = useToast();
   const { addErrorNotification } = useNotifications();
+
+  const formatCurrencyValue = (value: number) => `${value.toLocaleString()} ر.س`;
+
+  const periodStartDate = useMemo(() => {
+    if (filters.period === 'all') return null;
+    const date = new Date();
+    date.setDate(date.getDate() - Number(filters.period));
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }, [filters.period]);
+
+  const uniqueCategories = useMemo(() => {
+    const categories = new Set<string>();
+    transactions.forEach((transaction) => {
+      if (transaction.category) {
+        categories.add(transaction.category);
+      }
+    });
+    return Array.from(categories);
+  }, [transactions]);
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((transaction) => {
+      const matchesType = filters.type === 'all' || transaction.type === filters.type;
+      const matchesCategory = filters.category === 'all' || transaction.category === filters.category;
+      const matchesSearch = filters.search
+        ? transaction.description.toLowerCase().includes(filters.search.toLowerCase())
+        : true;
+      const matchesPeriod = !periodStartDate || new Date(transaction.date) >= periodStartDate;
+
+      return matchesType && matchesCategory && matchesSearch && matchesPeriod;
+    });
+  }, [transactions, filters, periodStartDate]);
+
+  const filteredSummary = useMemo(() => {
+    const totals = filteredTransactions.reduce(
+      (acc, transaction) => {
+        if (transaction.type === 'income') {
+          acc.income += transaction.amount;
+        } else {
+          acc.expense += transaction.amount;
+        }
+        return acc;
+      },
+      { income: 0, expense: 0 }
+    );
+
+    return {
+      income: totals.income,
+      expense: totals.expense,
+      net: totals.income - totals.expense
+    };
+  }, [filteredTransactions]);
+
+  const categoryBreakdown = useMemo(() => {
+    if (!filteredTransactions.length) return [] as Array<{ category: string; value: number; percentage: number }>;
+
+    const totals: Record<string, number> = {};
+    filteredTransactions.forEach((transaction) => {
+      if (!transaction.category) return;
+      totals[transaction.category] = (totals[transaction.category] || 0) + transaction.amount;
+    });
+
+    const grandTotal = Object.values(totals).reduce((sum, value) => sum + value, 0);
+
+    return Object.entries(totals)
+      .map(([category, value]) => ({
+        category,
+        value,
+        percentage: grandTotal ? Math.round((value / grandTotal) * 100) : 0
+      }))
+      .sort((a, b) => b.value - a.value);
+  }, [filteredTransactions]);
+
+  const extremes = useMemo(() => {
+    return filteredTransactions.reduce(
+      (acc, transaction) => {
+        if (transaction.type === 'income') {
+          if (!acc.income || transaction.amount > acc.income.amount) {
+            acc.income = transaction;
+          }
+        } else if (transaction.type === 'expense') {
+          if (!acc.expense || transaction.amount > acc.expense.amount) {
+            acc.expense = transaction;
+          }
+        }
+        return acc;
+      },
+      { income: null as Transaction | null, expense: null as Transaction | null }
+    );
+  }, [filteredTransactions]);
+
+  const highestIncome = extremes.income;
+  const highestExpense = extremes.expense;
+  const currentPeriodLabel = PERIOD_LABELS[filters.period];
+  const hasActiveFilters =
+    filters.type !== FILTER_DEFAULTS.type ||
+    filters.period !== FILTER_DEFAULTS.period ||
+    filters.category !== FILTER_DEFAULTS.category ||
+    Boolean(filters.search);
+
+  const insightCards = [
+    {
+      title: 'صافي الفترة المحددة',
+      value: formatCurrencyValue(filteredSummary.net),
+      description: `بعد تطبيق عوامل التصفية (${currentPeriodLabel})`,
+      icon: Calculator
+    },
+    {
+      title: 'عدد المعاملات المطابقة',
+      value: filteredTransactions.length.toString(),
+      description: hasActiveFilters ? 'تم تضييق النتائج لتقارير أدق' : 'يتم عرض أحدث الحركات تلقائياً',
+      icon: FileText
+    },
+    {
+      title: 'أكبر إيراد مسجل',
+      value: formatCurrencyValue(highestIncome?.amount || 0),
+      description: highestIncome?.description || 'لا توجد معاملات حالياً',
+      icon: CreditCard
+    },
+    {
+      title: 'أكبر مصروف مسجل',
+      value: formatCurrencyValue(highestExpense?.amount || 0),
+      description: highestExpense?.description || 'لا توجد معاملات حالياً',
+      icon: Receipt
+    }
+  ];
+
+  const resetFilters = () => setFilters({ ...FILTER_DEFAULTS });
 
   useEffect(() => {
     loadTransactions();
