@@ -507,7 +507,7 @@ export default function AccountingScreen() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
               <p>جاري تحميل البيانات...</p>
             </div>
-          ) : transactions.length > 0 ? (
+          ) : filteredTransactions.length > 0 ? (
             <Table>
               <TableHeader>
                 <TableRow>
@@ -520,7 +520,7 @@ export default function AccountingScreen() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((transaction) => (
+                {filteredTransactions.map((transaction) => (
                   <TableRow key={transaction.id}>
                     <TableCell>{formatDateDMY(transaction.date)}</TableCell>
                     <TableCell className="font-medium">{transaction.description}</TableCell>
@@ -529,7 +529,7 @@ export default function AccountingScreen() {
                     </TableCell>
                     <TableCell>{transaction.project || '-'}</TableCell>
                     <TableCell className="font-bold">
-                      {transaction.amount.toLocaleString()} ر.س
+                      {formatCurrencyValue(transaction.amount)}
                     </TableCell>
                     <TableCell>
                       <Badge variant={transaction.type === 'income' ? 'success' : 'destructive'}>
@@ -542,7 +542,9 @@ export default function AccountingScreen() {
             </Table>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              لا توجد معاملات مسجلة
+              {transactions.length
+                ? 'لا توجد نتائج مطابقة لعوامل التصفية الحالية'
+                : 'لا توجد معاملات مسجلة'}
             </div>
           )}
         </CardContent>
