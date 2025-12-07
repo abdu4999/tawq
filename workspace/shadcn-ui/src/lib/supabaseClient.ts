@@ -251,6 +251,22 @@ export const supabaseAPI = {
     }
   },
 
+  async getDonorById(id: string) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.DONORS)
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data || null;
+    } catch (error) {
+      console.error('Error fetching donor:', error);
+      return null;
+    }
+  },
+
   async getDonationsByDonor(donorId: string) {
     try {
       const { data, error } = await supabase
