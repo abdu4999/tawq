@@ -25,7 +25,8 @@ export const TABLES = {
   GAMIFICATION_PROFILES: 'app_f226d1f8f5_gamification_profiles',
   CHALLENGES: 'app_f226d1f8f5_challenges',
   REWARDS: 'app_f226d1f8f5_rewards',
-  BEST_PRACTICES: 'app_f226d1f8f5_best_practices'
+  BEST_PRACTICES: 'app_f226d1f8f5_best_practices',
+  TARGETS: 'app_f226d1f8f5_targets'
 };
 
 // Types for roles and admin users
@@ -107,6 +108,24 @@ export interface Celebrity {
   contact: string;
   status: 'active' | 'inactive';
   notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface Target {
+  id: string;
+  name: string;
+  type: 'employee' | 'project';
+  period: 'weekly' | 'monthly' | 'annual';
+  revenue_target: number;
+  current_revenue: number;
+  expenses_budget?: number;
+  current_expenses?: number;
+  roi?: number;
+  roi_formula?: string;
+  progress: number;
+  start_date?: string;
+  end_date?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -266,6 +285,72 @@ export const supabaseAPI = {
     } catch (error) {
       console.error('Error fetching projects:', error);
       return [];
+    }
+  },
+
+  async getTargets() {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.TARGETS)
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching targets:', error);
+      return [];
+    }
+  },
+
+  async createTarget(targetData: Omit<Target, 'id' | 'created_at' | 'updated_at'>) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.TARGETS)
+        .insert([{ 
+          ...targetData, 
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating target:', error);
+      throw error;
+    }
+  },
+
+  async updateTarget(id: string, updates: Partial<Target>) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.TARGETS)
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error updating target:', error);
+      throw error;
+    }
+  },
+
+  async deleteTarget(id: string) {
+    try {
+      const { error } = await supabase
+        .from(TABLES.TARGETS)
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error deleting target:', error);
+      throw error;
     }
   },
 
