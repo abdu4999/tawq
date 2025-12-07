@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowRight, DollarSign, Calendar, TrendingUp, History, Phone, Mail, Heart, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabaseAPI, Transaction } from '@/lib/supabaseClient';
+import { supabaseAPI, type Donor, type Donation } from '@/lib/supabaseClient';
+import { formatDateDMY } from '@/lib/date-utils';
 
 export default function DonorProfileScreen() {
   const { id } = useParams();
@@ -35,8 +36,16 @@ export default function DonorProfileScreen() {
       const foundDonor = donorsData.find((d: any) => d.id === id);
       if (foundDonor) {
         setDonor(foundDonor);
-        
+        const [donor, setDonor] = useState<Donor | null>(null);
+        const [donations, setDonations] = useState<Donation[]>([]);
         // Filter transactions that might be related to this donor (mock logic for now as we lack foreign key)
+        const [creatingDonation, setCreatingDonation] = useState(false);
+        const [donationForm, setDonationForm] = useState({
+          amount: '',
+          cause: '',
+          method: 'bank_transfer',
+          date: new Date().toISOString().split('T')[0]
+        });
         // In a real app, we would filter by donor_id
         const donorTransactions = transactionsData.filter((t: Transaction) => 
           t.type === 'income' && t.description.includes(foundDonor.name)
@@ -47,29 +56,23 @@ export default function DonorProfileScreen() {
           title: 'خطأ',
           description: 'لم يتم العثور على المتبرع',
           variant: 'destructive'
-        });
-        navigate('/donors');
-      }
-    } catch (error) {
-      console.error('Error loading donor profile:', error);
-      toast({
-        title: 'خطأ',
-        description: 'فشل تحميل بيانات المتبرع',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+            const [donorData, donationData] = await Promise.all([
+              supabaseAPI.getDonorById(id),
+              supabaseAPI.getDonationsByDonor(id)
+            ]);
 
-  const stats = useMemo(() => {
-    if (!donations.length) return {
-      total: 0,
-      count: 0,
-      avg: 0,
-      first: '-',
-      last: '-'
-    };
+            if (!donorData) {
+              toast({
+                title: 'خطأ',
+                description: 'لم يتم العثور على المتبرع',
+                variant: 'destructive'
+              });
+              navigate('/donors');
+              return;
+            }
+
+            setDonor(donorData as Donor);
+            setDonations(donationData as Donation[]);
 
     const total = donations.reduce((sum, t) => sum + t.amount, 0);
     const count = donations.length;
