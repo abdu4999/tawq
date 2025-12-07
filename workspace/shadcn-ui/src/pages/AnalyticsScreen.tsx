@@ -437,14 +437,20 @@ export default function AnalyticsScreen() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-3">
-              {insights.map((insight, index) => (
-                <li key={index} className="bg-white p-4 rounded-lg flex items-start gap-3">
-                  <span className="text-2xl">💡</span>
-                  <p className="text-gray-700">{insight}</p>
-                </li>
-              ))}
-            </ul>
+            {insights.length ? (
+              <ul className="space-y-3">
+                {insights.map((insight, index) => (
+                  <li key={index} className="bg-white p-4 rounded-lg flex items-start gap-3">
+                    <span className="text-2xl">💡</span>
+                    <p className="text-gray-700">{insight}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="text-center text-gray-500 py-6">
+                لا توجد رؤى قابلة للعرض حالياً
+              </div>
+            )}
           </CardContent>
         </Card>
 
