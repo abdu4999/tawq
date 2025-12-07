@@ -75,10 +75,10 @@ export default function AnalyticsScreen() {
         supabaseAPI.getEmployees().catch(() => [])
       ]);
 
-      setTasks(tasksData);
-      setProjects(projectsData);
-      setTransactions(transactionsData as Transaction[]);
-      setEmployees(employeesData);
+      setTasks(tasksData || []);
+      setProjects(projectsData || []);
+      setTransactions((transactionsData || []) as Transaction[]);
+      setEmployees(employeesData || []);
       setLastUpdated(new Date().toISOString());
     } catch (error) {
       console.error('Error loading analytics:', error);
