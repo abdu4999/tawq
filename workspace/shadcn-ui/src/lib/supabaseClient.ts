@@ -112,6 +112,22 @@ export interface Celebrity {
   updated_at?: string;
 }
 
+export interface Task {
+  id: string | number;
+  title: string;
+  description?: string;
+  status: 'pending' | 'in_progress' | 'completed' | string;
+  priority?: 'low' | 'medium' | 'high' | string;
+  assigned_to?: string | number | null;
+  project?: string | null;
+  due_date?: string | null;
+  revenue?: number | null;
+  progress?: number | null;
+  notes?: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Target {
   id: string;
   name: string;
@@ -144,6 +160,22 @@ export const supabaseAPI = {
     } catch (error) {
       console.error('Error fetching tasks:', error);
       return [];
+    }
+  },
+
+  async getTaskById(id: string | number) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.TASKS)
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data || null;
+    } catch (error) {
+      console.error('Error fetching task by id:', error);
+      return null;
     }
   },
 
