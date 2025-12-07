@@ -244,7 +244,7 @@ export default function DonorProfileScreen() {
 
         <Card>
           <CardContent className="p-4">
-            <div className="flex items_CENTER justify-between">
+            <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600">أول تبرع</p>
                 <p className="text-lg font-bold">{stats.first}</p>
