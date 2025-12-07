@@ -12,6 +12,7 @@ export const TABLES = {
   EMPLOYEES: 'app_f226d1f8f5_employees',
   CELEBRITIES: 'app_f226d1f8f5_celebrities',
   TRANSACTIONS: 'app_f226d1f8f5_transactions',
+  DONATIONS: 'app_f226d1f8f5_donations',
   ROLES: 'app_f226d1f8f5_roles',
   ADMIN_USERS: 'app_f226d1f8f5_admin_users',
   TRAINING_MATERIALS: 'app_f226d1f8f5_training_materials',
@@ -79,6 +80,17 @@ export interface Donor {
   notes?: string;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface Donation {
+  id: string;
+  donor_id: string;
+  amount: number;
+  date: string;
+  cause?: string;
+  method?: 'bank_transfer' | 'credit_card' | 'cash' | string;
+  project_id?: string;
+  created_at?: string;
 }
 
 export interface Campaign {
@@ -239,6 +251,22 @@ export const supabaseAPI = {
     }
   },
 
+  async getDonationsByDonor(donorId: string) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.DONATIONS)
+        .select('*')
+        .eq('donor_id', donorId)
+        .order('date', { ascending: false });
+      
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching donations:', error);
+      return [];
+    }
+  },
+
   async createDonor(donorData: Omit<Donor, 'id' | 'created_at' | 'updated_at'>) {
     try {
       const { data, error } = await supabase
@@ -272,6 +300,22 @@ export const supabaseAPI = {
       return data;
     } catch (error) {
       console.error('Error updating donor:', error);
+      throw error;
+    }
+  },
+
+  async createDonation(donationData: Omit<Donation, 'id' | 'created_at'>) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.DONATIONS)
+        .insert([{ ...donationData, date: donationData.date || new Date().toISOString() }])
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error creating donation:', error);
       throw error;
     }
   },
