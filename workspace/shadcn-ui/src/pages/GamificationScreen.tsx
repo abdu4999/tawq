@@ -280,7 +280,8 @@ export default function GamificationScreen() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {challenges.map((challenge) => {
+              {challenges.length ? (
+                challenges.map((challenge) => {
                 const progressPercent = getProgressPercentage(challenge.progress, challenge.target);
                 const remainingDays = formatRemainingDays(challenge.deadline);
 
@@ -344,7 +345,12 @@ export default function GamificationScreen() {
                     </CardContent>
                   </Card>
                 );
-              })}
+                })
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  لا توجد تحديات متاحة حالياً
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -360,7 +366,8 @@ export default function GamificationScreen() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-3">
-                {achievements.map((achievement) => (
+                {achievements.length ? (
+                  achievements.map((achievement) => (
                   <div
                     key={achievement.id}
                     className={`p-4 rounded-lg text-center ${
@@ -377,7 +384,12 @@ export default function GamificationScreen() {
                       </Badge>
                     )}
                   </div>
-                ))}
+                  ))
+                ) : (
+                  <div className="text-center py-6 text-gray-500 col-span-2">
+                    لا توجد إنجازات مسجلة
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -392,7 +404,8 @@ export default function GamificationScreen() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {rewards.map((reward) => {
+                {rewards.length ? (
+                  rewards.map((reward) => {
                   const canAfford = userPoints >= reward.points;
                   const available = reward.available ?? Infinity;
 
@@ -426,7 +439,11 @@ export default function GamificationScreen() {
                       </Button>
                     </div>
                   );
-                })}
+                ) : (
+                  <div className="text-center py-6 text-gray-500">
+                    لا توجد مكافآت متاحة حالياً
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
