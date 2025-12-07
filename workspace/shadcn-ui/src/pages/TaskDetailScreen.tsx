@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,23 +6,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Calendar, DollarSign, User, FileText, MessageSquare, Lightbulb, Paperclip, Save } from 'lucide-react';
+import { ArrowRight, Calendar, DollarSign, User, FileText, MessageSquare, Lightbulb, Paperclip, Save, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { supabaseAPI } from '@/lib/supabaseClient';
+import { supabaseAPI, type Task } from '@/lib/supabaseClient';
 
 export default function TaskDetailScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [task, setTask] = useState<any>(null);
-
+  const [task, setTask] = useState<Task | null>(null);
+  const [comments, setComments] = useState<Array<{ id: string; author: string; text: string; date: string }>>([]);
+  const [files, setFiles] = useState<string[]>([]);
   const [newComment, setNewComment] = useState('');
-  const [aiSuggestions] = useState([
-    'حاول التركيز على الجانب الإنساني للمشروع',
-    'اذكر قصص نجاح سابقة لمشاريع مشابهة',
-    'قدم خيارات متعددة للتبرع (شهري، سنوي، لمرة واحدة)'
-  ]);
+  const [newFileName, setNewFileName] = useState('');
+  const aiSuggestions = useMemo(
+    () => [
+      'حاول التركيز على الجانب الإنساني للمشروع',
+      'اذكر قصص نجاح سابقة لمشاريع مشابهة',
+      'قدم خيارات متعددة للتبرع (شهري، سنوي، لمرة واحدة)'
+    ],
+    []
+  );
 
   useEffect(() => {
     if (id) {
@@ -33,26 +38,34 @@ export default function TaskDetailScreen() {
   const loadTask = async () => {
     try {
       setLoading(true);
-      const tasks = await supabaseAPI.getTasks();
-      const foundTask = tasks.find((t: any) => t.id === id);
-      
-      if (foundTask) {
-        setTask({
-          ...foundTask,
-          // Mock data for fields not in DB yet
-          comments: [
-            { id: 1, author: 'المشرف', text: 'ممتاز، حاول زيادة المبلغ', date: '2025-12-01' }
-          ],
-          files: ['عرض_المشروع.pdf']
-        });
-      } else {
+      if (!id) return;
+
+      const data = await supabaseAPI.getTaskById(id);
+
+      if (!data) {
         toast({
           title: 'خطأ',
           description: 'لم يتم العثور على المهمة',
           variant: 'destructive'
         });
         navigate('/tasks');
+        return;
       }
+
+      setTask(data as Task);
+      setComments(
+        Array.isArray((data as any).comments)
+          ? (data as any).comments
+          : [
+              {
+                id: 'default-comment',
+                author: 'المشرف',
+                text: 'يمكنك تحديث التعليقات وتخزينها في قاعدة البيانات لاحقاً.',
+                date: new Date().toISOString().split('T')[0]
+              }
+            ]
+      );
+      setFiles(Array.isArray((data as any).files) ? (data as any).files : []);
     } catch (error) {
       console.error('Error loading task:', error);
       toast({
@@ -69,13 +82,19 @@ export default function TaskDetailScreen() {
     try {
       if (!task) return;
 
-      await supabaseAPI.updateTask(task.id, {
+      await supabaseAPI.updateTask(task.id as string, {
         title: task.title,
         description: task.description,
         status: task.status,
-        // assigned_to: task.assigned_to, // Need to handle this properly with types
-        // due_date: task.due_date,
-        // revenue: task.revenue
+        assigned_to: task.assigned_to,
+        project: task.project,
+        due_date: task.due_date,
+        revenue: task.revenue,
+        priority: task.priority,
+        notes: task.notes,
+        progress: task.progress,
+        comments,
+        files
       });
 
       toast({
@@ -94,25 +113,31 @@ export default function TaskDetailScreen() {
 
   const handleAddComment = () => {
     if (!newComment.trim()) return;
-    
-    // In a real app, we would save the comment to the database
+
     const newCommentObj = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       author: 'أنت',
-      text: newComment,
+      text: newComment.trim(),
       date: new Date().toISOString().split('T')[0]
     };
-    
-    setTask({
-      ...task,
-      comments: [...(task.comments || []), newCommentObj]
-    });
+
+    setComments((prev) => [...prev, newCommentObj]);
 
     toast({
       title: 'تم إضافة التعليق',
       description: 'تم إضافة تعليقك بنجاح'
     });
     setNewComment('');
+  };
+
+  const handleAddFile = () => {
+    if (!newFileName.trim()) return;
+    setFiles((prev) => [...prev, newFileName.trim()]);
+    toast({
+      title: 'تم إضافة المرفق',
+      description: 'تم إضافة الملف إلى قائمة المرفقات'
+    });
+    setNewFileName('');
   };
 
   if (loading) {
@@ -127,6 +152,9 @@ export default function TaskDetailScreen() {
   }
 
   if (!task) return null;
+
+  const commentsList = comments.length ? comments : [];
+  const filesList = files.length ? files : [];
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -222,7 +250,7 @@ export default function TaskDetailScreen() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-4 max-h-[300px] overflow-y-auto">
-                  {task.comments?.map((comment: any) => (
+                  {commentsList.map((comment) => (
                     <div key={comment.id} className="flex gap-3 bg-gray-50 p-3 rounded-lg">
                       <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
                         {comment.author[0]}
@@ -286,8 +314,8 @@ export default function TaskDetailScreen() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {task.files?.map((file: string, index: number) => (
-                    <div key={index} className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 cursor-pointer">
+                  {filesList.map((file, index) => (
+                    <div key={`${file}-${index}`} className="flex items-center justify-between p-2 border rounded hover:bg-gray-50 cursor-pointer">
                       <div className="flex items-center gap-2">
                         <FileText className="h-4 w-4 text-gray-500" />
                         <span className="text-sm">{file}</span>
@@ -295,10 +323,17 @@ export default function TaskDetailScreen() {
                       <Button variant="ghost" size="sm">تنزيل</Button>
                     </div>
                   ))}
-                  <Button variant="outline" className="w-full mt-2 border-dashed">
-                    <Plus className="h-4 w-4 ml-2" />
-                    إضافة ملف
-                  </Button>
+                  <div className="flex gap-2 mt-2">
+                    <Input
+                      placeholder="اسم الملف أو رابط"
+                      value={newFileName}
+                      onChange={(e) => setNewFileName(e.target.value)}
+                    />
+                    <Button variant="outline" onClick={handleAddFile} className="gap-2">
+                      <Upload className="h-4 w-4" />
+                      إضافة
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
