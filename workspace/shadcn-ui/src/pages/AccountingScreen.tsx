@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LoadingButton } from '@/components/ui/loading-button';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Progress } from '@/components/ui/progress';
 import { formatDateDMY } from '@/lib/date-utils';
 import { supabaseAPI, Transaction } from '@/lib/supabaseClient';
 import { useNotifications } from '@/components/NotificationSystem';
@@ -24,6 +25,30 @@ import {
   Receipt
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+
+type FilterType = 'all' | 'income' | 'expense';
+type PeriodFilter = '30' | '90' | '365' | 'all';
+
+interface FilterState {
+  type: FilterType;
+  period: PeriodFilter;
+  category: string;
+  search: string;
+}
+
+const FILTER_DEFAULTS: FilterState = {
+  type: 'all',
+  period: '30',
+  category: 'all',
+  search: ''
+};
+
+const PERIOD_LABELS: Record<PeriodFilter, string> = {
+  '30': 'آخر 30 يوم',
+  '90': 'آخر 90 يوم',
+  '365': 'آخر 12 شهر',
+  all: 'كامل السجل'
+};
 
 export default function AccountingScreen() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
