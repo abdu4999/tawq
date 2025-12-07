@@ -38,7 +38,7 @@ interface FilterState {
 
 const FILTER_DEFAULTS: FilterState = {
   type: 'all',
-  period: '30',
+  period: 'all',
   category: 'all',
   search: ''
 };
@@ -589,10 +589,11 @@ export default function AccountingScreen() {
 
             <div className="space-y-2">
               <Label>الوصف</Label>
-              <Input 
-                placeholder="وصف المعاملة"
+              <Textarea
+                rows={3}
+                placeholder="اكتب تفاصيل واضحة للمعاملة"
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
             </div>
 
