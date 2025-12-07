@@ -257,7 +257,7 @@ export default function AnalyticsScreen() {
       `معدل إنجاز المهام ${taskCompletionRate}% من أصل ${tasks.length} مهمة`,
       `المشاريع النشطة الحالية ${activeProjects} من أصل ${projects.length}`
     ];
-  }, [transactions.length, tasks.length, projects.length, taskStats, totalIncome]);
+  }, [transactions, tasks, projects, taskStats, totalIncome]);
 
   if (loading && !transactions.length && !projects.length && !tasks.length) {
     return (
@@ -412,10 +412,10 @@ export default function AnalyticsScreen() {
                         label={({ status, value }) => `${STATUS_LABELS[status] || status}: ${value}`}
                       >
                         {projectDistributionData.map((entry, index) => (
-                          <Cell key={`cell-${status}-${index}`} fill={entry.color} />
+                          <Cell key={`cell-${entry.status}-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <RechartsTooltip formatter={(value, status) => [`${value}`, STATUS_LABELS[String(status)] || String(status)]} />
+                      <RechartsTooltip formatter={(value, name) => [`${value}`, STATUS_LABELS[String(name)] || String(name)]} />
                     </RechartsPieChart>
                   </ResponsiveContainer>
                 </div>
