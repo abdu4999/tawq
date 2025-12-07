@@ -237,12 +237,12 @@ export default function InfluencerRevenueScreen() {
             <DollarSign className="h-12 w-12 text-green-600" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
               إيرادات المشاهير
-            </h1>
-          </div>
-          <p className="text-gray-600">متابعة إيرادات وعمولات المشاهير</p>
-        </div>
-
-        {/* Stats */}
+                <div>
+                  <p className="text-sm text-yellow-100">قيد الانتظار</p>
+                  <p className="text-2xl font-bold">{formatCurrency(summary.pending)}</p>
+                  <p className="text-xs text-yellow-100">عمولات لم تُدفع بعد</p>
+                </div>
+                <Calendar className="h-10 w-10 text-yellow-200" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
             <CardContent className="p-4">
@@ -480,13 +480,13 @@ export default function InfluencerRevenueScreen() {
                 <tbody>
                   {timelineData.length ? (
                     timelineData.map((row) => (
-                    <tr key={index} className="border-b last:border-0">
+                      <tr key={row.label} className="border-b last:border-0">
                         <td className="py-3">{row.label}</td>
                         <td className="py-3 font-bold">{formatCurrency(row.revenue)}</td>
                         <td className="py-3 text-emerald-600">{formatCurrency(row.commission)}</td>
                         <td className="py-3 text-green-600">{formatCurrency(row.paidOut)}</td>
                         <td className="py-3 text-yellow-600">{formatCurrency(row.pending)}</td>
-                    </tr>
+                      </tr>
                     ))
                   ) : (
                     <tr>
