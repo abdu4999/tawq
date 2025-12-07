@@ -101,11 +101,14 @@ export default function AccountingScreen() {
   }, [transactions]);
 
   const filteredTransactions = useMemo(() => {
+    const normalizedSearch = filters.search.trim().toLowerCase();
+
     return transactions.filter((transaction) => {
       const matchesType = filters.type === 'all' || transaction.type === filters.type;
       const matchesCategory = filters.category === 'all' || transaction.category === filters.category;
-      const matchesSearch = filters.search
-        ? transaction.description.toLowerCase().includes(filters.search.toLowerCase())
+      const matchesSearch = normalizedSearch
+        ? transaction.description.toLowerCase().includes(normalizedSearch) ||
+          (transaction.project?.toLowerCase().includes(normalizedSearch) ?? false)
         : true;
       const matchesPeriod = !periodStartDate || new Date(transaction.date) >= periodStartDate;
 
