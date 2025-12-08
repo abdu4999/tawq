@@ -402,18 +402,12 @@ export default function CelebrityManagement() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="category">الفئة</Label>
-                        <Select value={newCelebrity.category} onValueChange={(value: Celebrity['category']) => setNewCelebrity({...newCelebrity, category: value})}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="influencer">مؤثر</SelectItem>
-                            <SelectItem value="actor">ممثل</SelectItem>
-                            <SelectItem value="athlete">رياضي</SelectItem>
-                            <SelectItem value="singer">مطرب</SelectItem>
-                            <SelectItem value="writer">كاتب</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Input
+                          id="category"
+                          value={newCelebrity.category}
+                          onChange={(e) => setNewCelebrity({...newCelebrity, category: e.target.value})}
+                          placeholder="أدخل الفئة (مثال: كاتب، مؤثر...)"
+                        />
                       </div>
                       <div>
                         <Label htmlFor="status">الحالة</Label>
@@ -494,22 +488,33 @@ export default function CelebrityManagement() {
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="snapchat_handle">Snapchat</Label>
+                        <Input
+                          id="snapchat_handle"
+                          value={newCelebrity.snapchat_handle}
+                          onChange={(e) => setNewCelebrity({...newCelebrity, snapchat_handle: e.target.value})}
+                          placeholder="@username"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="tiktok_handle">TikTok</Label>
+                        <Input
+                          id="tiktok_handle"
+                          value={newCelebrity.tiktok_handle}
+                          onChange={(e) => setNewCelebrity({...newCelebrity, tiktok_handle: e.target.value})}
+                          placeholder="@username"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="instagram_handle">Instagram</Label>
                         <Input
                           id="instagram_handle"
                           value={newCelebrity.instagram_handle}
                           onChange={(e) => setNewCelebrity({...newCelebrity, instagram_handle: e.target.value})}
-                          placeholder="@username"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="twitter_handle">Twitter</Label>
-                        <Input
-                          id="twitter_handle"
-                          value={newCelebrity.twitter_handle}
-                          onChange={(e) => setNewCelebrity({...newCelebrity, twitter_handle: e.target.value})}
                           placeholder="@username"
                         />
                       </div>
@@ -552,9 +557,10 @@ export default function CelebrityManagement() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-purple-50 rounded-lg">
-                        {celebrity.youtube_handle ? <Youtube className="h-6 w-6 text-red-600" /> :
+                        {celebrity.snapchat_handle ? <div className="h-6 w-6 text-yellow-400 font-bold flex items-center justify-center">👻</div> :
+                         celebrity.tiktok_handle ? <div className="h-6 w-6 text-black font-bold flex items-center justify-center">🎵</div> :
+                         celebrity.youtube_handle ? <Youtube className="h-6 w-6 text-red-600" /> :
                          celebrity.instagram_handle ? <Instagram className="h-6 w-6 text-pink-600" /> :
-                         celebrity.twitter_handle ? <Twitter className="h-6 w-6 text-blue-400" /> :
                          <Star className="h-6 w-6 text-purple-600" />}
                       </div>
                       <div>
@@ -807,18 +813,12 @@ export default function CelebrityManagement() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="edit-category">الفئة</Label>
-                    <Select value={selectedCelebrity.category} onValueChange={(value: Celebrity['category']) => setSelectedCelebrity({...selectedCelebrity, category: value})}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="influencer">مؤثر</SelectItem>
-                        <SelectItem value="actor">ممثل</SelectItem>
-                        <SelectItem value="athlete">رياضي</SelectItem>
-                        <SelectItem value="singer">مطرب</SelectItem>
-                        <SelectItem value="writer">كاتب</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Input
+                      id="edit-category"
+                      value={selectedCelebrity.category}
+                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, category: e.target.value})}
+                      placeholder="أدخل الفئة (مثال: كاتب، مؤثر...)"
+                    />
                   </div>
                   <div>
                     <Label htmlFor="edit-status">الحالة</Label>
@@ -893,21 +893,31 @@ export default function CelebrityManagement() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="edit-snapchat_handle">Snapchat</Label>
+                    <Input
+                      id="edit-snapchat_handle"
+                      value={selectedCelebrity.snapchat_handle || ''}
+                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, snapchat_handle: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-tiktok_handle">TikTok</Label>
+                    <Input
+                      id="edit-tiktok_handle"
+                      value={selectedCelebrity.tiktok_handle || ''}
+                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, tiktok_handle: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="edit-instagram_handle">Instagram</Label>
                     <Input
                       id="edit-instagram_handle"
                       value={selectedCelebrity.instagram_handle || ''}
                       onChange={(e) => setSelectedCelebrity({...selectedCelebrity, instagram_handle: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-twitter_handle">Twitter</Label>
-                    <Input
-                      id="edit-twitter_handle"
-                      value={selectedCelebrity.twitter_handle || ''}
-                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, twitter_handle: e.target.value})}
                     />
                   </div>
                   <div>
