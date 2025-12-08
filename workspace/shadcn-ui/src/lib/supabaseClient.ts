@@ -113,14 +113,15 @@ export interface Campaign {
 export interface Celebrity {
   id: string;
   name: string;
-  category: 'influencer' | 'actor' | 'athlete' | 'singer' | 'writer';
+  category: string;
   followers_count: number;
   engagement_rate?: number;
   collaboration_rate: number;
   contact_email?: string;
   contact_phone?: string;
   instagram_handle?: string;
-  twitter_handle?: string;
+  snapchat_handle?: string;
+  tiktok_handle?: string;
   youtube_handle?: string;
   bio?: string;
   status: 'available' | 'busy' | 'contracted' | 'unavailable';
@@ -128,6 +129,11 @@ export interface Celebrity {
   updated_at?: string;
   // Legacy fields support
   type?: string;
+  platform?: string;
+  followers?: number;
+  contact?: string;
+  twitter_handle?: string; // Keeping for legacy support if needed, but removing from UI
+}
   platform?: string;
   followers?: number;
   contact?: string;

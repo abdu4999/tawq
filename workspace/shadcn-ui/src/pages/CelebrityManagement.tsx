@@ -47,14 +47,15 @@ export default function CelebrityManagement() {
   const [isSaving, setIsSaving] = useState(false);
   const [newCelebrity, setNewCelebrity] = useState({
     name: '',
-    category: 'influencer' as const,
+    category: 'كتابة',
     bio: '',
     followers_count: 0,
     engagement_rate: 0,
     contact_email: '',
     contact_phone: '',
     instagram_handle: '',
-    twitter_handle: '',
+    snapchat_handle: '',
+    tiktok_handle: '',
     youtube_handle: '',
     collaboration_rate: 0,
     status: 'available' as const
@@ -109,7 +110,8 @@ export default function CelebrityManagement() {
         contact_email: newCelebrity.contact_email || null,
         contact_phone: newCelebrity.contact_phone || null,
         instagram_handle: newCelebrity.instagram_handle || null,
-        twitter_handle: newCelebrity.twitter_handle || null,
+        snapchat_handle: newCelebrity.snapchat_handle || null,
+        tiktok_handle: newCelebrity.tiktok_handle || null,
         youtube_handle: newCelebrity.youtube_handle || null,
         bio: newCelebrity.bio || null
       };
@@ -120,14 +122,15 @@ export default function CelebrityManagement() {
       // Reset form
       setNewCelebrity({
         name: '',
-        category: 'influencer',
+        category: 'كتابة',
         bio: '',
         followers_count: 0,
         engagement_rate: 0,
         contact_email: '',
         contact_phone: '',
         instagram_handle: '',
-        twitter_handle: '',
+        snapchat_handle: '',
+        tiktok_handle: '',
         youtube_handle: '',
         collaboration_rate: 0,
         status: 'available'
