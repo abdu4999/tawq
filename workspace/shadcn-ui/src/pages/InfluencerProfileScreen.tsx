@@ -66,7 +66,7 @@ export default function InfluencerProfileScreen() {
     <div className="space-y-6" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate('/influencers')} className="gap-2">
+          <Button variant="ghost" onClick={() => navigate('/celebrities')} className="gap-2">
             <ArrowRight className="h-4 w-4" />
             العودة للمشاهير
           </Button>
@@ -88,12 +88,20 @@ export default function InfluencerProfileScreen() {
                   <div>
                     <h1 className="text-3xl font-bold">{influencer.name}</h1>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge className="bg-white text-orange-600">
-                        <Instagram className="h-3 w-3 ml-1" />
-                        {influencer.platform}
-                      </Badge>
+                      {influencer.instagram_handle && (
+                        <Badge className="bg-white text-pink-600">
+                          <Instagram className="h-3 w-3 ml-1" />
+                          Instagram
+                        </Badge>
+                      )}
+                      {influencer.twitter_handle && (
+                        <Badge className="bg-white text-blue-400">
+                          <Twitter className="h-3 w-3 ml-1" />
+                          Twitter
+                        </Badge>
+                      )}
                       <Badge className="bg-blue-400 text-white">
-                        {influencer.type}
+                        {influencer.category || influencer.type}
                       </Badge>
                     </div>
                   </div>

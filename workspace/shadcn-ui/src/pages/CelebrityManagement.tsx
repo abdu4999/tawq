@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -32,6 +33,7 @@ import {
 } from 'lucide-react';
 
 export default function CelebrityManagement() {
+  const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [celebrities, setCelebrities] = useState<Celebrity[]>([]);
@@ -639,13 +641,7 @@ export default function CelebrityManagement() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          addNotification({
-                            type: 'info',
-                            title: '👁️ عرض الملف الشخصي',
-                            message: `عرض ملف ${celebrity.name} الشخصي`
-                          });
-                        }}
+                        onClick={() => navigate(`/celebrities/${celebrity.id}`)}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -729,6 +725,14 @@ export default function CelebrityManagement() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => navigate(`/celebrities/${celebrity.id}`)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
                           <Button
                             variant="ghost"
                             size="sm"

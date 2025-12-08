@@ -105,7 +105,7 @@ const App = () => (
                   {/* CRM */}
                   <Route path="/donors" element={<DonorsScreen />} />
                   <Route path="/donors/:id" element={<DonorProfileScreen />} />
-                  <Route path="/influencers/:id" element={<InfluencerProfileScreen />} />
+                  <Route path="/celebrities/:id" element={<InfluencerProfileScreen />} />
                   <Route path="/celebrities" element={<CelebrityManagement />} />
 
                   {/* Marketing */}
