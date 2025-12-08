@@ -355,11 +355,11 @@ export default function CelebrityManagement() {
                   </SelectContent>
                 </Select>
 
-                <div className="flex items-center border rounded-md bg-white">
+                <div className="flex items-center border rounded-md bg-white" dir="ltr">
                   <Button
                     variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
                     size="sm"
-                    className="px-3 rounded-none rounded-r-md"
+                    className="px-3 rounded-none rounded-l-md"
                     onClick={() => setViewMode('grid')}
                   >
                     <LayoutGrid className="h-4 w-4" />
@@ -367,7 +367,7 @@ export default function CelebrityManagement() {
                   <Button
                     variant={viewMode === 'list' ? 'secondary' : 'ghost'}
                     size="sm"
-                    className="px-3 rounded-none rounded-l-md"
+                    className="px-3 rounded-none rounded-r-md"
                     onClick={() => setViewMode('list')}
                   >
                     <List className="h-4 w-4" />
@@ -577,10 +577,7 @@ export default function CelebrityManagement() {
                          celebrity.status === 'contracted' ? 'متعاقد' : 'غير متاح'}
                       </Badge>
                       <Badge className={getCategoryColor(celebrity.category)}>
-                        {celebrity.category === 'influencer' ? 'مؤثر' :
-                         celebrity.category === 'actor' ? 'ممثل' :
-                         celebrity.category === 'athlete' ? 'رياضي' :
-                         celebrity.category === 'singer' ? 'مطرب' : 'كاتب'}
+                        {celebrity.category}
                       </Badge>
                     </div>
                   </div>
@@ -621,17 +618,23 @@ export default function CelebrityManagement() {
                     )}
                   </div>
                   
-                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-4 text-sm text-gray-500 flex-wrap">
+                    {celebrity.snapchat_handle && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-bold text-yellow-500">👻</span>
+                        <span>{celebrity.snapchat_handle}</span>
+                      </div>
+                    )}
+                    {celebrity.tiktok_handle && (
+                      <div className="flex items-center gap-1">
+                        <span className="font-bold text-black">🎵</span>
+                        <span>{celebrity.tiktok_handle}</span>
+                      </div>
+                    )}
                     {celebrity.instagram_handle && (
                       <div className="flex items-center gap-1">
                         <Instagram className="h-4 w-4" />
                         <span>{celebrity.instagram_handle}</span>
-                      </div>
-                    )}
-                    {celebrity.twitter_handle && (
-                      <div className="flex items-center gap-1">
-                        <Twitter className="h-4 w-4" />
-                        <span>{celebrity.twitter_handle}</span>
                       </div>
                     )}
                     {celebrity.youtube_handle && (
@@ -701,19 +704,17 @@ export default function CelebrityManagement() {
                     <tr key={celebrity.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium">
                         <div className="flex items-center gap-2">
-                          {celebrity.youtube_handle ? <Youtube className="h-4 w-4 text-red-600" /> :
+                          {celebrity.snapchat_handle ? <span className="text-lg">👻</span> :
+                           celebrity.tiktok_handle ? <span className="text-lg">🎵</span> :
+                           celebrity.youtube_handle ? <Youtube className="h-4 w-4 text-red-600" /> :
                            celebrity.instagram_handle ? <Instagram className="h-4 w-4 text-pink-600" /> :
-                           celebrity.twitter_handle ? <Twitter className="h-4 w-4 text-blue-400" /> :
                            <Star className="h-4 w-4 text-purple-600" />}
                           {celebrity.name}
                         </div>
                       </td>
                       <td className="px-4 py-3">
                         <Badge className={getCategoryColor(celebrity.category)} variant="outline">
-                          {celebrity.category === 'influencer' ? 'مؤثر' :
-                           celebrity.category === 'actor' ? 'ممثل' :
-                           celebrity.category === 'athlete' ? 'رياضي' :
-                           celebrity.category === 'singer' ? 'مطرب' : 'كاتب'}
+                          {celebrity.category}
                         </Badge>
                       </td>
                       <td className="px-4 py-3">
