@@ -134,10 +134,6 @@ export interface Celebrity {
   contact?: string;
   twitter_handle?: string; // Keeping for legacy support if needed, but removing from UI
 }
-  platform?: string;
-  followers?: number;
-  contact?: string;
-}
 
 export interface Task {
   id: string | number;
