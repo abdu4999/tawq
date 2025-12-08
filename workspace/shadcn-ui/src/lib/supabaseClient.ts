@@ -113,15 +113,24 @@ export interface Campaign {
 export interface Celebrity {
   id: string;
   name: string;
-  type: string;
-  platform: string;
-  followers: number;
-  engagement_rate: number;
-  contact: string;
-  status: 'active' | 'inactive';
-  notes?: string;
+  category: 'influencer' | 'actor' | 'athlete' | 'singer' | 'writer';
+  followers_count: number;
+  engagement_rate?: number;
+  collaboration_rate: number;
+  contact_email?: string;
+  contact_phone?: string;
+  instagram_handle?: string;
+  twitter_handle?: string;
+  youtube_handle?: string;
+  bio?: string;
+  status: 'available' | 'busy' | 'contracted' | 'unavailable';
   created_at?: string;
   updated_at?: string;
+  // Legacy fields support
+  type?: string;
+  platform?: string;
+  followers?: number;
+  contact?: string;
 }
 
 export interface Task {

@@ -121,10 +121,12 @@ export default function CelebrityManagement() {
         category: 'influencer',
         bio: '',
         followers_count: 0,
+        engagement_rate: 0,
         contact_email: '',
         contact_phone: '',
         instagram_handle: '',
         twitter_handle: '',
+        youtube_handle: '',
         collaboration_rate: 0,
         status: 'available'
       });
@@ -545,7 +547,8 @@ export default function CelebrityManagement() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-purple-50 rounded-lg">
-                        {celebrity.instagram_handle ? <Instagram className="h-6 w-6 text-pink-600" /> :
+                        {celebrity.youtube_handle ? <Youtube className="h-6 w-6 text-red-600" /> :
+                         celebrity.instagram_handle ? <Instagram className="h-6 w-6 text-pink-600" /> :
                          celebrity.twitter_handle ? <Twitter className="h-6 w-6 text-blue-400" /> :
                          <Star className="h-6 w-6 text-purple-600" />}
                       </div>
@@ -583,6 +586,10 @@ export default function CelebrityManagement() {
                       <span className="font-medium">{celebrity.collaboration_rate.toLocaleString()} ريال</span>
                     </div>
                     <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-purple-600" />
+                      <span className="font-medium">{celebrity.engagement_rate || 0}%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-blue-600" />
                       <span className="font-medium">{(celebrity.followers_count / 1000).toFixed(0)}K</span>
                     </div>
@@ -614,6 +621,12 @@ export default function CelebrityManagement() {
                       <div className="flex items-center gap-1">
                         <Twitter className="h-4 w-4" />
                         <span>{celebrity.twitter_handle}</span>
+                      </div>
+                    )}
+                    {celebrity.youtube_handle && (
+                      <div className="flex items-center gap-1">
+                        <Youtube className="h-4 w-4" />
+                        <span>{celebrity.youtube_handle}</span>
                       </div>
                     )}
                   </div>
@@ -672,6 +685,7 @@ export default function CelebrityManagement() {
                     <th className="px-4 py-3 font-medium text-gray-500">الفئة</th>
                     <th className="px-4 py-3 font-medium text-gray-500">الحالة</th>
                     <th className="px-4 py-3 font-medium text-gray-500">المتابعين</th>
+                    <th className="px-4 py-3 font-medium text-gray-500">التفاعل</th>
                     <th className="px-4 py-3 font-medium text-gray-500">السعر</th>
                     <th className="px-4 py-3 font-medium text-gray-500">التواصل</th>
                     <th className="px-4 py-3 font-medium text-gray-500">الإجراءات</th>
@@ -682,7 +696,8 @@ export default function CelebrityManagement() {
                     <tr key={celebrity.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 font-medium">
                         <div className="flex items-center gap-2">
-                          {celebrity.instagram_handle ? <Instagram className="h-4 w-4 text-pink-600" /> :
+                          {celebrity.youtube_handle ? <Youtube className="h-4 w-4 text-red-600" /> :
+                           celebrity.instagram_handle ? <Instagram className="h-4 w-4 text-pink-600" /> :
                            celebrity.twitter_handle ? <Twitter className="h-4 w-4 text-blue-400" /> :
                            <Star className="h-4 w-4 text-purple-600" />}
                           {celebrity.name}
@@ -704,6 +719,7 @@ export default function CelebrityManagement() {
                         </Badge>
                       </td>
                       <td className="px-4 py-3">{celebrity.followers_count.toLocaleString()}</td>
+                      <td className="px-4 py-3">{celebrity.engagement_rate || 0}%</td>
                       <td className="px-4 py-3">{celebrity.collaboration_rate.toLocaleString()} ريال</td>
                       <td className="px-4 py-3">
                         <div className="flex flex-col text-xs text-gray-500">
