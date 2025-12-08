@@ -108,6 +108,7 @@ export default function CelebrityManagement() {
         contact_phone: newCelebrity.contact_phone || null,
         instagram_handle: newCelebrity.instagram_handle || null,
         twitter_handle: newCelebrity.twitter_handle || null,
+        youtube_handle: newCelebrity.youtube_handle || null,
         bio: newCelebrity.bio || null
       };
       
@@ -432,7 +433,7 @@ export default function CelebrityManagement() {
                         rows={3}
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="followers_count">عدد المتابعين</Label>
                         <Input
@@ -440,6 +441,17 @@ export default function CelebrityManagement() {
                           type="number"
                           value={newCelebrity.followers_count}
                           onChange={(e) => setNewCelebrity({...newCelebrity, followers_count: parseInt(e.target.value) || 0})}
+                          placeholder="0"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="engagement_rate">معدل التفاعل %</Label>
+                        <Input
+                          id="engagement_rate"
+                          type="number"
+                          step="0.1"
+                          value={newCelebrity.engagement_rate}
+                          onChange={(e) => setNewCelebrity({...newCelebrity, engagement_rate: parseFloat(e.target.value) || 0})}
                           placeholder="0"
                         />
                       </div>
@@ -475,7 +487,7 @@ export default function CelebrityManagement() {
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       <div>
                         <Label htmlFor="instagram_handle">Instagram</Label>
                         <Input
@@ -491,6 +503,15 @@ export default function CelebrityManagement() {
                           id="twitter_handle"
                           value={newCelebrity.twitter_handle}
                           onChange={(e) => setNewCelebrity({...newCelebrity, twitter_handle: e.target.value})}
+                          placeholder="@username"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="youtube_handle">YouTube</Label>
+                        <Input
+                          id="youtube_handle"
+                          value={newCelebrity.youtube_handle}
+                          onChange={(e) => setNewCelebrity({...newCelebrity, youtube_handle: e.target.value})}
                           placeholder="@username"
                         />
                       </div>
@@ -800,7 +821,7 @@ export default function CelebrityManagement() {
                     rows={3}
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="edit-followers_count">عدد المتابعين</Label>
                     <Input
@@ -808,6 +829,16 @@ export default function CelebrityManagement() {
                       type="number"
                       value={selectedCelebrity.followers_count}
                       onChange={(e) => setSelectedCelebrity({...selectedCelebrity, followers_count: parseInt(e.target.value) || 0})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-engagement_rate">معدل التفاعل %</Label>
+                    <Input
+                      id="edit-engagement_rate"
+                      type="number"
+                      step="0.1"
+                      value={selectedCelebrity.engagement_rate || 0}
+                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, engagement_rate: parseFloat(e.target.value) || 0})}
                     />
                   </div>
                   <div>
@@ -839,7 +870,7 @@ export default function CelebrityManagement() {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="edit-instagram_handle">Instagram</Label>
                     <Input
@@ -854,6 +885,14 @@ export default function CelebrityManagement() {
                       id="edit-twitter_handle"
                       value={selectedCelebrity.twitter_handle || ''}
                       onChange={(e) => setSelectedCelebrity({...selectedCelebrity, twitter_handle: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-youtube_handle">YouTube</Label>
+                    <Input
+                      id="edit-youtube_handle"
+                      value={selectedCelebrity.youtube_handle || ''}
+                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, youtube_handle: e.target.value})}
                     />
                   </div>
                 </div>
