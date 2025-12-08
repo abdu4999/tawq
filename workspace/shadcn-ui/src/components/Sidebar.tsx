@@ -76,7 +76,6 @@ const navigationGroups = [
     icon: Heart,
     items: [
       { path: '/donors', icon: Heart, label: 'المتبرعون', badge: null },
-      { path: '/influencers', icon: Star, label: 'المشاهير', badge: null },
       { path: '/celebrities', icon: Users, label: 'إدارة المشاهير', badge: null },
     ]
   },

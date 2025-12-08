@@ -35,7 +35,7 @@ export default function InfluencerProfileScreen() {
           description: 'لم يتم العثور على المؤثر',
           variant: 'destructive'
         });
-        navigate('/influencers');
+        navigate('/celebrities');
       }
     } catch (error) {
       console.error('Error loading influencer:', error);

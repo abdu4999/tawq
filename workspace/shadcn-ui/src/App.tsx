@@ -35,7 +35,6 @@ import MicroMeasurementScreen from './pages/MicroMeasurementScreen'; // Keeping 
 // CRM (Donors & Influencers)
 import DonorsScreen from './pages/DonorsScreen';
 import DonorProfileScreen from './pages/DonorProfileScreen';
-import InfluencersScreen from './pages/InfluencersScreen';
 import InfluencerProfileScreen from './pages/InfluencerProfileScreen';
 import CelebrityManagement from './pages/CelebrityManagement';
 
@@ -106,7 +105,6 @@ const App = () => (
                   {/* CRM */}
                   <Route path="/donors" element={<DonorsScreen />} />
                   <Route path="/donors/:id" element={<DonorProfileScreen />} />
-                  <Route path="/influencers" element={<InfluencersScreen />} />
                   <Route path="/influencers/:id" element={<InfluencerProfileScreen />} />
                   <Route path="/celebrities" element={<CelebrityManagement />} />
 
