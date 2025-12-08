@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, Star, Users, TrendingUp, Instagram, Phone, Mail, Edit } from 'lucide-react';
+import { ArrowRight, Star, Users, TrendingUp, Instagram, Phone, Mail, Edit, Twitter } from 'lucide-react';
 import { supabaseAPI, Celebrity } from '@/lib/supabaseClient';
 import { useToast } from '@/hooks/use-toast';
 
