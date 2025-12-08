@@ -25,7 +25,10 @@ import {
   DollarSign,
   Search,
   Eye,
-  TrendingUp
+  TrendingUp,
+  Youtube,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 
 export default function CelebrityManagement() {
@@ -35,6 +38,7 @@ export default function CelebrityManagement() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedCelebrity, setSelectedCelebrity] = useState<Celebrity | null>(null);
@@ -340,6 +344,25 @@ export default function CelebrityManagement() {
                     <SelectItem value="unavailable">غير متاح</SelectItem>
                   </SelectContent>
                 </Select>
+
+                <div className="flex items-center border rounded-md bg-white">
+                  <Button
+                    variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="px-3 rounded-none rounded-r-md"
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="px-3 rounded-none rounded-l-md"
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
               <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -490,149 +513,231 @@ export default function CelebrityManagement() {
           </CardContent>
         </Card>
 
-        {/* Celebrities Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCelebrities.map((celebrity) => (
-            <Card key={celebrity.id} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-purple-50 rounded-lg">
-                      <Star className="h-6 w-6 text-purple-600" />
+        {/* Celebrities Grid/List */}
+        {viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCelebrities.map((celebrity) => (
+              <Card key={celebrity.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-50 rounded-lg">
+                        {celebrity.instagram_handle ? <Instagram className="h-6 w-6 text-pink-600" /> :
+                         celebrity.twitter_handle ? <Twitter className="h-6 w-6 text-blue-400" /> :
+                         <Star className="h-6 w-6 text-purple-600" />}
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg">{celebrity.name}</CardTitle>
+                        <CardDescription className="text-sm">
+                          {celebrity.followers_count.toLocaleString()} متابع
+                        </CardDescription>
+                      </div>
                     </div>
-                    <div>
-                      <CardTitle className="text-lg">{celebrity.name}</CardTitle>
-                      <CardDescription className="text-sm">
-                        {celebrity.followers_count.toLocaleString()} متابع
-                      </CardDescription>
+                    <div className="flex flex-col gap-2">
+                      <Badge className={getStatusColor(celebrity.status)}>
+                        {celebrity.status === 'available' ? 'متاح' :
+                         celebrity.status === 'busy' ? 'مشغول' :
+                         celebrity.status === 'contracted' ? 'متعاقد' : 'غير متاح'}
+                      </Badge>
+                      <Badge className={getCategoryColor(celebrity.category)}>
+                        {celebrity.category === 'influencer' ? 'مؤثر' :
+                         celebrity.category === 'actor' ? 'ممثل' :
+                         celebrity.category === 'athlete' ? 'رياضي' :
+                         celebrity.category === 'singer' ? 'مطرب' : 'كاتب'}
+                      </Badge>
                     </div>
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <Badge className={getStatusColor(celebrity.status)}>
-                      {celebrity.status === 'available' ? 'متاح' :
-                       celebrity.status === 'busy' ? 'مشغول' :
-                       celebrity.status === 'contracted' ? 'متعاقد' : 'غير متاح'}
-                    </Badge>
-                    <Badge className={getCategoryColor(celebrity.category)}>
-                      {celebrity.category === 'influencer' ? 'مؤثر' :
-                       celebrity.category === 'actor' ? 'ممثل' :
-                       celebrity.category === 'athlete' ? 'رياضي' :
-                       celebrity.category === 'singer' ? 'مطرب' : 'كاتب'}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-4">
-                {celebrity.bio && (
-                  <p className="text-gray-600 text-sm line-clamp-3">{celebrity.bio}</p>
-                )}
+                </CardHeader>
                 
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-green-600" />
-                    <span className="font-medium">{celebrity.collaboration_rate.toLocaleString()} ريال</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-blue-600" />
-                    <span className="font-medium">{(celebrity.followers_count / 1000).toFixed(0)}K</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  {celebrity.contact_email && (
-                    <div className="flex items-center gap-1">
-                      <Mail className="h-4 w-4" />
-                      <span className="truncate">{celebrity.contact_email}</span>
-                    </div>
+                <CardContent className="space-y-4">
+                  {celebrity.bio && (
+                    <p className="text-gray-600 text-sm line-clamp-3">{celebrity.bio}</p>
                   )}
-                  {celebrity.contact_phone && (
-                    <div className="flex items-center gap-1">
-                      <Phone className="h-4 w-4" />
-                      <span>{celebrity.contact_phone}</span>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                      <span className="font-medium">{celebrity.collaboration_rate.toLocaleString()} ريال</span>
                     </div>
-                  )}
-                </div>
-                
-                <div className="flex items-center gap-4 text-sm text-gray-500">
-                  {celebrity.instagram_handle && (
-                    <div className="flex items-center gap-1">
-                      <Instagram className="h-4 w-4" />
-                      <span>{celebrity.instagram_handle}</span>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-blue-600" />
+                      <span className="font-medium">{(celebrity.followers_count / 1000).toFixed(0)}K</span>
                     </div>
-                  )}
-                  {celebrity.twitter_handle && (
-                    <div className="flex items-center gap-1">
-                      <Twitter className="h-4 w-4" />
-                      <span>{celebrity.twitter_handle}</span>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="text-xs text-gray-500">
-                    أضيف: {formatDateDMY(celebrity.created_at)}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        addNotification({
-                          type: 'info',
-                          title: '👁️ عرض الملف الشخصي',
-                          message: `عرض ملف ${celebrity.name} الشخصي`
-                        });
-                      }}
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedCelebrity(celebrity);
-                        setIsEditDialogOpen(true);
-                      }}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDeleteCelebrity(celebrity.id, celebrity.name)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    {celebrity.contact_email && (
+                      <div className="flex items-center gap-1">
+                        <Mail className="h-4 w-4" />
+                        <span className="truncate max-w-[150px]">{celebrity.contact_email}</span>
+                      </div>
+                    )}
+                    {celebrity.contact_phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone className="h-4 w-4" />
+                        <span>{celebrity.contact_phone}</span>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {filteredCelebrities.length === 0 && (
-            <div className="col-span-full">
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Star className="h-16 w-16 mx-auto mb-4 text-gray-400" />
-                  <h3 className="text-xl font-semibold mb-2 text-gray-600">لا توجد نتائج</h3>
-                  <p className="text-gray-500 mb-4">
-                    {searchQuery || filterCategory !== 'all' || filterStatus !== 'all'
-                      ? 'لا توجد مشاهير تطابق معايير البحث' 
-                      : 'لم يتم إضافة أي مشاهير بعد'}
-                  </p>
-                  <Button onClick={() => setIsCreateDialogOpen(true)}>
-                    <Plus className="h-4 w-4 ml-2" />
-                    إضافة أول مشهور
-                  </Button>
+                  
+                  <div className="flex items-center gap-4 text-sm text-gray-500">
+                    {celebrity.instagram_handle && (
+                      <div className="flex items-center gap-1">
+                        <Instagram className="h-4 w-4" />
+                        <span>{celebrity.instagram_handle}</span>
+                      </div>
+                    )}
+                    {celebrity.twitter_handle && (
+                      <div className="flex items-center gap-1">
+                        <Twitter className="h-4 w-4" />
+                        <span>{celebrity.twitter_handle}</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <div className="text-xs text-gray-500">
+                      أضيف: {formatDateDMY(celebrity.created_at)}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          addNotification({
+                            type: 'info',
+                            title: '👁️ عرض الملف الشخصي',
+                            message: `عرض ملف ${celebrity.name} الشخصي`
+                          });
+                        }}
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedCelebrity(celebrity);
+                          setIsEditDialogOpen(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDeleteCelebrity(celebrity.id, celebrity.name)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm text-right">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 font-medium text-gray-500">الاسم</th>
+                    <th className="px-4 py-3 font-medium text-gray-500">الفئة</th>
+                    <th className="px-4 py-3 font-medium text-gray-500">الحالة</th>
+                    <th className="px-4 py-3 font-medium text-gray-500">المتابعين</th>
+                    <th className="px-4 py-3 font-medium text-gray-500">السعر</th>
+                    <th className="px-4 py-3 font-medium text-gray-500">التواصل</th>
+                    <th className="px-4 py-3 font-medium text-gray-500">الإجراءات</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {filteredCelebrities.map((celebrity) => (
+                    <tr key={celebrity.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium">
+                        <div className="flex items-center gap-2">
+                          {celebrity.instagram_handle ? <Instagram className="h-4 w-4 text-pink-600" /> :
+                           celebrity.twitter_handle ? <Twitter className="h-4 w-4 text-blue-400" /> :
+                           <Star className="h-4 w-4 text-purple-600" />}
+                          {celebrity.name}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge className={getCategoryColor(celebrity.category)} variant="outline">
+                          {celebrity.category === 'influencer' ? 'مؤثر' :
+                           celebrity.category === 'actor' ? 'ممثل' :
+                           celebrity.category === 'athlete' ? 'رياضي' :
+                           celebrity.category === 'singer' ? 'مطرب' : 'كاتب'}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge className={getStatusColor(celebrity.status)} variant="outline">
+                          {celebrity.status === 'available' ? 'متاح' :
+                           celebrity.status === 'busy' ? 'مشغول' :
+                           celebrity.status === 'contracted' ? 'متعاقد' : 'غير متاح'}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">{celebrity.followers_count.toLocaleString()}</td>
+                      <td className="px-4 py-3">{celebrity.collaboration_rate.toLocaleString()} ريال</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col text-xs text-gray-500">
+                          <span>{celebrity.contact_email}</span>
+                          <span>{celebrity.contact_phone}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => {
+                              setSelectedCelebrity(celebrity);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDeleteCelebrity(celebrity.id, celebrity.name)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {filteredCelebrities.length === 0 && (
+          <div className="col-span-full">
+            <Card>
+              <CardContent className="p-12 text-center">
+                <Star className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+                <h3 className="text-xl font-semibold mb-2 text-gray-600">لا توجد نتائج</h3>
+                <p className="text-gray-500 mb-4">
+                  {searchQuery || filterCategory !== 'all' || filterStatus !== 'all'
+                    ? 'لا توجد مشاهير تطابق معايير البحث' 
+                    : 'لم يتم إضافة أي مشاهير بعد'}
+                </p>
+                <Button onClick={() => setIsCreateDialogOpen(true)}>
+                  <Plus className="h-4 w-4 ml-2" />
+                  إضافة أول مشهور
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Edit Celebrity Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
