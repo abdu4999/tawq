@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { LoadingButton } from '@/components/ui/loading-button';
 import { useNotifications } from '@/components/NotificationSystem';
+import { useAuth } from '@/components/AuthProvider';
 import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
 import { supabaseAPI, Celebrity } from '@/lib/supabaseClient';
 import { formatDateDMY } from '@/lib/date-utils';
@@ -34,6 +35,7 @@ import {
 
 export default function CelebrityManagement() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { addNotification } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [celebrities, setCelebrities] = useState<Celebrity[]>([]);
@@ -113,7 +115,8 @@ export default function CelebrityManagement() {
         snapchat_handle: newCelebrity.snapchat_handle || null,
         tiktok_handle: newCelebrity.tiktok_handle || null,
         youtube_handle: newCelebrity.youtube_handle || null,
-        bio: newCelebrity.bio || null
+        bio: newCelebrity.bio || null,
+        created_by: user?.id
       };
       
       const createdCelebrity = await supabaseAPI.createCelebrity(celebrityData);

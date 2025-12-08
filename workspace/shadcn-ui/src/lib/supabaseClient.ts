@@ -125,6 +125,7 @@ export interface Celebrity {
   youtube_handle?: string;
   bio?: string;
   status: 'available' | 'busy' | 'contracted' | 'unavailable';
+  created_by?: string;
   created_at?: string;
   updated_at?: string;
   // Legacy fields support
