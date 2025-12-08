@@ -37,64 +37,112 @@ import {
   Filter,
   Briefcase,
   PieChart,
-  Lock
+  Lock,
+  LayoutDashboard,
+  ChevronDown
 } from 'lucide-react';
 
-const navigationItems = [
-  // Dashboards
-  { path: '/', icon: Home, label: 'لوحة التحكم', badge: null },
-  { path: '/decision-center', icon: Brain, label: 'مركز اتخاذ القرار', badge: 'AI' },
-  { path: '/security', icon: Shield, label: 'الأمن السيبراني', badge: '🛡️' },
-
-  // Operations
-  { path: '/projects', icon: FolderOpen, label: 'إدارة المشاريع', badge: '5' },
-  { path: '/tasks', icon: CheckSquare, label: 'إدارة المهام', badge: '12' },
-  { path: '/mandatory-workflow', icon: Briefcase, label: 'سير العمل الإلزامي', badge: null },
-
-  // HR & Team
-  { path: '/employee-dashboard', icon: User, label: 'لوحتي', badge: null },
-  { path: '/employee-behavior', icon: Activity, label: 'سلوك الموظفين', badge: null },
-  { path: '/employee-idp', icon: TrendingUp, label: 'خطط التطوير IDP', badge: null },
-  { path: '/gamification', icon: Gamepad2, label: 'النقاط والتحفيز', badge: '🏆' },
-
-  // CRM
-  { path: '/donors', icon: Heart, label: 'المتبرعون', badge: null },
-  { path: '/influencers', icon: Star, label: 'المشاهير', badge: null },
-  { path: '/celebrities', icon: Users, label: 'إدارة المشاهير', badge: null },
-
-  // Marketing
-  { path: '/campaigns', icon: Megaphone, label: 'الحملات الإعلانية', badge: null },
-  { path: '/channels-performance', icon: BarChart3, label: 'أداء القنوات', badge: null },
-
-  // Finance
-  { path: '/accounting', icon: Calculator, label: 'النظام المحاسبي', badge: null },
-  { path: '/influencer-revenue', icon: DollarSign, label: 'إيرادات المشاهير', badge: null },
-  { path: '/targets-roi', icon: Target, label: 'الأهداف والعائد', badge: null },
-
-  // Analytics
-  { path: '/analytics', icon: PieChart, label: 'التحليلات والتقارير', badge: null },
-  { path: '/donor-funnel', icon: Filter, label: 'قمع التبرعات', badge: null },
-  { path: '/ai-analytics', icon: Brain, label: 'تحليلات AI', badge: null },
-
-  // Training & Knowledge
-  { path: '/training-platform', icon: GraduationCap, label: 'منصة التدريب', badge: null },
-  { path: '/best-practices', icon: BookOpen, label: 'أفضل الممارسات', badge: null },
-
-  // System
-  { path: '/settings', icon: Settings, label: 'الإعدادات', badge: null },
-  { path: '/admin-permissions', icon: Lock, label: 'إدارة الصلاحيات', badge: null },
-  { path: '/policies-log', icon: FileText, label: 'السياسات والسجل', badge: null },
-  { path: '/error-management', icon: AlertTriangle, label: 'إدارة الأخطاء', badge: null }
+const navigationGroups = [
+  {
+    title: 'لوحات التحكم',
+    icon: LayoutDashboard,
+    items: [
+      { path: '/', icon: Home, label: 'لوحة التحكم', badge: null },
+      { path: '/decision-center', icon: Brain, label: 'مركز اتخاذ القرار', badge: 'AI' },
+      { path: '/security', icon: Shield, label: 'الأمن السيبراني', badge: '🛡️' },
+    ]
+  },
+  {
+    title: 'العمليات',
+    icon: Briefcase,
+    items: [
+      { path: '/projects', icon: FolderOpen, label: 'إدارة المشاريع', badge: '5' },
+      { path: '/tasks', icon: CheckSquare, label: 'إدارة المهام', badge: '12' },
+      { path: '/mandatory-workflow', icon: Briefcase, label: 'سير العمل الإلزامي', badge: null },
+    ]
+  },
+  {
+    title: 'الموارد البشرية والفريق',
+    icon: Users,
+    items: [
+      { path: '/employee-dashboard', icon: User, label: 'لوحتي', badge: null },
+      { path: '/employee-behavior', icon: Activity, label: 'سلوك الموظفين', badge: null },
+      { path: '/employee-idp', icon: TrendingUp, label: 'خطط التطوير IDP', badge: null },
+      { path: '/gamification', icon: Gamepad2, label: 'النقاط والتحفيز', badge: '🏆' },
+    ]
+  },
+  {
+    title: 'إدارة العلاقات',
+    icon: Heart,
+    items: [
+      { path: '/donors', icon: Heart, label: 'المتبرعون', badge: null },
+      { path: '/influencers', icon: Star, label: 'المشاهير', badge: null },
+      { path: '/celebrities', icon: Users, label: 'إدارة المشاهير', badge: null },
+    ]
+  },
+  {
+    title: 'التسويق',
+    icon: Megaphone,
+    items: [
+      { path: '/campaigns', icon: Megaphone, label: 'الحملات الإعلانية', badge: null },
+      { path: '/channels-performance', icon: BarChart3, label: 'أداء القنوات', badge: null },
+    ]
+  },
+  {
+    title: 'المالية',
+    icon: Calculator,
+    items: [
+      { path: '/accounting', icon: Calculator, label: 'النظام المحاسبي', badge: null },
+      { path: '/influencer-revenue', icon: DollarSign, label: 'إيرادات المشاهير', badge: null },
+      { path: '/targets-roi', icon: Target, label: 'الأهداف والعائد', badge: null },
+    ]
+  },
+  {
+    title: 'التحليلات',
+    icon: PieChart,
+    items: [
+      { path: '/analytics', icon: PieChart, label: 'التحليلات والتقارير', badge: null },
+      { path: '/donor-funnel', icon: Filter, label: 'قمع التبرعات', badge: null },
+      { path: '/ai-analytics', icon: Brain, label: 'تحليلات AI', badge: null },
+    ]
+  },
+  {
+    title: 'التدريب والمعرفة',
+    icon: GraduationCap,
+    items: [
+      { path: '/training-platform', icon: GraduationCap, label: 'منصة التدريب', badge: null },
+      { path: '/best-practices', icon: BookOpen, label: 'أفضل الممارسات', badge: null },
+    ]
+  },
+  {
+    title: 'النظام',
+    icon: Settings,
+    items: [
+      { path: '/settings', icon: Settings, label: 'الإعدادات', badge: null },
+      { path: '/admin-permissions', icon: Lock, label: 'إدارة الصلاحيات', badge: null },
+      { path: '/policies-log', icon: FileText, label: 'السياسات والسجل', badge: null },
+      { path: '/error-management', icon: AlertTriangle, label: 'إدارة الأخطاء', badge: null }
+    ]
+  }
 ];
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(['لوحات التحكم']);
   const navigationRef = useRef<HTMLDivElement>(null);
   
   // حفظ واستعادة موضع التمرير في قائمة التنقل
   useScrollMemory('sidebar-navigation', navigationRef);
+
+  const toggleGroup = (title: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(title) 
+        ? prev.filter(t => t !== title)
+        : [...prev, title]
+    );
+  };
 
   const handleNavigation = (path: string, label: string) => {
     navigate(path);
@@ -329,46 +377,71 @@ export default function Sidebar() {
           {/* Navigation */}
           <div 
             ref={navigationRef}
-            className="flex-1 overflow-y-auto p-4 space-y-2"
+            className="flex-1 overflow-y-auto p-4 space-y-1"
           >
-            {navigationItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Tooltip key={item.path}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={isActive ? "default" : "ghost"}
-                      className={`w-full justify-start h-12 ${
-                        isActive 
-                          ? 'bg-blue-500 text-white shadow-md' 
-                          : 'hover:bg-gray-100 text-gray-700'
-                      } ${isCollapsed ? 'px-2' : 'px-4'}`}
-                      onClick={() => handleNavigation(item.path, item.label)}
-                    >
-                      <item.icon className={`h-5 w-5 ${isCollapsed ? '' : 'ml-3'}`} />
-                      {!isCollapsed && (
-                        <>
-                          <span className="flex-1 text-right">{item.label}</span>
-                          {item.badge && (
-                            <Badge 
-                              variant={isActive ? "secondary" : "outline"}
-                              className="text-xs"
-                            >
-                              {item.badge}
-                            </Badge>
-                          )}
-                        </>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  {isCollapsed && (
-                    <TooltipContent side="left">
-                      <p>{item.label}</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              );
-            })}
+            {navigationGroups.map((group) => (
+              <div key={group.title} className="mb-1">
+                {!isCollapsed && (
+                  <div
+                    className="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-500 cursor-pointer hover:text-gray-900 hover:bg-gray-50 rounded-md transition-colors select-none"
+                    onClick={() => toggleGroup(group.title)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <group.icon className="h-4 w-4" />
+                      <span>{group.title}</span>
+                    </div>
+                    <ChevronDown
+                      className={`h-3 w-3 transition-transform duration-200 ${
+                        expandedGroups.includes(group.title) ? 'transform rotate-180' : ''
+                      }`}
+                    />
+                  </div>
+                )}
+
+                <div className={`space-y-1 ${!isCollapsed ? (expandedGroups.includes(group.title) ? 'block' : 'hidden') : 'block'} ${!isCollapsed ? 'mt-1' : ''}`}>
+                  {group.items.map((item) => {
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Tooltip key={item.path}>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant={isActive ? "default" : "ghost"}
+                            className={`w-full justify-start h-10 ${
+                              isActive 
+                                ? 'bg-blue-500 text-white shadow-md' 
+                                : 'hover:bg-gray-100 text-gray-700'
+                            } ${isCollapsed ? 'px-2 justify-center' : 'px-4 pr-8'}`}
+                            onClick={() => handleNavigation(item.path, item.label)}
+                          >
+                            <item.icon className={`h-4 w-4 ${isCollapsed ? '' : 'ml-0'}`} />
+                            {!isCollapsed && (
+                              <>
+                                <span className="flex-1 text-right mr-3 text-sm">{item.label}</span>
+                                {item.badge && (
+                                  <Badge 
+                                    variant={isActive ? "secondary" : "outline"}
+                                    className="text-[10px] h-5 px-1.5 min-w-[1.25rem] justify-center"
+                                  >
+                                    {item.badge}
+                                  </Badge>
+                                )}
+                              </>
+                            )}
+                          </Button>
+                        </TooltipTrigger>
+                        {isCollapsed && (
+                          <TooltipContent side="left">
+                            <p>{item.label}</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+                
+                {isCollapsed && <div className="my-2 border-b border-gray-100 w-8 mx-auto" />}
+              </div>
+            ))}
           </div>
         </div>
       </div>
