@@ -48,10 +48,12 @@ export default function CelebrityManagement() {
     category: 'influencer' as const,
     bio: '',
     followers_count: 0,
+    engagement_rate: 0,
     contact_email: '',
     contact_phone: '',
     instagram_handle: '',
     twitter_handle: '',
+    youtube_handle: '',
     collaboration_rate: 0,
     status: 'available' as const
   });
