@@ -123,6 +123,7 @@ export interface Celebrity {
   snapchat_handle?: string;
   tiktok_handle?: string;
   youtube_handle?: string;
+  account_link?: string;
   bio?: string;
   status: 'available' | 'busy' | 'contracted' | 'unavailable';
   created_by?: string;

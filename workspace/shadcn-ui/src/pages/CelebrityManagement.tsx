@@ -59,6 +59,7 @@ export default function CelebrityManagement() {
     snapchat_handle: '',
     tiktok_handle: '',
     youtube_handle: '',
+    account_link: '',
     collaboration_rate: 0,
     status: 'available' as const
   });
