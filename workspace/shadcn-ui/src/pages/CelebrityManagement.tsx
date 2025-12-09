@@ -116,6 +116,7 @@ export default function CelebrityManagement() {
         snapchat_handle: newCelebrity.snapchat_handle || null,
         tiktok_handle: newCelebrity.tiktok_handle || null,
         youtube_handle: newCelebrity.youtube_handle || null,
+        account_link: newCelebrity.account_link || null,
         bio: newCelebrity.bio || null,
         created_by: user?.id
       };
@@ -136,6 +137,7 @@ export default function CelebrityManagement() {
         snapchat_handle: '',
         tiktok_handle: '',
         youtube_handle: '',
+        account_link: '',
         collaboration_rate: 0,
         status: 'available'
       });
@@ -532,6 +534,15 @@ export default function CelebrityManagement() {
                         />
                       </div>
                     </div>
+                    <div>
+                      <Label htmlFor="account_link">رابط الحساب</Label>
+                      <Input
+                        id="account_link"
+                        value={newCelebrity.account_link}
+                        onChange={(e) => setNewCelebrity({...newCelebrity, account_link: e.target.value})}
+                        placeholder="https://..."
+                      />
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)} disabled={isSaving}>
@@ -925,7 +936,7 @@ export default function CelebrityManagement() {
                       onChange={(e) => setSelectedCelebrity({...selectedCelebrity, instagram_handle: e.target.value})}
                     />
                   </div>
-                  <div>
+                      <div>
                     <Label htmlFor="edit-youtube_handle">YouTube</Label>
                     <Input
                       id="edit-youtube_handle"
@@ -933,6 +944,15 @@ export default function CelebrityManagement() {
                       onChange={(e) => setSelectedCelebrity({...selectedCelebrity, youtube_handle: e.target.value})}
                     />
                   </div>
+                </div>
+                <div>
+                  <Label htmlFor="edit-account_link">رابط الحساب</Label>
+                  <Input
+                    id="edit-account_link"
+                    value={selectedCelebrity.account_link || ''}
+                    onChange={(e) => setSelectedCelebrity({...selectedCelebrity, account_link: e.target.value})}
+                    placeholder="https://..."
+                  />
                 </div>
               </div>
             )}
