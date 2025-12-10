@@ -1212,6 +1212,134 @@ export default function CelebrityManagement() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Import Preview Dialog */}
+        <Dialog open={showImportPreview} onOpenChange={setShowImportPreview}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>معاينة البيانات المستوردة</DialogTitle>
+              <DialogDescription>
+                قم بمراجعة البيانات قبل الحفظ. يمكنك تعديل الحقول أو إلغاء تحديد الصفوف التي لا تريد حفظها.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="border rounded-md overflow-hidden">
+              <table className="w-full text-sm text-right">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="p-3 w-10">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="p-0 h-4 w-4"
+                        onClick={() => {
+                          if (selectedImportRows.length === importPreviewData.length) {
+                            setSelectedImportRows([]);
+                          } else {
+                            setSelectedImportRows(importPreviewData.map((_, i) => i));
+                          }
+                        }}
+                      >
+                        {selectedImportRows.length === importPreviewData.length ? 
+                          <CheckSquare className="h-4 w-4" /> : 
+                          <Square className="h-4 w-4" />
+                        }
+                      </Button>
+                    </th>
+                    <th className="p-3">الاسم (عربي)</th>
+                    <th className="p-3">الاسم (English)</th>
+                    <th className="p-3">المنصة</th>
+                    <th className="p-3">المتابعين</th>
+                    <th className="p-3">الرابط</th>
+                    <th className="p-3">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {importPreviewData.map((row, index) => (
+                    <tr key={index} className={selectedImportRows.includes(index) ? 'bg-blue-50/30' : ''}>
+                      <td className="p-3">
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="p-0 h-4 w-4"
+                          onClick={() => {
+                            if (selectedImportRows.includes(index)) {
+                              setSelectedImportRows(prev => prev.filter(i => i !== index));
+                            } else {
+                              setSelectedImportRows(prev => [...prev, index]);
+                            }
+                          }}
+                        >
+                          {selectedImportRows.includes(index) ? 
+                            <CheckSquare className="h-4 w-4 text-blue-600" /> : 
+                            <Square className="h-4 w-4 text-gray-400" />
+                          }
+                        </Button>
+                      </td>
+                      <td className="p-3">
+                        <Input 
+                          value={row.name || ''} 
+                          onChange={(e) => {
+                            const newData = [...importPreviewData];
+                            newData[index] = { ...newData[index], name: e.target.value };
+                            setImportPreviewData(newData);
+                          }}
+                          className="h-8 w-32"
+                        />
+                      </td>
+                      <td className="p-3">
+                        <Input 
+                          value={row.name_en || ''} 
+                          onChange={(e) => {
+                            const newData = [...importPreviewData];
+                            newData[index] = { ...newData[index], name_en: e.target.value };
+                            setImportPreviewData(newData);
+                          }}
+                          className="h-8 w-32"
+                          dir="ltr"
+                        />
+                      </td>
+                      <td className="p-3">
+                        <div className="flex items-center gap-1">
+                          {row.instagram_handle ? <Instagram className="h-3 w-3 text-pink-600" /> :
+                           row.snapchat_handle ? <span className="text-yellow-500">👻</span> :
+                           row.tiktok_handle ? <span className="text-black">🎵</span> :
+                           row.youtube_handle ? <Youtube className="h-3 w-3 text-red-600" /> :
+                           <LinkIcon className="h-3 w-3 text-gray-400" />}
+                        </div>
+                      </td>
+                      <td className="p-3 text-xs">
+                        {row.followers_count?.toLocaleString()}
+                      </td>
+                      <td className="p-3">
+                        <a href={row.account_link} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline text-xs truncate max-w-[150px] block">
+                          {row.account_link}
+                        </a>
+                      </td>
+                      <td className="p-3">
+                        <Badge variant={row.status === 'unavailable' ? 'destructive' : 'outline'}>
+                          {row.status === 'unavailable' ? 'فشل' : 'جاهز'}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowImportPreview(false)}>إلغاء</Button>
+              <LoadingButton 
+                onClick={handleSaveImported}
+                loading={isSaving}
+                loadingText="جاري الحفظ..."
+                disabled={selectedImportRows.length === 0}
+              >
+                حفظ المشاهير المحددين ({selectedImportRows.length})
+              </LoadingButton>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
     </div>
   );
 }
