@@ -279,6 +279,8 @@ export default function CelebrityManagement() {
       
       const celebrityData = {
         ...newCelebrity,
+        name_en: newCelebrity.name_en || null,
+        bio_en: newCelebrity.bio_en || null,
         contact_email: newCelebrity.contact_email || null,
         contact_phone: newCelebrity.contact_phone || null,
         instagram_handle: newCelebrity.instagram_handle || null,
@@ -296,8 +298,10 @@ export default function CelebrityManagement() {
       // Reset form
       setNewCelebrity({
         name: '',
+        name_en: '',
         category: 'كتابة',
         bio: '',
+        bio_en: '',
         followers_count: 0,
         engagement_rate: 0,
         contact_email: '',
@@ -619,6 +623,16 @@ export default function CelebrityManagement() {
                         value={newCelebrity.name}
                         onChange={(e) => setNewCelebrity({...newCelebrity, name: e.target.value})}
                         placeholder="أدخل اسم المشهور"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="name_en">الاسم (English)</Label>
+                      <Input
+                        id="name_en"
+                        value={newCelebrity.name_en || ''}
+                        onChange={(e) => setNewCelebrity({...newCelebrity, name_en: e.target.value})}
+                        placeholder="Celebrity Name in English"
+                        dir="ltr"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
