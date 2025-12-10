@@ -857,6 +857,12 @@ export default function CelebrityManagement() {
                   </div>
                   
                   <div className="flex items-center gap-4 text-sm text-gray-500">
+                    {celebrity.location && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs">📍</span>
+                        <span>{celebrity.location}</span>
+                      </div>
+                    )}
                     {celebrity.contact_email && (
                       <div className="flex items-center gap-1">
                         <Mail className="h-4 w-4" />
