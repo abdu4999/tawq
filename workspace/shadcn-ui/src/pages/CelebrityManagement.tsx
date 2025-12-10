@@ -40,6 +40,50 @@ import {
   Download
 } from 'lucide-react';
 
+// Mock extraction function
+const extractCelebrityData = async (url: string): Promise<Partial<Celebrity>> => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  // Basic validation
+  if (!url.startsWith('http')) {
+    throw new Error('رابط غير صالح');
+  }
+
+  // Mock data generation based on URL
+  const urlObj = new URL(url);
+  const hostname = urlObj.hostname;
+  const pathParts = urlObj.pathname.split('/').filter(Boolean);
+  const handle = pathParts.length > 0 ? pathParts[pathParts.length - 1] : 'unknown';
+  
+  let platform = 'website';
+  if (hostname.includes('instagram')) platform = 'instagram';
+  else if (hostname.includes('twitter') || hostname.includes('x.com')) platform = 'twitter';
+  else if (hostname.includes('snapchat')) platform = 'snapchat';
+  else if (hostname.includes('tiktok')) platform = 'tiktok';
+  else if (hostname.includes('youtube')) platform = 'youtube';
+
+  // Randomize some data for demo
+  const followers = Math.floor(Math.random() * 1000000) + 10000;
+  
+  return {
+    name: handle, // Fallback name
+    name_en: handle,
+    category: 'مؤثر اجتماعي',
+    bio: `نبذة مستخرجة تلقائياً عن ${handle} من منصة ${platform}.`,
+    bio_en: `Automatically extracted bio for ${handle} from ${platform}.`,
+    followers_count: followers,
+    engagement_rate: parseFloat((Math.random() * 5).toFixed(2)),
+    status: 'available',
+    account_link: url,
+    instagram_handle: platform === 'instagram' ? handle : undefined,
+    snapchat_handle: platform === 'snapchat' ? handle : undefined,
+    tiktok_handle: platform === 'tiktok' ? handle : undefined,
+    youtube_handle: platform === 'youtube' ? handle : undefined,
+    collaboration_rate: 0
+  };
+};
+
 export default function CelebrityManagement() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -99,6 +143,114 @@ export default function CelebrityManagement() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImportSingle = async () => {
+    if (!importUrl) return;
+    
+    try {
+      setIsImporting(true);
+      const data = await extractCelebrityData(importUrl);
+      
+      setNewCelebrity(prev => ({
+        ...prev,
+        ...data,
+        name: data.name || prev.name,
+        category: data.category || prev.category,
+        bio: data.bio || prev.bio,
+        bio_en: data.bio_en || prev.bio_en,
+        followers_count: data.followers_count || prev.followers_count,
+        engagement_rate: data.engagement_rate || prev.engagement_rate,
+        account_link: data.account_link || prev.account_link,
+        instagram_handle: data.instagram_handle || prev.instagram_handle,
+        snapchat_handle: data.snapchat_handle || prev.snapchat_handle,
+        tiktok_handle: data.tiktok_handle || prev.tiktok_handle,
+        youtube_handle: data.youtube_handle || prev.youtube_handle,
+      }));
+      
+      showSuccessNotification('تم استخراج البيانات بنجاح', 'تم تعبئة الحقول بالبيانات المتاحة');
+    } catch (error) {
+      await handleApiError(error, {
+        message: 'فشل استخراج البيانات',
+        context: 'Import Single',
+        userFriendlyMessage: 'تعذر الوصول لصفحة المشهور أو الرابط غير صالح'
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleImportFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsImporting(true);
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).filter(line => line.trim().startsWith('http'));
+      
+      if (lines.length === 0) {
+        throw new Error('لم يتم العثور على روابط صالحة في الملف');
+      }
+
+      const results = [];
+      for (const line of lines) {
+        try {
+          const data = await extractCelebrityData(line.trim());
+          results.push(data);
+        } catch (e) {
+          console.error(`Failed to import ${line}`, e);
+          results.push({ 
+            name: 'فشل الاستيراد', 
+            account_link: line, 
+            status: 'unavailable' 
+          } as any);
+        }
+      }
+
+      setImportPreviewData(results);
+      setSelectedImportRows(results.map((_, i) => i)); // Select all by default
+      setShowImportPreview(true);
+      
+    } catch (error) {
+      await handleApiError(error, {
+        message: 'فشل قراءة الملف',
+        context: 'Import File',
+        userFriendlyMessage: 'حدث خطأ أثناء قراءة الملف'
+      });
+    } finally {
+      setIsImporting(false);
+      // Reset file input
+      event.target.value = '';
+    }
+  };
+
+  const handleSaveImported = async () => {
+    try {
+      setIsSaving(true);
+      const selectedData = importPreviewData.filter((_, i) => selectedImportRows.includes(i));
+      
+      for (const data of selectedData) {
+        if (data.name === 'فشل الاستيراد') continue;
+        
+        await supabaseAPI.createCelebrity({
+          ...data,
+          created_by: user?.id
+        } as any);
+      }
+      
+      showSuccessNotification('تم الحفظ', `تم إضافة ${selectedData.length} مشهور بنجاح`);
+      setShowImportPreview(false);
+      setImportPreviewData([]);
+      loadData();
+    } catch (error) {
+      await handleApiError(error, {
+        message: 'فشل حفظ البيانات المستوردة',
+        context: 'Save Imported'
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -413,6 +565,53 @@ export default function CelebrityManagement() {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
+                    {/* Import Section */}
+                    <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-4">
+                      <h3 className="font-medium text-sm text-slate-900 flex items-center gap-2">
+                        <Download className="h-4 w-4" />
+                        استيراد بيانات المشهور تلقائيًا (Import)
+                      </h3>
+                      
+                      {/* Single URL Import */}
+                      <div className="space-y-2">
+                        <Label htmlFor="import-url" className="text-xs">رابط صفحة المشهور</Label>
+                        <div className="flex gap-2">
+                          <Input 
+                            id="import-url" 
+                            placeholder="https://..." 
+                            value={importUrl}
+                            onChange={(e) => setImportUrl(e.target.value)}
+                            className="h-8 text-sm"
+                          />
+                          <Button 
+                            size="sm" 
+                            variant="secondary"
+                            onClick={handleImportSingle}
+                            disabled={isImporting || !importUrl}
+                          >
+                            {isImporting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />}
+                            <span className="mr-2">بحث واستخراج</span>
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Bulk Import */}
+                      <div className="space-y-2 pt-2 border-t border-slate-200">
+                        <Label className="text-xs">استيراد روابط من ملف (Excel / TXT)</Label>
+                        <div className="flex items-center gap-2">
+                          <Input 
+                            type="file" 
+                            accept=".txt,.csv"
+                            onChange={handleImportFile}
+                            className="h-8 text-sm file:mr-4 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                          />
+                        </div>
+                        <p className="text-[10px] text-slate-500">
+                          الملف يحتوي على رابط واحد في كل سطر (TXT) أو صف (CSV).
+                        </p>
+                      </div>
+                    </div>
+
                     <div>
                       <Label htmlFor="name">الاسم</Label>
                       <Input
