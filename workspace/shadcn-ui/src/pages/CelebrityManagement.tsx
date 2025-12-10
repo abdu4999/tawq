@@ -561,7 +561,7 @@ export default function CelebrityManagement() {
                     إضافة مشهور جديد
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>إضافة مشهور جديد</DialogTitle>
                     <DialogDescription>
@@ -1052,7 +1052,7 @@ export default function CelebrityManagement() {
 
         {/* Edit Celebrity Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>تعديل بيانات المشهور</DialogTitle>
               <DialogDescription>
