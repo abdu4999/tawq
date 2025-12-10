@@ -120,6 +120,7 @@ export default function CelebrityManagement() {
     name: '',
     category: 'كتابة',
     bio: '',
+    location: '',
     followers_count: 0,
     engagement_rate: 0,
     contact_email: '',
@@ -167,6 +168,7 @@ export default function CelebrityManagement() {
         name: data.name || prev.name,
         category: data.category || prev.category,
         bio: data.bio || prev.bio,
+        location: data.location || prev.location,
         followers_count: data.followers_count || prev.followers_count,
         engagement_rate: data.engagement_rate || prev.engagement_rate,
         account_link: data.account_link || prev.account_link,
@@ -294,6 +296,7 @@ export default function CelebrityManagement() {
         youtube_handle: newCelebrity.youtube_handle || null,
         account_link: newCelebrity.account_link || null,
         bio: newCelebrity.bio || null,
+        location: newCelebrity.location || null,
         created_by: user?.id
       };
       
@@ -305,6 +308,7 @@ export default function CelebrityManagement() {
         name: '',
         category: 'كتابة',
         bio: '',
+        location: '',
         followers_count: 0,
         engagement_rate: 0,
         contact_email: '',
@@ -664,6 +668,15 @@ export default function CelebrityManagement() {
                           rows={3}
                         />
                       </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="location">الدولة / المدينة</Label>
+                      <Input
+                        id="location"
+                        value={newCelebrity.location || ''}
+                        onChange={(e) => setNewCelebrity({...newCelebrity, location: e.target.value})}
+                        placeholder="الرياض، السعودية"
+                      />
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
@@ -1087,6 +1100,15 @@ export default function CelebrityManagement() {
                     />
                   </div>
                 </div>
+                <div>
+                  <Label htmlFor="edit-location">الدولة / المدينة</Label>
+                  <Input
+                    id="edit-location"
+                    value={selectedCelebrity.location || ''}
+                    onChange={(e) => setSelectedCelebrity({...selectedCelebrity, location: e.target.value})}
+                    placeholder="الرياض، السعودية"
+                  />
+                </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <Label htmlFor="edit-followers_count">عدد المتابعين</Label>
@@ -1233,6 +1255,7 @@ export default function CelebrityManagement() {
                       </Button>
                     </th>
                     <th className="p-3">الاسم</th>
+                    <th className="p-3">النبذة</th>
                     <th className="p-3">المنصة</th>
                     <th className="p-3">المتابعين</th>
                     <th className="p-3">الرابط</th>
@@ -1270,6 +1293,17 @@ export default function CelebrityManagement() {
                             setImportPreviewData(newData);
                           }}
                           className="h-8 w-32"
+                        />
+                      </td>
+                      <td className="p-3">
+                        <Input 
+                          value={row.bio || ''} 
+                          onChange={(e) => {
+                            const newData = [...importPreviewData];
+                            newData[index] = { ...newData[index], bio: e.target.value };
+                            setImportPreviewData(newData);
+                          }}
+                          className="h-8 w-48"
                         />
                       </td>
                       <td className="p-3">
