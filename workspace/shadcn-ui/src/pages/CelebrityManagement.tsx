@@ -30,7 +30,14 @@ import {
   TrendingUp,
   Youtube,
   LayoutGrid,
-  List
+  List,
+  Upload,
+  FileText,
+  Link as LinkIcon,
+  CheckSquare,
+  Square,
+  Loader2,
+  Download
 } from 'lucide-react';
 
 export default function CelebrityManagement() {
@@ -47,10 +54,20 @@ export default function CelebrityManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedCelebrity, setSelectedCelebrity] = useState<Celebrity | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Import State
+  const [importUrl, setImportUrl] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+  const [showImportPreview, setShowImportPreview] = useState(false);
+  const [importPreviewData, setImportPreviewData] = useState<Partial<Celebrity>[]>([]);
+  const [selectedImportRows, setSelectedImportRows] = useState<number[]>([]);
+
   const [newCelebrity, setNewCelebrity] = useState({
     name: '',
+    name_en: '',
     category: 'كتابة',
     bio: '',
+    bio_en: '',
     followers_count: 0,
     engagement_rate: 0,
     contact_email: '',

@@ -113,6 +113,7 @@ export interface Campaign {
 export interface Celebrity {
   id: string;
   name: string;
+  name_en?: string;
   category: string;
   followers_count: number;
   engagement_rate?: number;
@@ -125,6 +126,7 @@ export interface Celebrity {
   youtube_handle?: string;
   account_link?: string;
   bio?: string;
+  bio_en?: string;
   status: 'available' | 'busy' | 'contracted' | 'unavailable';
   created_by?: string;
   created_at?: string;
