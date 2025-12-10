@@ -1069,6 +1069,15 @@ export default function CelebrityManagement() {
                     onChange={(e) => setSelectedCelebrity({...selectedCelebrity, name: e.target.value})}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="edit-name_en">الاسم (English)</Label>
+                  <Input
+                    id="edit-name_en"
+                    value={selectedCelebrity.name_en || ''}
+                    onChange={(e) => setSelectedCelebrity({...selectedCelebrity, name_en: e.target.value})}
+                    dir="ltr"
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="edit-category">الفئة</Label>
