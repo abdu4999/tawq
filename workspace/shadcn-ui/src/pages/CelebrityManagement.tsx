@@ -68,10 +68,8 @@ const extractCelebrityData = async (url: string): Promise<Partial<Celebrity>> =>
   
   return {
     name: handle, // Fallback name
-    name_en: handle,
     category: 'مؤثر اجتماعي',
     bio: `نبذة مستخرجة تلقائياً عن ${handle} من منصة ${platform}.`,
-    bio_en: `Automatically extracted bio for ${handle} from ${platform}.`,
     followers_count: followers,
     engagement_rate: parseFloat((Math.random() * 5).toFixed(2)),
     status: 'available',
@@ -108,10 +106,8 @@ export default function CelebrityManagement() {
 
   const [newCelebrity, setNewCelebrity] = useState({
     name: '',
-    name_en: '',
     category: 'كتابة',
     bio: '',
-    bio_en: '',
     followers_count: 0,
     engagement_rate: 0,
     contact_email: '',
@@ -159,7 +155,6 @@ export default function CelebrityManagement() {
         name: data.name || prev.name,
         category: data.category || prev.category,
         bio: data.bio || prev.bio,
-        bio_en: data.bio_en || prev.bio_en,
         followers_count: data.followers_count || prev.followers_count,
         engagement_rate: data.engagement_rate || prev.engagement_rate,
         account_link: data.account_link || prev.account_link,
@@ -279,8 +274,6 @@ export default function CelebrityManagement() {
       
       const celebrityData = {
         ...newCelebrity,
-        name_en: newCelebrity.name_en || null,
-        bio_en: newCelebrity.bio_en || null,
         contact_email: newCelebrity.contact_email || null,
         contact_phone: newCelebrity.contact_phone || null,
         instagram_handle: newCelebrity.instagram_handle || null,
@@ -298,10 +291,8 @@ export default function CelebrityManagement() {
       // Reset form
       setNewCelebrity({
         name: '',
-        name_en: '',
         category: 'كتابة',
         bio: '',
-        bio_en: '',
         followers_count: 0,
         engagement_rate: 0,
         contact_email: '',
