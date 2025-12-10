@@ -40,14 +40,18 @@ import {
   Download
 } from 'lucide-react';
 
-// Mock extraction function
+// Mock extraction function with 3-phase simulation
 const extractCelebrityData = async (url: string): Promise<Partial<Celebrity>> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+  // Phase 1: Direct Link Reading
+  // Phase 2: Google Search
+  // Phase 3: Analysis & Summarization
+  
+  // Simulate processing time for all phases
+  await new Promise(resolve => setTimeout(resolve, 3000));
 
   // Basic validation
   if (!url.startsWith('http')) {
-    throw new Error('رابط غير صالح');
+    throw new Error('الرابط غير صالح، الرجاء التأكد من كتابته.');
   }
 
   // Mock data generation based on URL
@@ -65,15 +69,23 @@ const extractCelebrityData = async (url: string): Promise<Partial<Celebrity>> =>
 
   // Randomize some data for demo
   const followers = Math.floor(Math.random() * 1000000) + 10000;
+  const locations = ['الرياض', 'جدة', 'دبي', 'الكويت', 'القاهرة'];
+  const location = locations[Math.floor(Math.random() * locations.length)];
+  const categories = ['اجتماعي', 'ديني', 'خيري', 'كوميدي', 'لايف ستايل'];
+  const category = categories[Math.floor(Math.random() * categories.length)];
+
+  // Generated Arabic Bio (Phase 3 Output)
+  const bio = `مشهور يقدم محتوى ${category}، يتميز بأسلوب بسيط وقريب من الجمهور. لديه حضور قوي على منصات التواصل وشارك في عدة حملات إعلامية وخيرية. يقيم في ${location} وله تأثير ملحوظ في مجاله.`;
   
   return {
     name: handle, // Fallback name
-    category: 'مؤثر اجتماعي',
-    bio: `نبذة مستخرجة تلقائياً عن ${handle} من منصة ${platform}.`,
+    category: category,
+    bio: bio,
     followers_count: followers,
     engagement_rate: parseFloat((Math.random() * 5).toFixed(2)),
     status: 'available',
     account_link: url,
+    location: location,
     instagram_handle: platform === 'instagram' ? handle : undefined,
     snapchat_handle: platform === 'snapchat' ? handle : undefined,
     tiktok_handle: platform === 'tiktok' ? handle : undefined,

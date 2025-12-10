@@ -127,6 +127,7 @@ export interface Celebrity {
   account_link?: string;
   bio?: string;
   bio_en?: string;
+  location?: string;
   status: 'available' | 'busy' | 'contracted' | 'unavailable';
   created_by?: string;
   created_at?: string;
