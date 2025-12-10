@@ -646,15 +646,28 @@ export default function CelebrityManagement() {
                         </Select>
                       </div>
                     </div>
-                    <div>
-                      <Label htmlFor="bio">النبذة التعريفية</Label>
-                      <Textarea
-                        id="bio"
-                        value={newCelebrity.bio}
-                        onChange={(e) => setNewCelebrity({...newCelebrity, bio: e.target.value})}
-                        placeholder="نبذة مختصرة عن المشهور"
-                        rows={3}
-                      />
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <Label htmlFor="bio">نبذة عن المشهور (عربي)</Label>
+                        <Textarea
+                          id="bio"
+                          value={newCelebrity.bio}
+                          onChange={(e) => setNewCelebrity({...newCelebrity, bio: e.target.value})}
+                          placeholder="نبذة مختصرة عن المشهور بالعربية"
+                          rows={3}
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="bio_en">نبذة عن المشهور (English)</Label>
+                        <Textarea
+                          id="bio_en"
+                          value={newCelebrity.bio_en}
+                          onChange={(e) => setNewCelebrity({...newCelebrity, bio_en: e.target.value})}
+                          placeholder="Brief bio in English"
+                          rows={3}
+                          dir="ltr"
+                        />
+                      </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                       <div>
@@ -1067,14 +1080,26 @@ export default function CelebrityManagement() {
                     </Select>
                   </div>
                 </div>
-                <div>
-                  <Label htmlFor="edit-bio">النبذة التعريفية</Label>
-                  <Textarea
-                    id="edit-bio"
-                    value={selectedCelebrity.bio || ''}
-                    onChange={(e) => setSelectedCelebrity({...selectedCelebrity, bio: e.target.value})}
-                    rows={3}
-                  />
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="edit-bio">نبذة عن المشهور (عربي)</Label>
+                    <Textarea
+                      id="edit-bio"
+                      value={selectedCelebrity.bio || ''}
+                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, bio: e.target.value})}
+                      rows={3}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-bio_en">نبذة عن المشهور (English)</Label>
+                    <Textarea
+                      id="edit-bio_en"
+                      value={selectedCelebrity.bio_en || ''}
+                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, bio_en: e.target.value})}
+                      rows={3}
+                      dir="ltr"
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
