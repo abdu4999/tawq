@@ -625,16 +625,6 @@ export default function CelebrityManagement() {
                         placeholder="أدخل اسم المشهور"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="name_en">الاسم (English)</Label>
-                      <Input
-                        id="name_en"
-                        value={newCelebrity.name_en || ''}
-                        onChange={(e) => setNewCelebrity({...newCelebrity, name_en: e.target.value})}
-                        placeholder="Celebrity Name in English"
-                        dir="ltr"
-                      />
-                    </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="category">الفئة</Label>
