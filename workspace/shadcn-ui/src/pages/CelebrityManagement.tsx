@@ -652,24 +652,13 @@ export default function CelebrityManagement() {
                     </div>
                     <div className="grid grid-cols-1 gap-4">
                       <div>
-                        <Label htmlFor="bio">نبذة عن المشهور (عربي)</Label>
+                        <Label htmlFor="bio">نبذة عن المشهور</Label>
                         <Textarea
                           id="bio"
                           value={newCelebrity.bio}
                           onChange={(e) => setNewCelebrity({...newCelebrity, bio: e.target.value})}
-                          placeholder="نبذة مختصرة عن المشهور بالعربية"
+                          placeholder="نبذة مختصرة عن المشهور"
                           rows={3}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="bio_en">نبذة عن المشهور (English)</Label>
-                        <Textarea
-                          id="bio_en"
-                          value={newCelebrity.bio_en}
-                          onChange={(e) => setNewCelebrity({...newCelebrity, bio_en: e.target.value})}
-                          placeholder="Brief bio in English"
-                          rows={3}
-                          dir="ltr"
                         />
                       </div>
                     </div>
@@ -1059,15 +1048,6 @@ export default function CelebrityManagement() {
                     onChange={(e) => setSelectedCelebrity({...selectedCelebrity, name: e.target.value})}
                   />
                 </div>
-                <div>
-                  <Label htmlFor="edit-name_en">الاسم (English)</Label>
-                  <Input
-                    id="edit-name_en"
-                    value={selectedCelebrity.name_en || ''}
-                    onChange={(e) => setSelectedCelebrity({...selectedCelebrity, name_en: e.target.value})}
-                    dir="ltr"
-                  />
-                </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="edit-category">الفئة</Label>
@@ -1095,22 +1075,12 @@ export default function CelebrityManagement() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
-                    <Label htmlFor="edit-bio">نبذة عن المشهور (عربي)</Label>
+                    <Label htmlFor="edit-bio">نبذة عن المشهور</Label>
                     <Textarea
                       id="edit-bio"
                       value={selectedCelebrity.bio || ''}
                       onChange={(e) => setSelectedCelebrity({...selectedCelebrity, bio: e.target.value})}
                       rows={3}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-bio_en">نبذة عن المشهور (English)</Label>
-                    <Textarea
-                      id="edit-bio_en"
-                      value={selectedCelebrity.bio_en || ''}
-                      onChange={(e) => setSelectedCelebrity({...selectedCelebrity, bio_en: e.target.value})}
-                      rows={3}
-                      dir="ltr"
                     />
                   </div>
                 </div>
@@ -1259,8 +1229,7 @@ export default function CelebrityManagement() {
                         }
                       </Button>
                     </th>
-                    <th className="p-3">الاسم (عربي)</th>
-                    <th className="p-3">الاسم (English)</th>
+                    <th className="p-3">الاسم</th>
                     <th className="p-3">المنصة</th>
                     <th className="p-3">المتابعين</th>
                     <th className="p-3">الرابط</th>
@@ -1298,18 +1267,6 @@ export default function CelebrityManagement() {
                             setImportPreviewData(newData);
                           }}
                           className="h-8 w-32"
-                        />
-                      </td>
-                      <td className="p-3">
-                        <Input 
-                          value={row.name_en || ''} 
-                          onChange={(e) => {
-                            const newData = [...importPreviewData];
-                            newData[index] = { ...newData[index], name_en: e.target.value };
-                            setImportPreviewData(newData);
-                          }}
-                          className="h-8 w-32"
-                          dir="ltr"
                         />
                       </td>
                       <td className="p-3">
