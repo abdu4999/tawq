@@ -110,6 +110,14 @@ export interface Campaign {
 }
 
 // Types for celebrities
+export type CelebrityPlatform = 'instagram' | 'snapchat' | 'tiktok' | 'youtube' | 'twitter' | 'website';
+
+export interface OtherAccountLink {
+  platform: CelebrityPlatform | string;
+  handle?: string | null;
+  link?: string | null;
+}
+
 export interface Celebrity {
   id: string;
   name: string;
@@ -124,20 +132,22 @@ export interface Celebrity {
   snapchat_handle?: string;
   tiktok_handle?: string;
   youtube_handle?: string;
+  twitter_handle?: string;
   account_link?: string;
   bio?: string;
   bio_en?: string;
   location?: string;
+  platform?: CelebrityPlatform;
+  notes?: string;
+  other_accounts?: OtherAccountLink[];
   status: 'available' | 'busy' | 'contracted' | 'unavailable';
   created_by?: string;
   created_at?: string;
   updated_at?: string;
   // Legacy fields support
   type?: string;
-  platform?: string;
   followers?: number;
   contact?: string;
-  twitter_handle?: string; // Keeping for legacy support if needed, but removing from UI
 }
 
 export interface Task {

@@ -6,7 +6,12 @@
 ALTER TABLE app_f226d1f8f5_celebrities 
 ADD COLUMN IF NOT EXISTS name_en TEXT,
 ADD COLUMN IF NOT EXISTS bio_en TEXT,
-ADD COLUMN IF NOT EXISTS account_link TEXT;
+ADD COLUMN IF NOT EXISTS account_link TEXT,
+ADD COLUMN IF NOT EXISTS location TEXT,
+ADD COLUMN IF NOT EXISTS twitter_handle TEXT,
+ADD COLUMN IF NOT EXISTS platform TEXT CHECK (platform IN ('instagram', 'snapchat', 'tiktok', 'youtube', 'twitter', 'website')) DEFAULT 'instagram',
+ADD COLUMN IF NOT EXISTS notes TEXT,
+ADD COLUMN IF NOT EXISTS other_accounts JSONB;
 
 -- ملاحظة: تأكد من أن الجدول موجود أصلاً. إذا لم يكن موجوداً، استخدم السكريبت أدناه لإنشائه.
 
