@@ -1,3 +1,44 @@
+  // معاينة جميع المرشحين المستخرجين من بحث Google
+  const [importCandidates, setImportCandidates] = useState<any[]>([]);
+  const [showCandidatesPreview, setShowCandidatesPreview] = useState(false);
+
+  // واجهة معاينة المرشحين
+  const renderCandidatesPreview = () => (
+    <Dialog open={showCandidatesPreview} onOpenChange={setShowCandidatesPreview}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>اختر الحساب الصحيح</DialogTitle>
+          <DialogDescription>
+            تم استخراج عدة مرشحين من بحث Google. اختر الحساب الذي يطابق المشهور المطلوب.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          {importCandidates.map((candidate, idx) => (
+            <Card key={idx} className="border p-3 flex flex-col gap-2">
+              <div className="flex items-center gap-2">
+                <b>{candidate.title}</b>
+                <Badge>{candidate.confidence} نقطة ثقة</Badge>
+              </div>
+              <div className="text-xs text-muted-foreground">{candidate.snippet}</div>
+              <a href={candidate.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline text-xs">{candidate.url}</a>
+              <Button size="sm" className="mt-2 w-fit" onClick={() => {
+                setNewCelebrity(prev => ({
+                  ...prev,
+                  name: candidate.title,
+                  account_link: candidate.url,
+                  notes: candidate.snippet,
+                  platform: 'snapchat',
+                }));
+                setShowCandidatesPreview(false);
+                setImportMessage('✅ تم اختيار المرشح. يمكنك الآن مراجعة وتعديل البيانات قبل الحفظ.');
+                showSuccessNotification('تم اختيار الحساب', 'تم تعبئة الحقول بناءً على اختيارك');
+              }}>اعتماد هذا الحساب</Button>
+            </Card>
+          ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -564,35 +605,18 @@ export default function CelebrityManagement() {
 
   const handleImportSingle = async () => {
     if (!importUrl) return;
-    
     try {
       setImportError('');
-      setImportMessage('🔄 جاري التحقق من الرابط، استخراج المعرف، وتشغيل بحث مزدوج في قوقل...');
+      setImportMessage('🔄 جاري التحقق من الرابط، استخراج المعرف، وتشغيل بحث Google...');
       setIsImporting(true);
       const data = await extractCelebrityData(importUrl);
-      
-      setNewCelebrity(prev => ({
-        ...prev,
-        ...data,
-        name: data.name || prev.name,
-        category: data.category || prev.category,
-        bio: data.bio || prev.bio,
-        location: data.location || prev.location,
-        followers_count: data.followers_count || prev.followers_count,
-        engagement_rate: data.engagement_rate || prev.engagement_rate,
-        account_link: data.account_link || prev.account_link,
-        instagram_handle: data.instagram_handle || prev.instagram_handle,
-        snapchat_handle: data.snapchat_handle || prev.snapchat_handle,
-        tiktok_handle: data.tiktok_handle || prev.tiktok_handle,
-        youtube_handle: data.youtube_handle || prev.youtube_handle,
-        twitter_handle: data.twitter_handle || prev.twitter_handle,
-        platform: data.platform || prev.platform,
-        notes: data.notes ?? prev.notes,
-        other_accounts: data.other_accounts ?? prev.other_accounts,
-      }));
-      
-      setImportMessage('✅ تم تعبئة الحقول تلقائيًا. يمكنك مراجعتها قبل الحفظ.');
-      showSuccessNotification('تم استخراج البيانات بنجاح', 'تم تعبئة الحقول بالبيانات المتاحة');
+      if (data.allCandidates && Array.isArray(data.allCandidates) && data.allCandidates.length > 0) {
+        setImportCandidates(data.allCandidates);
+        setShowCandidatesPreview(true);
+        setImportMessage('✅ تم استخراج المرشحين. اختر الحساب الصحيح من القائمة.');
+      } else {
+        setImportError('لم يتم العثور على مرشحين مناسبين.');
+      }
     } catch (error) {
       const rawMessage = error instanceof Error ? error.message : 'حدث خطأ غير متوقع';
       let userFriendlyMessage = 'تعذّر الوصول لصفحة المشهور، قد تكون خاصة أو غير متاحة.';
@@ -1033,6 +1057,7 @@ export default function CelebrityManagement() {
 
   return (
     <div className="space-y-8" dir="rtl">
+      {renderCandidatesPreview()}
       {/* Header */}
       <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
