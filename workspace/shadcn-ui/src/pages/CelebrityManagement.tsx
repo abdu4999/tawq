@@ -399,18 +399,29 @@ const extractCelebrityData = async (url: string): Promise<Partial<Celebrity>> =>
     await delay(500); // لتجنب الحظر المؤقت من Google
   }
 
-  // تقسيم النتائج حسب المنصة
-  const urlResults = allResults.filter(r => r.url && r.url.includes(handle || ''));
-  const handleResults = allResults.filter(r => r.title && r.title.includes(handle || ''));
+  // حساب درجة الثقة لكل نتيجة
+  const scoredResults = allResults.map((r) => {
+    let score = 0;
+    if (r.url && handle && r.url.toLowerCase().includes(handle.toLowerCase())) score += 40;
+    if (r.title && handle && r.title.toLowerCase().includes(handle.toLowerCase())) score += 20;
+    if (r.snippet && handle && r.snippet.toLowerCase().includes(handle.toLowerCase())) score += 10;
+    if (r.url && r.url.includes('snapchat.com')) score += 10;
+    if (r.url && !r.url.includes('snapchat.com')) score -= 10;
+    if (r.title && /تجميع|غير رسمي|fans|list|fake/i.test(r.title)) score -= 30;
+    return { ...r, confidence: score };
+  });
 
-  // تجميع وتحليل النتائج
-  return aggregateSearchInsights({
+  // ترتيب النتائج حسب درجة الثقة
+  scoredResults.sort((a, b) => b.confidence - a.confidence);
+
+  // إرجاع جميع النتائج للمستخدم ليختار الأنسب
+  // (يمكنك لاحقاً ربطها بواجهة معاينة متعددة الخيارات)
+  return {
+    allCandidates: scoredResults,
     url,
     extractedHandle: handle,
-    platform,
-    urlResults,
-    handleResults
-  });
+    platform
+  } as any;
 };
 
 type ImportPreviewRow = Partial<Celebrity> & {
