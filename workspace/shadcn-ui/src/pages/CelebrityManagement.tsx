@@ -15,7 +15,7 @@ import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
 import { supabaseAPI, Celebrity, CelebrityPlatform, OtherAccountLink } from '@/lib/supabaseClient';
 import { formatDateDMY } from '@/lib/date-utils';
 import { executeSchemaFixNow, checkAccountLinkStatus } from '@/lib/executeSchemaFix';
-import { parseGoogleSearch } from '@/lib/html-parser';
+import { GoogleSearchResult } from '@/lib/html-parser';
 import * as XLSX from 'xlsx';
 import {
   Star,
@@ -385,19 +385,17 @@ const extractCelebrityData = async (url: string): Promise<Partial<Celebrity>> =>
     `${handle || ''} (السعودية OR "Saudi") (سناب OR انستا OR تيك توك)`
   ];
 
-  // جلب وتحليل النتائج لكل استعلام
-  const allResults: any[] = [];
+  // جلب النتائج الجاهزة من الوظيفة السحابية
+  const allResults: GoogleSearchResult[] = [];
   for (const q of queries) {
-    // استدعاء الوظيفة السحابية لجلب HTML نتائج Google
     const response = await fetch('/functions/v1/google-search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: q })
     });
     if (!response.ok) continue;
-    const html = await response.text();
-    const parsed = parseGoogleSearch(html, 3);
-    allResults.push(...parsed);
+    const { results } = await response.json();
+    allResults.push(...results);
     await delay(500); // لتجنب الحظر المؤقت من Google
   }
 
