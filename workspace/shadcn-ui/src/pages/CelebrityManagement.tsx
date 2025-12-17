@@ -15,6 +15,7 @@ import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
 import { supabaseAPI, Celebrity, CelebrityPlatform, OtherAccountLink } from '@/lib/supabaseClient';
 import { formatDateDMY } from '@/lib/date-utils';
 import { executeSchemaFixNow, checkAccountLinkStatus } from '@/lib/executeSchemaFix';
+import { parseGoogleSearch } from '@/lib/html-parser';
 import * as XLSX from 'xlsx';
 import {
   Star,
@@ -367,26 +368,44 @@ const aggregateSearchInsights = ({
   return aggregated;
 };
 
-// Mock extraction function with multi-step simulation
+
+// استخراج بيانات المشهور من الإنترنت فعلياً
 const extractCelebrityData = async (url: string): Promise<Partial<Celebrity>> => {
-  // Step 1: Validate URL & read page
-  await delay(600);
   if (!url.startsWith('http')) {
     throw new Error('الرابط غير صالح، الرجاء التأكد من كتابته.');
   }
-
   const { handle, platform } = extractHandleFromUrl(url);
 
-  // Step 3: Google search using the link
-  await delay(600);
-  const urlResults = simulateGoogleSearch(url, { mode: 'url', platform, handle });
+  // استعلامات بحث ذكية لكل منصة
+  const queries = [
+    `site:instagram.com ${handle || ''}`,
+    `site:snapchat.com ${handle || ''}`,
+    `site:tiktok.com ${handle || ''}`,
+    `site:youtube.com ${handle || ''}`,
+    `${handle || ''} (السعودية OR "Saudi") (سناب OR انستا OR تيك توك)`
+  ];
 
-  // Step 4: Google search using the extracted handle
-  await delay(600);
-  const handleResults = handle ? simulateGoogleSearch(handle, { mode: 'handle', platform, handle }) : [];
+  // جلب وتحليل النتائج لكل استعلام
+  const allResults: any[] = [];
+  for (const q of queries) {
+    // استدعاء الوظيفة السحابية لجلب HTML نتائج Google
+    const response = await fetch('/functions/v1/google-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: q })
+    });
+    if (!response.ok) continue;
+    const html = await response.text();
+    const parsed = parseGoogleSearch(html, 3);
+    allResults.push(...parsed);
+    await delay(500); // لتجنب الحظر المؤقت من Google
+  }
 
-  // Step 5/6: Aggregate & summarize
-  await delay(600);
+  // تقسيم النتائج حسب المنصة
+  const urlResults = allResults.filter(r => r.url && r.url.includes(handle || ''));
+  const handleResults = allResults.filter(r => r.title && r.title.includes(handle || ''));
+
+  // تجميع وتحليل النتائج
   return aggregateSearchInsights({
     url,
     extractedHandle: handle,
