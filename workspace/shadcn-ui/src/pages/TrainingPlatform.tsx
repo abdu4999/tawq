@@ -26,73 +26,7 @@ import {
 export default function TrainingPlatform() {
   const { addNotification } = useNotifications();
   const [loading, setLoading] = useState(true);
-  const [courses, setCourses] = useState([
-    {
-      id: 1,
-      title: 'أساسيات إدارة المشاريع الخيرية',
-      description: 'تعلم كيفية إدارة المشاريع الخيرية بفعالية من التخطيط إلى التنفيذ',
-      instructor: 'د. أحمد محمد',
-      duration: '4 ساعات',
-      level: 'مبتدئ',
-      rating: 4.8,
-      students: 245,
-      progress: 65,
-      completed: false,
-      category: 'إدارة',
-      image: '📊',
-      lessons: 12,
-      certificate: true
-    },
-    {
-      id: 2,
-      title: 'التسويق الرقمي للجمعيات الخيرية',
-      description: 'استراتيجيات التسويق الرقمي الحديثة لزيادة الوعي والتبرعات',
-      instructor: 'أ. فاطمة أحمد',
-      duration: '6 ساعات',
-      level: 'متوسط',
-      rating: 4.9,
-      students: 189,
-      progress: 0,
-      completed: false,
-      category: 'تسويق',
-      image: '📱',
-      lessons: 18,
-      certificate: true
-    },
-    {
-      id: 3,
-      title: 'إدارة المتطوعين والفرق',
-      description: 'كيفية بناء وإدارة فرق متطوعين فعالة ومحفزة',
-      instructor: 'أ. محمد سالم',
-      duration: '3 ساعات',
-      level: 'متقدم',
-      rating: 4.7,
-      students: 156,
-      progress: 100,
-      completed: true,
-      category: 'إدارة',
-      image: '👥',
-      lessons: 10,
-      certificate: true
-    },
-    {
-      id: 4,
-      title: 'المحاسبة المالية للمؤسسات الخيرية',
-      description: 'أساسيات المحاسبة والتقارير المالية للجمعيات الخيرية',
-      instructor: 'د. سارة خالد',
-      duration: '5 ساعات',
-      level: 'متوسط',
-      rating: 4.6,
-      students: 203,
-      progress: 30,
-      completed: false,
-      category: 'مالية',
-      image: '💰',
-      lessons: 15,
-      certificate: true
-    }
-  ]);
-
+  const [courses, setCourses] = useState<any[]>([]);
   const [achievements, setAchievements] = useState([
     {
       id: 1,
@@ -128,8 +62,10 @@ export default function TrainingPlatform() {
     try {
       setLoading(true);
       
-      // Simulate loading real data
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const data = await supabaseAPI.getTrainingMaterials();
+      // Map training materials to courses format if needed, or use directly
+      // For now assuming the data structure is compatible or we use what we get
+      setCourses(data.length > 0 ? data : []); 
 
       addNotification({
         type: 'success',

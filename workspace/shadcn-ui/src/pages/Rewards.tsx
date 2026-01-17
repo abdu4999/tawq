@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Trophy, Gift, Target, Clock, Star, Zap, Crown, Award } from 'lucide-react';
+import { Trophy, Gift, Target, Clock, Star, Zap, Crown, Award, Users } from 'lucide-react';
 import { formatDateDMY } from '@/lib/date-utils';
-
-import { AIEngine } from '@/lib/ai-engine';
+import { supabaseAPI, getCurrentUser } from '@/lib/supabaseClient';
 
 interface Challenge {
   id: string;
@@ -16,7 +15,7 @@ interface Challenge {
   description: string;
   points: number;
   difficulty: 'easy' | 'medium' | 'hard';
-  deadline: Date;
+  deadline: string;
   progress: number;
   completed: boolean;
   participants: number;
@@ -38,7 +37,7 @@ interface Achievement {
   description: string;
   icon: string;
   rarity: 'common' | 'rare' | 'epic' | 'legendary';
-  unlockedAt?: Date;
+  unlockedAt?: string;
   progress: number;
   maxProgress: number;
 }
@@ -50,170 +49,41 @@ export default function Rewards() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [userPoints, setUserPoints] = useState(0);
   const [selectedTab, setSelectedTab] = useState('challenges');
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // بيانات تجريبية للتحديات والمكافآت
   useEffect(() => {
-    const currentEmployee = employees.find(emp => emp.id === currentUser?.id);
-    if (currentEmployee) {
-      setUserPoints(currentEmployee.points);
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      const user = await getCurrentUser();
       
-      // توليد تحديات مخصصة باستخدام الذكاء الاصطناعي
-      const personalizedChallenges = AIEngine.generateWeeklyChallenges(currentEmployee);
+      const [challengesData, rewardsData, achievementsData, profile, employeesData] = await Promise.all([
+        supabaseAPI.getChallenges().catch(() => []),
+        supabaseAPI.getRewards().catch(() => []),
+        supabaseAPI.getAchievements().catch(() => []),
+        user ? supabaseAPI.getGamificationProfile(user.id).catch(() => null) : null,
+        supabaseAPI.getEmployees().catch(() => [])
+      ]);
+
+      setChallenges(challengesData || []);
+      setRewards(rewardsData || []);
+      setAchievements(achievementsData || []);
+      setEmployees(employeesData || []);
       
-      const sampleChallenges: Challenge[] = [
-        ...personalizedChallenges.map(challenge => ({
-          ...challenge,
-          progress: Math.random() * 100,
-          completed: Math.random() > 0.7,
-          participants: Math.floor(Math.random() * 20) + 5
-        })),
-        {
-          id: 'team_challenge_1',
-          title: 'تحدي الفريق الأسبوعي',
-          description: 'تعاون مع فريقك لإكمال 50 مهمة جماعية',
-          points: 300,
-          difficulty: 'hard' as const,
-          deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-          progress: 65,
-          completed: false,
-          participants: 12
-        },
-        {
-          id: 'speed_challenge',
-          title: 'سرعة البرق',
-          description: 'أكمل 10 مهام في أقل من ساعتين',
-          points: 150,
-          difficulty: 'medium' as const,
-          deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-          progress: 30,
-          completed: false,
-          participants: 8
-        }
-      ];
+      if (profile) {
+        setUserPoints(profile.points || 0);
+      }
 
-      const sampleRewards: Reward[] = [
-        {
-          id: '1',
-          title: 'قسيمة شراء 100 ريال',
-          description: 'قسيمة شراء من متجر الخير',
-          cost: 500,
-          category: 'voucher',
-          available: 20,
-          icon: '🎁'
-        },
-        {
-          id: '2',
-          title: 'مكافأة نقدية 200 ريال',
-          description: 'مكافأة نقدية تضاف لراتبك',
-          cost: 800,
-          category: 'bonus',
-          available: 10,
-          icon: '💰'
-        },
-        {
-          id: '3',
-          title: 'يوم إجازة إضافي',
-          description: 'يوم إجازة مدفوع الأجر',
-          cost: 1000,
-          category: 'privilege',
-          available: 5,
-          icon: '🏖️'
-        },
-        {
-          id: '4',
-          title: 'شهادة تقدير',
-          description: 'شهادة تقدير رسمية من الإدارة',
-          cost: 300,
-          category: 'item',
-          available: 50,
-          icon: '🏆'
-        },
-        {
-          id: '5',
-          title: 'دورة تدريبية مجانية',
-          description: 'دورة تدريبية في مجال اختيارك',
-          cost: 1200,
-          category: 'privilege',
-          available: 3,
-          icon: '📚'
-        },
-        {
-          id: '6',
-          title: 'لقب "موظف الشهر"',
-          description: 'لقب شرفي مع مميزات خاصة',
-          cost: 1500,
-          category: 'privilege',
-          available: 1,
-          icon: '👑'
-        }
-      ];
-
-      const sampleAchievements: Achievement[] = [
-        {
-          id: '1',
-          title: 'المبتدئ المتحمس',
-          description: 'أكمل 10 مهام',
-          icon: '🌟',
-          rarity: 'common',
-          progress: Math.min(currentEmployee.points / 10, 10),
-          maxProgress: 10,
-          unlockedAt: currentEmployee.points >= 100 ? new Date() : undefined
-        },
-        {
-          id: '2',
-          title: 'جامع النقاط',
-          description: 'احصل على 500 نقطة',
-          icon: '💎',
-          rarity: 'rare',
-          progress: Math.min(currentEmployee.points, 500),
-          maxProgress: 500,
-          unlockedAt: currentEmployee.points >= 500 ? new Date() : undefined
-        },
-        {
-          id: '3',
-          title: 'الأسطورة الحية',
-          description: 'احصل على 1000 نقطة',
-          icon: '🏆',
-          rarity: 'epic',
-          progress: Math.min(currentEmployee.points, 1000),
-          maxProgress: 1000,
-          unlockedAt: currentEmployee.points >= 1000 ? new Date() : undefined
-        },
-        {
-          id: '4',
-          title: 'إمبراطور النقاط',
-          description: 'احصل على 2000 نقطة',
-          icon: '👑',
-          rarity: 'legendary',
-          progress: Math.min(currentEmployee.points, 2000),
-          maxProgress: 2000,
-          unlockedAt: currentEmployee.points >= 2000 ? new Date() : undefined
-        },
-        {
-          id: '5',
-          title: 'سريع كالبرق',
-          description: 'أكمل 5 مهام في يوم واحد',
-          icon: '⚡',
-          rarity: 'rare',
-          progress: 3,
-          maxProgress: 5
-        },
-        {
-          id: '6',
-          title: 'قائد الفريق',
-          description: 'ساعد 10 زملاء في مهامهم',
-          icon: '🤝',
-          rarity: 'epic',
-          progress: 2,
-          maxProgress: 10
-        }
-      ];
-
-      setChallenges(sampleChallenges);
-      setRewards(sampleRewards);
-      setAchievements(sampleAchievements);
+    } catch (error) {
+      console.error('Error loading rewards data:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [employees, currentUser]);
+  };
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
@@ -272,7 +142,7 @@ export default function Rewards() {
           ? { ...r, available: r.available - 1 }
           : r
       ));
-      // هنا يمكن إضافة منطق إشعار المستخدم بنجاح الاستبدال
+      // TODO: Call API to record redemption
     }
   };
 
@@ -282,7 +152,19 @@ export default function Rewards() {
         ? { ...c, participants: c.participants + 1 }
         : c
     ));
+    // TODO: Call API to join challenge
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen" dir="rtl">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">جاري تحميل نظام المكافآت...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-yellow-50 to-orange-50 p-6" dir="rtl">
@@ -321,143 +203,163 @@ export default function Rewards() {
 
           <TabsContent value="challenges" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {challenges.map((challenge) => (
-                <Card key={challenge.id} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge className={`${getDifficultyColor(challenge.difficulty)} text-white`}>
-                            {getDifficultyText(challenge.difficulty)}
-                          </Badge>
-                          <Badge variant="secondary">
-                            <Trophy className="h-3 w-3 ml-1" />
-                            {challenge.points} نقطة
-                          </Badge>
+              {challenges.length > 0 ? (
+                challenges.map((challenge) => (
+                  <Card key={challenge.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-lg">{challenge.title}</CardTitle>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Badge className={`${getDifficultyColor(challenge.difficulty)} text-white`}>
+                              {getDifficultyText(challenge.difficulty)}
+                            </Badge>
+                            <Badge variant="secondary">
+                              <Trophy className="h-3 w-3 ml-1" />
+                              {challenge.points} نقطة
+                            </Badge>
+                          </div>
                         </div>
+                        {challenge.completed && (
+                          <Badge className="bg-green-500 text-white">
+                            مكتمل ✓
+                          </Badge>
+                        )}
                       </div>
-                      {challenge.completed && (
-                        <Badge className="bg-green-500 text-white">
-                          مكتمل ✓
-                        </Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-sm text-gray-600">{challenge.description}</p>
+                      
+                      {!challenge.completed && (
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-sm">
+                            <span>التقدم</span>
+                            <span>{challenge.progress ? challenge.progress.toFixed(0) : 0}%</span>
+                          </div>
+                          <Progress value={challenge.progress || 0} />
+                        </div>
                       )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <p className="text-sm text-gray-600">{challenge.description}</p>
-                    
-                    {!challenge.completed && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-sm">
-                          <span>التقدم</span>
-                          <span>{challenge.progress.toFixed(0)}%</span>
+
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <Users className="h-4 w-4" />
+                          <span>{challenge.participants} مشارك</span>
                         </div>
-                        <Progress value={challenge.progress} />
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          <span>
+                            {challenge.deadline ? Math.ceil((new Date(challenge.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)) : 0} يوم
+                          </span>
+                        </div>
                       </div>
-                    )}
 
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        <span>{challenge.participants} مشارك</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span>{Math.ceil((challenge.deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} يوم</span>
-                      </div>
-                    </div>
-
-                    {!challenge.completed && (
-                      <Button 
-                        onClick={() => joinChallenge(challenge.id)}
-                        className="w-full"
-                        variant={challenge.progress > 0 ? "default" : "outline"}
-                      >
-                        {challenge.progress > 0 ? "متابعة التحدي" : "انضم للتحدي"}
-                      </Button>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
+                      {!challenge.completed && (
+                        <Button 
+                          onClick={() => joinChallenge(challenge.id)}
+                          className="w-full"
+                          variant={challenge.progress > 0 ? "default" : "outline"}
+                        >
+                          {challenge.progress > 0 ? "متابعة التحدي" : "انضم للتحدي"}
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-8 text-gray-500">
+                  لا توجد تحديات متاحة حالياً
+                </div>
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="rewards" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {rewards.map((reward) => (
-                <Card key={reward.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="text-center space-y-4">
-                      <div className="text-4xl">{reward.icon}</div>
-                      <div>
-                        <h3 className="font-semibold text-lg">{reward.title}</h3>
-                        <p className="text-sm text-gray-600 mt-2">{reward.description}</p>
-                      </div>
-                      
-                      <div className="flex items-center justify-center gap-2">
-                        {getCategoryIcon(reward.category)}
-                        <Badge variant="outline">
-                          {reward.cost} نقطة
-                        </Badge>
-                      </div>
+              {rewards.length > 0 ? (
+                rewards.map((reward) => (
+                  <Card key={reward.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="text-center space-y-4">
+                        <div className="text-4xl">{reward.icon || '🎁'}</div>
+                        <div>
+                          <h3 className="font-semibold text-lg">{reward.title}</h3>
+                          <p className="text-sm text-gray-600 mt-2">{reward.description}</p>
+                        </div>
+                        
+                        <div className="flex items-center justify-center gap-2">
+                          {getCategoryIcon(reward.category)}
+                          <Badge variant="outline">
+                            {reward.cost} نقطة
+                          </Badge>
+                        </div>
 
-                      <div className="text-sm text-gray-500">
-                        متوفر: {reward.available} قطعة
-                      </div>
+                        <div className="text-sm text-gray-500">
+                          متوفر: {reward.available} قطعة
+                        </div>
 
-                      <Button 
-                        onClick={() => redeemReward(reward.id)}
-                        disabled={userPoints < reward.cost || reward.available === 0}
-                        className="w-full"
-                      >
-                        {userPoints < reward.cost ? "نقاط غير كافية" : 
-                         reward.available === 0 ? "غير متوفر" : "استبدال"}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        <Button 
+                          onClick={() => redeemReward(reward.id)}
+                          disabled={userPoints < reward.cost || reward.available === 0}
+                          className="w-full"
+                        >
+                          {userPoints < reward.cost ? "نقاط غير كافية" : 
+                           reward.available === 0 ? "غير متوفر" : "استبدال"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-8 text-gray-500">
+                  لا توجد مكافآت متاحة حالياً
+                </div>
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="achievements" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {achievements.map((achievement) => (
-                <Card key={achievement.id} className={`hover:shadow-lg transition-shadow border-2 ${getRarityColor(achievement.rarity)}`}>
-                  <CardContent className="p-6">
-                    <div className="text-center space-y-4">
-                      <div className="text-4xl">{achievement.icon}</div>
-                      <div>
-                        <h3 className="font-semibold text-lg">{achievement.title}</h3>
-                        <Badge className={getRarityColor(achievement.rarity)}>
-                          {getRarityText(achievement.rarity)}
-                        </Badge>
-                        <p className="text-sm text-gray-600 mt-2">{achievement.description}</p>
-                      </div>
-                      
-                      {achievement.unlockedAt ? (
-                        <div className="space-y-2">
-                          <Badge className="bg-green-500 text-white">
-                            ✓ مفتوح
+              {achievements.length > 0 ? (
+                achievements.map((achievement) => (
+                  <Card key={achievement.id} className={`hover:shadow-lg transition-shadow border-2 ${getRarityColor(achievement.rarity)}`}>
+                    <CardContent className="p-6">
+                      <div className="text-center space-y-4">
+                        <div className="text-4xl">{achievement.icon || '🏆'}</div>
+                        <div>
+                          <h3 className="font-semibold text-lg">{achievement.title}</h3>
+                          <Badge className={getRarityColor(achievement.rarity)}>
+                            {getRarityText(achievement.rarity)}
                           </Badge>
-                          <p className="text-xs text-gray-500">
-                            تم الفتح في: {formatDateDMY(achievement.unlockedAt)}
-                          </p>
+                          <p className="text-sm text-gray-600 mt-2">{achievement.description}</p>
                         </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>التقدم</span>
-                            <span>{achievement.progress}/{achievement.maxProgress}</span>
+                        
+                        {achievement.unlockedAt ? (
+                          <div className="space-y-2">
+                            <Badge className="bg-green-500 text-white">
+                              ✓ مفتوح
+                            </Badge>
+                            <p className="text-xs text-gray-500">
+                              تم الفتح في: {formatDateDMY(achievement.unlockedAt)}
+                            </p>
                           </div>
-                          <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        ) : (
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>التقدم</span>
+                              <span>{achievement.progress}/{achievement.maxProgress}</span>
+                            </div>
+                            <Progress value={(achievement.progress / achievement.maxProgress) * 100} />
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-8 text-gray-500">
+                  لا توجد إنجازات مسجلة
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -468,38 +370,44 @@ export default function Rewards() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {employees
-                    .sort((a, b) => b.points - a.points)
-                    .slice(0, 10)
-                    .map((employee, index) => (
-                    <div key={employee.id} className="flex items-center gap-4 p-4 rounded-lg bg-gray-50">
-                      <div className="flex-shrink-0">
-                        {index === 0 && <div className="text-2xl">🥇</div>}
-                        {index === 1 && <div className="text-2xl">🥈</div>}
-                        {index === 2 && <div className="text-2xl">🥉</div>}
-                        {index > 2 && (
-                          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold">
-                            {index + 1}
-                          </div>
-                        )}
+                  {employees.length > 0 ? (
+                    employees
+                      .sort((a, b) => (b.points || 0) - (a.points || 0))
+                      .slice(0, 10)
+                      .map((employee, index) => (
+                      <div key={employee.id} className="flex items-center gap-4 p-4 rounded-lg bg-gray-50">
+                        <div className="flex-shrink-0">
+                          {index === 0 && <div className="text-2xl">🥇</div>}
+                          {index === 1 && <div className="text-2xl">🥈</div>}
+                          {index === 2 && <div className="text-2xl">🥉</div>}
+                          {index > 2 && (
+                            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-bold">
+                              {index + 1}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={employee.avatar} />
+                          <AvatarFallback>{employee.name ? employee.name.charAt(0) : '?'}</AvatarFallback>
+                        </Avatar>
+                        
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{employee.name}</h4>
+                          <p className="text-sm text-gray-500">{employee.role}</p>
+                        </div>
+                        
+                        <div className="text-right">
+                          <p className="font-bold text-lg">{(employee.points || 0).toLocaleString()}</p>
+                          <p className="text-sm text-gray-500">نقطة</p>
+                        </div>
                       </div>
-                      
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={employee.avatar} />
-                        <AvatarFallback>{employee.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{employee.name}</h4>
-                        <p className="text-sm text-gray-500">{employee.role}</p>
-                      </div>
-                      
-                      <div className="text-right">
-                        <p className="font-bold text-lg">{employee.points.toLocaleString()}</p>
-                        <p className="text-sm text-gray-500">نقطة</p>
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      لا توجد بيانات للمتصدرين
                     </div>
-                  ))}
+                  )}
                 </div>
               </CardContent>
             </Card>
