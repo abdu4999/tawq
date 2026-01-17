@@ -106,6 +106,7 @@ export interface Campaign {
   status: 'active' | 'completed' | 'paused';
   start_date: string;
   end_date?: string;
+  celebrity_id?: string | null;
   created_at?: string;
 }
 
@@ -365,6 +366,22 @@ export const supabaseAPI = {
     }
   },
 
+  async getCampaignsByCelebrity(celebrityId: string) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.CAMPAIGNS)
+        .select('*')
+        .eq('celebrity_id', celebrityId)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('Error fetching campaigns by celebrity:', error);
+      return [];
+    }
+  },
+
   async getProjects() {
     try {
       const { data, error } = await supabase
@@ -458,6 +475,22 @@ export const supabaseAPI = {
     } catch (error) {
       console.error('Error fetching celebrities:', error);
       return [];
+    }
+  },
+
+  async getCelebrityById(id: string) {
+    try {
+      const { data, error } = await supabase
+        .from(TABLES.CELEBRITIES)
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data || null;
+    } catch (error) {
+      console.error('Error fetching celebrity by id:', error);
+      return null;
     }
   },
 

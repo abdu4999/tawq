@@ -14,22 +14,6 @@ export default function DonorProfileScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-import { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, DollarSign, Calendar, TrendingUp, History, Phone, Mail, Heart, Edit } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { formatDateDMY } from '@/lib/date-utils';
-import { supabaseAPI, type Donor, type Donation } from '@/lib/supabaseClient';
-
-export default function DonorProfileScreen() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { toast } = useToast();
 
   const [donor, setDonor] = useState<Donor | null>(null);
   const [donations, setDonations] = useState<Donation[]>([]);
