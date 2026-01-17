@@ -5,11 +5,7 @@ import { Activity, Brain, AlertCircle, Battery } from 'lucide-react';
 import { useMicroMeasurement } from '@/hooks/useMicroMeasurement';
 
 export default function EmployeeBehaviorScreen() {
-  const { isTracking, sessionDuration } = useMicroMeasurement({
-    screenName: 'EmployeeBehavior',
-    employeeId: 'current-user', // This should come from auth context
-    employeeName: 'Current User' // This should come from auth context
-  });
+  const { isTracking, sessionDuration } = useMicroMeasurement();
 
   return (
     <div className="p-6 space-y-6 bg-slate-50 min-h-screen" dir="rtl">
