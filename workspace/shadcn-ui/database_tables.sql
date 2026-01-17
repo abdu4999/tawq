@@ -79,8 +79,37 @@ CREATE TABLE IF NOT EXISTS app_f226d1f8f5_policies (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
+-- 7. جدول المشاهير (Celebrities)
+CREATE TABLE IF NOT EXISTS app_f226d1f8f5_celebrities (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    name_en TEXT,
+    category TEXT,
+    followers_count INTEGER DEFAULT 0,
+    engagement_rate NUMERIC DEFAULT 0,
+    collaboration_rate NUMERIC DEFAULT 0,
+    contact_email TEXT,
+    contact_phone TEXT,
+    instagram_handle TEXT,
+    snapchat_handle TEXT,
+    tiktok_handle TEXT,
+    youtube_handle TEXT,
+    twitter_handle TEXT,
+    account_link TEXT,
+    platform TEXT CHECK (platform IN ('instagram', 'snapchat', 'tiktok', 'youtube', 'twitter', 'website')) DEFAULT 'instagram',
+    bio TEXT,
+    bio_en TEXT,
+    location TEXT,
+    notes TEXT,
+    other_accounts JSONB,
+    status TEXT CHECK (status IN ('available', 'busy', 'contracted', 'unavailable')) DEFAULT 'available',
+    created_by UUID,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
 -- ===================================
--- إنشاء الفهارس (Indexes)
+-- الفهارس (Indexes)
 -- ===================================
 
 -- فهارس جدول المتبرعين
@@ -105,6 +134,10 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON app_f226d1f8f5_audit_logs(u
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON app_f226d1f8f5_audit_logs(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON app_f226d1f8f5_audit_logs(action);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON app_f226d1f8f5_audit_logs(resource_type, resource_id);
+
+-- فهارس جدول المشاهير
+CREATE INDEX IF NOT EXISTS idx_celebrities_category ON app_f226d1f8f5_celebrities(category);
+CREATE INDEX IF NOT EXISTS idx_celebrities_status ON app_f226d1f8f5_celebrities(status);
 
 -- ===================================
 -- إدخال بيانات تجريبية (Sample Data)
@@ -185,6 +218,7 @@ ALTER TABLE app_f226d1f8f5_employee_targets DISABLE ROW LEVEL SECURITY;
 ALTER TABLE app_f226d1f8f5_project_targets DISABLE ROW LEVEL SECURITY;
 ALTER TABLE app_f226d1f8f5_audit_logs DISABLE ROW LEVEL SECURITY;
 ALTER TABLE app_f226d1f8f5_policies DISABLE ROW LEVEL SECURITY;
+ALTER TABLE app_f226d1f8f5_celebrities DISABLE ROW LEVEL SECURITY;
 
 -- ===================================
 -- انتهى السكريبت
