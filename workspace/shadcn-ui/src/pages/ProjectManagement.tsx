@@ -406,17 +406,12 @@ export default function ProjectManagement() {
                       </div>
                       <div>
                         <Label htmlFor="manager">مدير المشروع</Label>
-                        <Select
-                          value={newProject.manager_id || 'none'}
-                          onValueChange={(value) =>
-                            setNewProject({ ...newProject, manager_id: value === 'none' ? '' : value })
-                          }
-                        >
+                        <Select value={newProject.manager_id} onValueChange={(value) => setNewProject({...newProject, manager_id: value})}>
                           <SelectTrigger>
                             <SelectValue placeholder="اختر المدير" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="none">بدون تعيين</SelectItem>
+                            <SelectItem value="">بدون تعيين</SelectItem>
                             {employees.map(employee => (
                               <SelectItem key={employee.id} value={employee.id}>
                                 {employee.name}
@@ -660,20 +655,12 @@ export default function ProjectManagement() {
                   </div>
                   <div>
                     <Label htmlFor="edit-manager">مدير المشروع</Label>
-                    <Select
-                      value={selectedProject.manager_id || 'none'}
-                      onValueChange={(value) =>
-                        setSelectedProject({
-                          ...selectedProject,
-                          manager_id: value === 'none' ? null : value
-                        })
-                      }
-                    >
+                    <Select value={selectedProject.manager_id || ''} onValueChange={(value) => setSelectedProject({...selectedProject, manager_id: value || null})}>
                       <SelectTrigger>
                         <SelectValue placeholder="اختر المدير" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">بدون تعيين</SelectItem>
+                        <SelectItem value="">بدون تعيين</SelectItem>
                         {employees.map(employee => (
                           <SelectItem key={employee.id} value={employee.id}>
                             {employee.name}

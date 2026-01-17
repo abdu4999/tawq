@@ -12,22 +12,8 @@ export const TABLES = {
   EMPLOYEES: 'app_f226d1f8f5_employees',
   CELEBRITIES: 'app_f226d1f8f5_celebrities',
   TRANSACTIONS: 'app_f226d1f8f5_transactions',
-  DONATIONS: 'app_f226d1f8f5_donations',
   ROLES: 'app_f226d1f8f5_roles',
-  ADMIN_USERS: 'app_f226d1f8f5_admin_users',
-  TRAINING_MATERIALS: 'app_f226d1f8f5_training_materials',
-  DONORS: 'app_f226d1f8f5_donors',
-  CAMPAIGNS: 'app_f226d1f8f5_campaigns',
-  TEAMS: 'app_f226d1f8f5_teams',
-  SETTINGS: 'app_f226d1f8f5_settings',
-  SUCCESS_STORIES: 'app_f226d1f8f5_success_stories',
-  ACHIEVEMENTS: 'app_f226d1f8f5_achievements',
-  USER_ACHIEVEMENTS: 'app_f226d1f8f5_user_achievements',
-  GAMIFICATION_PROFILES: 'app_f226d1f8f5_gamification_profiles',
-  CHALLENGES: 'app_f226d1f8f5_challenges',
-  REWARDS: 'app_f226d1f8f5_rewards',
-  BEST_PRACTICES: 'app_f226d1f8f5_best_practices',
-  TARGETS: 'app_f226d1f8f5_targets'
+  ADMIN_USERS: 'app_f226d1f8f5_admin_users'
 };
 
 // Types for roles and admin users
@@ -66,50 +52,6 @@ export interface Transaction {
   updated_at?: string;
 }
 
-export interface Donor {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  type: 'individual' | 'organization';
-  segment: 'vip' | 'regular' | 'new';
-  total_donations: number;
-  donations_count: number;
-  last_donation_date?: string;
-  status: 'active' | 'inactive';
-  notes?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface Donation {
-  id: string;
-  donor_id: string;
-  amount: number;
-  date: string;
-  cause?: string;
-  method?: 'bank_transfer' | 'credit_card' | 'cash' | string;
-  project_id?: string;
-  created_at?: string;
-}
-
-export interface Campaign {
-  id: string;
-  name: string;
-  platform: 'snapchat' | 'tiktok' | 'instagram' | 'google' | 'whatsapp' | 'other';
-  spend: number;
-  revenue: number;
-  impressions: number;
-  clicks: number;
-  conversions: number;
-  new_donors: number;
-  status: 'active' | 'completed' | 'paused';
-  start_date: string;
-  end_date?: string;
-  celebrity_id?: string | null;
-  created_at?: string;
-}
-
 // Types for celebrities
 export interface Celebrity {
   id: string;
@@ -121,40 +63,6 @@ export interface Celebrity {
   contact: string;
   status: 'active' | 'inactive';
   notes?: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface Task {
-  id: string | number;
-  title: string;
-  description?: string;
-  status: 'pending' | 'in_progress' | 'completed' | string;
-  priority?: 'low' | 'medium' | 'high' | string;
-  assigned_to?: string | number | null;
-  project?: string | null;
-  due_date?: string | null;
-  revenue?: number | null;
-  progress?: number | null;
-  notes?: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface Target {
-  id: string;
-  name: string;
-  type: 'employee' | 'project';
-  period: 'weekly' | 'monthly' | 'annual';
-  revenue_target: number;
-  current_revenue: number;
-  expenses_budget?: number;
-  current_expenses?: number;
-  roi?: number;
-  roi_formula?: string;
-  progress: number;
-  start_date?: string;
-  end_date?: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -176,22 +84,6 @@ export const supabaseAPI = {
     }
   },
 
-  async getTaskById(id: string | number) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.TASKS)
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data || null;
-    } catch (error) {
-      console.error('Error fetching task by id:', error);
-      return null;
-    }
-  },
-
   async getEmployees() {
     try {
       const { data, error } = await supabase
@@ -203,181 +95,6 @@ export const supabaseAPI = {
       return data || [];
     } catch (error) {
       console.error('Error fetching employees:', error);
-      return [];
-    }
-  },
-
-  async getTeams() {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.TEAMS)
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching teams:', error);
-      return [];
-    }
-  },
-
-  async getTrainingMaterials() {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.TRAINING_MATERIALS)
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching training materials:', error);
-      return [];
-    }
-  },
-
-  async getDonors() {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.DONORS)
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching donors:', error);
-      return [];
-    }
-  },
-
-  async getDonorById(id: string) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.DONORS)
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data || null;
-    } catch (error) {
-      console.error('Error fetching donor:', error);
-      return null;
-    }
-  },
-
-  async getDonationsByDonor(donorId: string) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.DONATIONS)
-        .select('*')
-        .eq('donor_id', donorId)
-        .order('date', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching donations:', error);
-      return [];
-    }
-  },
-
-  async createDonor(donorData: Omit<Donor, 'id' | 'created_at' | 'updated_at'>) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.DONORS)
-        .insert([{ 
-          ...donorData, 
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error creating donor:', error);
-      throw error;
-    }
-  },
-
-  async updateDonor(id: string, updates: Partial<Donor>) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.DONORS)
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error updating donor:', error);
-      throw error;
-    }
-  },
-
-  async createDonation(donationData: Omit<Donation, 'id' | 'created_at'>) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.DONATIONS)
-        .insert([{ ...donationData, date: donationData.date || new Date().toISOString() }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error creating donation:', error);
-      throw error;
-    }
-  },
-
-  async deleteDonor(id: string) {
-    try {
-      const { error } = await supabase
-        .from(TABLES.DONORS)
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error deleting donor:', error);
-      throw error;
-    }
-  },
-
-  async getCampaigns() {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.CAMPAIGNS)
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching campaigns:', error);
-      return [];
-    }
-  },
-
-  async getCampaignsByCelebrity(celebrityId: string) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.CAMPAIGNS)
-        .select('*')
-        .eq('celebrity_id', celebrityId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching campaigns by celebrity:', error);
       return [];
     }
   },
@@ -397,72 +114,6 @@ export const supabaseAPI = {
     }
   },
 
-  async getTargets() {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.TARGETS)
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data || [];
-    } catch (error) {
-      console.error('Error fetching targets:', error);
-      return [];
-    }
-  },
-
-  async createTarget(targetData: Omit<Target, 'id' | 'created_at' | 'updated_at'>) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.TARGETS)
-        .insert([{ 
-          ...targetData, 
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }])
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error creating target:', error);
-      throw error;
-    }
-  },
-
-  async updateTarget(id: string, updates: Partial<Target>) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.TARGETS)
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error updating target:', error);
-      throw error;
-    }
-  },
-
-  async deleteTarget(id: string) {
-    try {
-      const { error } = await supabase
-        .from(TABLES.TARGETS)
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-    } catch (error) {
-      console.error('Error deleting target:', error);
-      throw error;
-    }
-  },
-
   async getCelebrities() {
     try {
       const { data, error } = await supabase
@@ -475,22 +126,6 @@ export const supabaseAPI = {
     } catch (error) {
       console.error('Error fetching celebrities:', error);
       return [];
-    }
-  },
-
-  async getCelebrityById(id: string) {
-    try {
-      const { data, error } = await supabase
-        .from(TABLES.CELEBRITIES)
-        .select('*')
-        .eq('id', id)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data || null;
-    } catch (error) {
-      console.error('Error fetching celebrity by id:', error);
-      return null;
     }
   },
 
@@ -746,84 +381,6 @@ export const supabaseAPI = {
       console.error('Error deleting celebrity:', error);
       throw error;
     }
-  },
-
-  // Success Stories
-  async getSuccessStories() {
-    const { data, error } = await supabase
-      .from(TABLES.SUCCESS_STORIES)
-      .select('*')
-      .order('date', { ascending: false });
-    
-    if (error) throw error;
-    return data || [];
-  },
-
-  // Gamification
-  async getGamificationProfile(userId: string) {
-    const { data, error } = await supabase
-      .from(TABLES.GAMIFICATION_PROFILES)
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
-    if (error && error.code !== 'PGRST116') throw error;
-    return data;
-  },
-
-  async getAchievements() {
-     const { data, error } = await supabase
-      .from(TABLES.ACHIEVEMENTS)
-      .select('*');
-    if (error) throw error;
-    return data || [];
-  },
-  
-  async getUserAchievements(userId: string) {
-     const { data, error } = await supabase
-      .from(TABLES.USER_ACHIEVEMENTS)
-      .select('*, achievement:app_f226d1f8f5_achievements(*)') // Note: using table name or alias if set up, but supabase-js usually uses table name. 
-      // Actually, let's just fetch user achievements and then we might need to join manually or assume the relation is set up.
-      // To be safe, let's just fetch user achievements.
-      .eq('user_id', userId);
-      
-    if (error) throw error;
-    return data || [];
-  },
-
-  async getChallenges() {
-    const { data, error } = await supabase
-      .from(TABLES.CHALLENGES)
-      .select('*');
-    if (error) throw error;
-    return data || [];
-  },
-
-  async getRewards() {
-    const { data, error } = await supabase
-      .from(TABLES.REWARDS)
-      .select('*');
-    if (error) throw error;
-    return data || [];
-  },
-
-  async getBestPractices() {
-    const { data, error } = await supabase
-      .from(TABLES.BEST_PRACTICES)
-      .select('*');
-    if (error) throw error;
-    return data || [];
-  },
-
-  async getLeaderboard() {
-    const { data, error } = await supabase
-      .from(TABLES.GAMIFICATION_PROFILES)
-      .select('*')
-      .order('points', { ascending: false })
-      .limit(10);
-      
-    if (error) throw error;
-    return data || [];
   },
 
   // Employee methods

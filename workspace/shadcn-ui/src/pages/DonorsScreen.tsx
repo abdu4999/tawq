@@ -11,13 +11,11 @@ import { LoadingButton } from '@/components/ui/loading-button';
 import { Users, Search, DollarSign, TrendingUp, Heart, Plus, Eye } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleApiError, showSuccessNotification } from '@/lib/error-handler';
-import { supabaseAPI } from '@/lib/supabaseClient';
 
 export default function DonorsScreen() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [donors, setDonors] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -35,21 +33,45 @@ export default function DonorsScreen() {
     loadDonors();
   }, []);
 
-  const loadDonors = async () => {
-    try {
-      setLoading(true);
-      const data = await supabaseAPI.getDonors();
-      setDonors(data);
-    } catch (error) {
-      console.error('Error loading donors:', error);
-      toast({
-        title: 'خطأ',
-        description: 'فشل تحميل بيانات المتبرعين',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
+  const loadDonors = () => {
+    setDonors([
+      {
+        id: 1,
+        name: 'أحمد محمد السعيد',
+        email: 'ahmed@example.com',
+        phone: '0501234567',
+        type: 'individual',
+        segment: 'vip',
+        totalDonations: 150000,
+        donationsCount: 12,
+        lastDonation: '2025-11-25',
+        status: 'active'
+      },
+      {
+        id: 2,
+        name: 'شركة التقنية المتقدمة',
+        email: 'info@tech.com',
+        phone: '0557654321',
+        type: 'organization',
+        segment: 'regular',
+        totalDonations: 85000,
+        donationsCount: 6,
+        lastDonation: '2025-11-20',
+        status: 'active'
+      },
+      {
+        id: 3,
+        name: 'فاطمة علي',
+        email: 'fatima@example.com',
+        phone: '0551112233',
+        type: 'individual',
+        segment: 'new',
+        totalDonations: 5000,
+        donationsCount: 1,
+        lastDonation: '2025-11-30',
+        status: 'active'
+      }
+    ]);
   };
 
   const handleCreateDonor = async () => {
@@ -66,17 +88,8 @@ export default function DonorsScreen() {
 
       setIsSaving(true);
       
-      // Create donor logic
-      await supabaseAPI.createDonor({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        type: formData.type as any,
-        segment: formData.segment as any,
-        total_donations: parseFloat(formData.amount) || 0,
-        donations_count: formData.amount ? 1 : 0,
-        status: 'active'
-      });
+      // Your save logic here...
+      // await supabaseAPI.createDonor(formData);
       
       // Reset form
       setFormData({

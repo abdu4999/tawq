@@ -3,7 +3,7 @@
  * يوفر واجهة سهلة لاستخدام نظام القياس الدقيق
  */
 
-import { useEffect, useRef, useCallback, useState } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { microMeasurement } from '@/lib/micro-measurement';
 
 interface UseMicroMeasurementOptions {
@@ -13,33 +13,14 @@ interface UseMicroMeasurementOptions {
   enabled?: boolean;
 }
 
-const DEFAULT_OPTIONS: UseMicroMeasurementOptions = {
-  screenName: 'default-screen',
-  employeeId: 'employee-demo',
-  employeeName: 'مستخدم تجريبي',
-  enabled: true
-};
-
-export function useMicroMeasurement(options?: Partial<UseMicroMeasurementOptions>) {
-  const mergedOptions = { ...DEFAULT_OPTIONS, ...options } as UseMicroMeasurementOptions;
-  const { screenName, employeeId, employeeName, enabled } = mergedOptions;
-
+export function useMicroMeasurement({
+  screenName,
+  employeeId,
+  employeeName,
+  enabled = true
+}: UseMicroMeasurementOptions) {
   const sessionStarted = useRef(false);
   const screenEntered = useRef(false);
-  const sessionStartTime = useRef<number | null>(null);
-  const durationIntervalRef = useRef<number | null>(null);
-  const [isTracking, setIsTracking] = useState(false);
-  const [sessionDuration, setSessionDuration] = useState(0);
-
-  const resetSessionState = () => {
-    if (durationIntervalRef.current) {
-      window.clearInterval(durationIntervalRef.current);
-      durationIntervalRef.current = null;
-    }
-    sessionStartTime.current = null;
-    setSessionDuration(0);
-    setIsTracking(false);
-  };
 
   // بدء الجلسة
   useEffect(() => {
@@ -48,13 +29,6 @@ export function useMicroMeasurement(options?: Partial<UseMicroMeasurementOptions
     if (!sessionStarted.current) {
       microMeasurement.startSession(employeeId, employeeName);
       sessionStarted.current = true;
-      sessionStartTime.current = Date.now();
-      setIsTracking(true);
-      durationIntervalRef.current = window.setInterval(() => {
-        if (sessionStartTime.current) {
-          setSessionDuration(Math.floor((Date.now() - sessionStartTime.current) / 1000));
-        }
-      }, 1000);
     }
 
     return () => {
@@ -62,7 +36,6 @@ export function useMicroMeasurement(options?: Partial<UseMicroMeasurementOptions
         microMeasurement.endSession();
         sessionStarted.current = false;
       }
-      resetSessionState();
     };
   }, [employeeId, employeeName, enabled]);
 
@@ -220,8 +193,6 @@ export function useMicroMeasurement(options?: Partial<UseMicroMeasurementOptions
   return {
     recordCustomEvent,
     getMetrics,
-    getScreenTimeMetrics,
-    isTracking,
-    sessionDuration
+    getScreenTimeMetrics
   };
 }

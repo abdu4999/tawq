@@ -11,8 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { formatDateDMY } from '@/lib/date-utils';
 import { Users, Crown, Target, TrendingUp, Award, Star, UserPlus, Settings } from 'lucide-react';
-import { supabaseAPI, Donor } from '@/lib/supabaseClient';
-import { useToast } from '@/hooks/use-toast';
+
 
 interface Team {
   id: string;
@@ -42,339 +41,635 @@ interface TeamGoal {
   completed: boolean;
 }
 
+interface Donor {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  totalDonations: number;
+  donationCount: number;
+  category: 'vip' | 'regular' | 'new' | 'inactive';
+  lastDonation: Date;
+  preferredCauses: string[];
+  assignedTo?: string;
+}
+
 export default function Teams() {
-  const { toast } = useToast();
+  
   const [teams, setTeams] = useState<Team[]>([]);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<string>('');
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
   const [isAddingMember, setIsAddingMember] = useState(false);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadData();
+    // بيانات تجريبية للفرق
+    const sampleTeams: Team[] = [
+      {
+        id: '1',
+        name: 'فريق إدارة المتبرعين',
+        description: 'فريق متخصص في إدارة علاقات المتبرعين وتصنيفهم حسب الفئات',
+        type: 'donors',
+        leaderId: '1',
+        memberIds: ['1', '2'],
+        createdAt: new Date('2024-01-01'),
+        performance: {
+          tasksCompleted: 45,
+          totalTasks: 52,
+          avgRating: 4.7,
+          totalEarnings: 125000
+        },
+        goals: [
+          {
+            id: '1',
+            title: 'زيادة المتبرعين الجدد',
+            description: 'جذب 100 متبرع جديد هذا الشهر',
+            targetValue: 100,
+            currentValue: 73,
+            deadline: new Date('2024-02-28'),
+            type: 'donors',
+            completed: false
+          },
+          {
+            id: '2',
+            title: 'تحسين معدل الاحتفاظ',
+            description: 'الوصول لمعدل احتفاظ 85% مع المتبرعين الحاليين',
+            targetValue: 85,
+            currentValue: 78,
+            deadline: new Date('2024-03-15'),
+            type: 'donors',
+            completed: false
+          }
+        ]
+      },
+      {
+        id: '2',
+        name: 'فريق البحث عن المشاهير',
+        description: 'فريق متخصص في البحث عن المؤثرين والمشاهير المناسبين للحملات',
+        type: 'celebrities',
+        leaderId: '3',
+        memberIds: ['3', '4'],
+        createdAt: new Date('2024-01-15'),
+        performance: {
+          tasksCompleted: 28,
+          totalTasks: 35,
+          avgRating: 4.5,
+          totalEarnings: 85000
+        },
+        goals: [
+          {
+            id: '3',
+            title: 'توقيع اتفاقيات جديدة',
+            description: 'توقيع 15 اتفاقية مع مؤثرين جدد',
+            targetValue: 15,
+            currentValue: 9,
+            deadline: new Date('2024-02-20'),
+            type: 'campaigns',
+            completed: false
+          }
+        ]
+      }
+    ];
+
+    // بيانات تجريبية للمتبرعين
+    const sampleDonors: Donor[] = [
+      {
+        id: '1',
+        name: 'عبدالله محمد الأحمد',
+        email: 'abdullah@email.com',
+        phone: '+966501234567',
+        totalDonations: 25000,
+        donationCount: 8,
+        category: 'vip',
+        lastDonation: new Date('2024-01-20'),
+        preferredCauses: ['تعليم', 'صحة'],
+        assignedTo: '1'
+      },
+      {
+        id: '2',
+        name: 'فاطمة أحمد السالم',
+        email: 'fatima@email.com',
+        phone: '+966507654321',
+        totalDonations: 8500,
+        donationCount: 12,
+        category: 'regular',
+        lastDonation: new Date('2024-01-18'),
+        preferredCauses: ['أيتام', 'كسوة'],
+        assignedTo: '2'
+      },
+      {
+        id: '3',
+        name: 'محمد سعد العتيبي',
+        email: 'mohammed@email.com',
+        phone: '+966509876543',
+        totalDonations: 45000,
+        donationCount: 15,
+        category: 'vip',
+        lastDonation: new Date('2024-01-22'),
+        preferredCauses: ['إغاثة', 'مساجد'],
+        assignedTo: '1'
+      },
+      {
+        id: '4',
+        name: 'نورا خالد الغامدي',
+        email: 'nora@email.com',
+        phone: '+966502468135',
+        totalDonations: 1200,
+        donationCount: 3,
+        category: 'new',
+        lastDonation: new Date('2024-01-25'),
+        preferredCauses: ['تعليم'],
+        assignedTo: '2'
+      },
+      {
+        id: '5',
+        name: 'سعد علي الشهري',
+        email: 'saad@email.com',
+        phone: '+966503691470',
+        totalDonations: 3200,
+        donationCount: 2,
+        category: 'inactive',
+        lastDonation: new Date('2023-11-15'),
+        preferredCauses: ['صحة', 'إغاثة']
+      }
+    ];
+
+    setTeams(sampleTeams);
+    setDonors(sampleDonors);
   }, []);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [teamsData, donorsData] = await Promise.all([
-        supabaseAPI.getTeams(),
-        supabaseAPI.getDonors()
-      ]);
-
-      // Transform teams data if necessary or use as is if structure matches
-      // For now assuming the DB structure matches or we map it
-      const formattedTeams = teamsData.map((t: any) => ({
-        ...t,
-        createdAt: new Date(t.created_at),
-        // Ensure other fields are present or provide defaults
-        performance: t.performance || {
-          tasksCompleted: 0,
-          totalTasks: 0,
-          avgRating: 0,
-          totalEarnings: 0
-        },
-        goals: t.goals || []
-      }));
-
-      setTeams(formattedTeams);
-      setDonors(donorsData as Donor[]);
-      
-      if (formattedTeams.length > 0) {
-        setSelectedTeam(formattedTeams[0].id);
-      }
-    } catch (error) {
-      console.error('Error loading teams data:', error);
-      toast({
-        title: 'خطأ',
-        description: 'فشل تحميل بيانات الفرق',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
+  const getTeamTypeIcon = (type: string) => {
+    switch (type) {
+      case 'donors': return '💰';
+      case 'celebrities': return '⭐';
+      case 'projects': return '🎯';
+      case 'support': return '🛠️';
+      default: return '👥';
     }
   };
 
-  const handleCreateTeam = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Implementation for creating team would go here
-    // await supabaseAPI.createTeam(...)
-    setIsCreatingTeam(false);
-    toast({
-      title: 'تم',
-      description: 'تم إنشاء الفريق بنجاح (محاكاة)',
-    });
+  const getTeamTypeName = (type: string) => {
+    switch (type) {
+      case 'donors': return 'إدارة المتبرعين';
+      case 'celebrities': return 'المشاهير والمؤثرين';
+      case 'projects': return 'إدارة المشاريع';
+      case 'support': return 'الدعم الفني';
+      default: return type;
+    }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen" dir="rtl">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">جاري تحميل البيانات...</p>
-        </div>
-      </div>
-    );
-  }
+  const getDonorCategoryColor = (category: string) => {
+    switch (category) {
+      case 'vip': return 'bg-purple-500 text-white';
+      case 'regular': return 'bg-blue-500 text-white';
+      case 'new': return 'bg-green-500 text-white';
+      case 'inactive': return 'bg-gray-500 text-white';
+      default: return 'bg-gray-500 text-white';
+    }
+  };
 
-  const currentTeam = teams.find(t => t.id === selectedTeam);
+  const getDonorCategoryName = (category: string) => {
+    switch (category) {
+      case 'vip': return 'VIP';
+      case 'regular': return 'عادي';
+      case 'new': return 'جديد';
+      case 'inactive': return 'غير نشط';
+      default: return category;
+    }
+  };
+
+  const getTeamLeader = (leaderId: string) => {
+    return employees.find(emp => emp.id === leaderId);
+  };
+
+  const getTeamMembers = (memberIds: string[]) => {
+    return employees.filter(emp => memberIds.includes(emp.id));
+  };
 
   return (
-    <div className="space-y-6" dir="rtl">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">إدارة الفرق</h1>
-          <p className="text-gray-500 mt-2">إدارة فرق العمل وتوزيع المهام ومتابعة الأداء</p>
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-blue-50 p-6" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">
+            👥 إدارة الفرق المتخصصة
+          </h1>
+          <p className="text-gray-600 text-lg">تنظيم وإدارة الفرق لتحقيق أفضل النتائج</p>
         </div>
-        <Dialog open={isCreatingTeam} onOpenChange={setIsCreatingTeam}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Users className="h-4 w-4" />
-              إنشاء فريق جديد
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>إنشاء فريق جديد</DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleCreateTeam} className="space-y-4">
-              <div className="space-y-2">
-                <Label>اسم الفريق</Label>
-                <Input placeholder="مثلاً: فريق التسويق" />
-              </div>
-              <div className="space-y-2">
-                <Label>وصف الفريق</Label>
-                <Textarea placeholder="وصف مهام ومسؤوليات الفريق" />
-              </div>
-              <div className="space-y-2">
-                <Label>نوع الفريق</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="اختر نوع الفريق" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="donors">إدارة المتبرعين</SelectItem>
-                    <SelectItem value="celebrities">إدارة المشاهير</SelectItem>
-                    <SelectItem value="projects">إدارة المشاريع</SelectItem>
-                    <SelectItem value="support">الدعم والمساندة</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button type="submit" className="w-full">إنشاء الفريق</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Teams List */}
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-lg">الفرق الحالية</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {teams.map(team => (
-              <div
-                key={team.id}
-                onClick={() => setSelectedTeam(team.id)}
-                className={`p-4 rounded-lg border cursor-pointer transition-colors ${
-                  selectedTeam === team.id
-                    ? 'bg-blue-50 border-blue-200'
-                    : 'hover:bg-gray-50'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-semibold">{team.name}</h3>
-                  <Badge variant="outline">{team.memberIds.length} أعضاء</Badge>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-blue-100">إجمالي الفرق</p>
+                  <p className="text-2xl font-bold">{teams.length}</p>
                 </div>
-                <p className="text-sm text-gray-500 line-clamp-2">{team.description}</p>
+                <Users className="h-8 w-8 text-blue-200" />
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Team Details */}
-        <div className="lg:col-span-3 space-y-6">
-          {currentTeam ? (
-            <>
-              {/* Performance Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-sm text-gray-500">المهام المنجزة</p>
-                        <h3 className="text-2xl font-bold mt-1">{currentTeam.performance.tasksCompleted}</h3>
-                        <p className="text-xs text-green-600 mt-1">
-                          من أصل {currentTeam.performance.totalTasks} مهمة
-                        </p>
-                      </div>
-                      <div className="p-2 bg-blue-100 rounded-lg">
-                        <Target className="h-5 w-5 text-blue-600" />
-                      </div>
+          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-green-100">إجمالي الأعضاء</p>
+                  <p className="text-2xl font-bold">{teams.reduce((sum, team) => sum + team.memberIds.length, 0)}</p>
+                </div>
+                <UserPlus className="h-8 w-8 text-green-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-100">المتبرعين المسجلين</p>
+                  <p className="text-2xl font-bold">{donors.length}</p>
+                </div>
+                <Target className="h-8 w-8 text-purple-200" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-orange-100">إجمالي التبرعات</p>
+                  <p className="text-2xl font-bold">{donors.reduce((sum, d) => sum + d.totalDonations, 0).toLocaleString()}</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-orange-200" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="teams" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="teams">الفرق</TabsTrigger>
+            <TabsTrigger value="donors">إدارة المتبرعين</TabsTrigger>
+            <TabsTrigger value="performance">الأداء</TabsTrigger>
+            <TabsTrigger value="goals">الأهداف</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="teams" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">الفرق المتخصصة</h2>
+              <Dialog open={isCreatingTeam} onOpenChange={setIsCreatingTeam}>
+                <DialogTrigger asChild>
+                  <Button>إنشاء فريق جديد</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>إنشاء فريق جديد</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div>
+                      <Label>اسم الفريق</Label>
+                      <Input placeholder="اسم الفريق" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div>
+                      <Label>نوع الفريق</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر نوع الفريق" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="donors">إدارة المتبرعين</SelectItem>
+                          <SelectItem value="celebrities">المشاهير والمؤثرين</SelectItem>
+                          <SelectItem value="projects">إدارة المشاريع</SelectItem>
+                          <SelectItem value="support">الدعم الفني</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>قائد الفريق</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="اختر قائد الفريق" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {employees.map(emp => (
+                            <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>الوصف</Label>
+                      <Textarea placeholder="وصف مهام ومسؤوليات الفريق" />
+                    </div>
+                    <Button className="w-full">إنشاء الفريق</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
 
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-sm text-gray-500">تقييم الأداء</p>
-                        <h3 className="text-2xl font-bold mt-1">{currentTeam.performance.avgRating}</h3>
-                        <div className="flex mt-1">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`h-3 w-3 ${
-                                star <= Math.round(currentTeam.performance.avgRating)
-                                  ? 'text-yellow-400 fill-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
-                            />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {teams.map((team) => {
+                const leader = getTeamLeader(team.leaderId);
+                const members = getTeamMembers(team.memberIds);
+                
+                return (
+                  <Card key={team.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-3">
+                          <div className="text-2xl">{getTeamTypeIcon(team.type)}</div>
+                          <div>
+                            <CardTitle className="text-lg">{team.name}</CardTitle>
+                            <Badge variant="outline">{getTeamTypeName(team.type)}</Badge>
+                          </div>
+                        </div>
+                        <Button size="sm" variant="outline">
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <p className="text-gray-600 text-sm">{team.description}</p>
+
+                      {/* Team Leader */}
+                      <div className="flex items-center gap-3 p-3 bg-yellow-50 rounded-lg">
+                        <Crown className="h-5 w-5 text-yellow-600" />
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={leader?.avatar} />
+                          <AvatarFallback>{leader?.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-medium text-sm">{leader?.name}</p>
+                          <p className="text-xs text-gray-500">قائد الفريق</p>
+                        </div>
+                      </div>
+
+                      {/* Team Members */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-medium text-sm">أعضاء الفريق ({members.length})</h4>
+                          <Dialog open={isAddingMember} onOpenChange={setIsAddingMember}>
+                            <DialogTrigger asChild>
+                              <Button size="sm" variant="outline">
+                                <UserPlus className="h-3 w-3" />
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>إضافة عضو جديد</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <Label>اختر الموظف</Label>
+                                  <Select>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="اختر موظف" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {employees.filter(emp => !team.memberIds.includes(emp.id)).map(emp => (
+                                        <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <Button className="w-full">إضافة للفريق</Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {members.map(member => (
+                            <div key={member.id} className="flex items-center gap-2 bg-gray-50 rounded-full px-3 py-1">
+                              <Avatar className="h-6 w-6">
+                                <AvatarImage src={member.avatar} />
+                                <AvatarFallback className="text-xs">{member.name.charAt(0)}</AvatarFallback>
+                              </Avatar>
+                              <span className="text-xs">{member.name}</span>
+                            </div>
                           ))}
                         </div>
                       </div>
-                      <div className="p-2 bg-yellow-100 rounded-lg">
-                        <Award className="h-5 w-5 text-yellow-600" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
 
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-sm text-gray-500">العوائد المحققة</p>
-                        <h3 className="text-2xl font-bold mt-1">
-                          {currentTeam.performance.totalEarnings.toLocaleString()}
-                        </h3>
-                        <p className="text-xs text-gray-500 mt-1">ر.س</p>
-                      </div>
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <TrendingUp className="h-5 w-5 text-green-600" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="text-sm text-gray-500">قائد الفريق</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={`https://i.pravatar.cc/150?u=${currentTeam.leaderId}`} />
-                            <AvatarFallback>QA</AvatarFallback>
-                          </Avatar>
-                          <span className="text-sm font-medium">أحمد محمد</span>
+                      {/* Performance Metrics */}
+                      <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                        <div className="text-center">
+                          <p className="text-lg font-bold text-green-600">{team.performance.tasksCompleted}/{team.performance.totalTasks}</p>
+                          <p className="text-xs text-gray-500">المهام المكتملة</p>
+                        </div>
+                        <div className="text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <span className="font-bold">{team.performance.avgRating}</span>
+                          </div>
+                          <p className="text-xs text-gray-500">التقييم</p>
                         </div>
                       </div>
-                      <div className="p-2 bg-purple-100 rounded-lg">
-                        <Crown className="h-5 w-5 text-purple-600" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
 
-              {/* Tabs */}
-              <Tabs defaultValue="members">
-                <TabsList>
-                  <TabsTrigger value="members">الأعضاء</TabsTrigger>
-                  <TabsTrigger value="goals">الأهداف</TabsTrigger>
-                  <TabsTrigger value="tasks">المهام الحالية</TabsTrigger>
-                  <TabsTrigger value="settings">الإعدادات</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="members" className="mt-6">
-                  <Card>
-                    <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle>أعضاء الفريق</CardTitle>
-                      <Button size="sm" className="gap-2">
-                        <UserPlus className="h-4 w-4" />
-                        إضافة عضو
-                      </Button>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {currentTeam.memberIds.map((memberId, index) => (
-                          <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                            <div className="flex items-center gap-4">
-                              <Avatar>
-                                <AvatarImage src={`https://i.pravatar.cc/150?u=${memberId}`} />
-                                <AvatarFallback>M{index + 1}</AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <h4 className="font-semibold">عضو فريق {index + 1}</h4>
-                                <p className="text-sm text-gray-500">مسؤول علاقات عامة</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              <div className="text-left">
-                                <p className="text-sm text-gray-500">المهام المنجزة</p>
-                                <p className="font-semibold">12/15</p>
-                              </div>
-                              <Badge variant={index === 0 ? 'default' : 'secondary'}>
-                                {index === 0 ? 'نشط جداً' : 'نشط'}
-                              </Badge>
-                            </div>
-                          </div>
-                        ))}
+                      <div className="text-center p-2 bg-blue-50 rounded">
+                        <p className="text-sm font-medium text-blue-800">إجمالي الإنجازات</p>
+                        <p className="text-lg font-bold text-blue-600">{team.performance.totalEarnings.toLocaleString()} ر.س</p>
                       </div>
                     </CardContent>
                   </Card>
-                </TabsContent>
+                );
+              })}
+            </div>
+          </TabsContent>
 
-                <TabsContent value="goals" className="mt-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {currentTeam.goals.map((goal) => (
-                      <Card key={goal.id}>
-                        <CardContent className="p-6">
-                          <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <h4 className="font-semibold">{goal.title}</h4>
-                              <p className="text-sm text-gray-500 mt-1">{goal.description}</p>
-                            </div>
-                            <Badge variant={goal.completed ? 'success' : 'outline'}>
-                              {goal.completed ? 'مكتمل' : 'قيد التنفيذ'}
-                            </Badge>
-                          </div>
-                          <div className="space-y-2">
-                            <div className="flex justify-between text-sm">
-                              <span>التقدم</span>
-                              <span>{Math.round((goal.currentValue / goal.targetValue) * 100)}%</span>
-                            </div>
-                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                              <div 
-                                className="h-full bg-blue-600 rounded-full"
-                                style={{ width: `${(goal.currentValue / goal.targetValue) * 100}%` }}
-                              />
-                            </div>
-                            <div className="flex justify-between text-xs text-gray-500 mt-2">
-                              <span>الهدف: {goal.targetValue}</span>
-                              <span>الموعد: {formatDateDMY(goal.deadline.toISOString())}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </TabsContent>
-              </Tabs>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
-              <div className="text-center text-gray-500">
-                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>اختر فريقاً لعرض التفاصيل</p>
+          <TabsContent value="donors" className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">قاعدة بيانات المتبرعين</h2>
+              <div className="flex gap-2">
+                <Select>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="تصفية حسب الفئة" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">جميع الفئات</SelectItem>
+                    <SelectItem value="vip">VIP</SelectItem>
+                    <SelectItem value="regular">عادي</SelectItem>
+                    <SelectItem value="new">جديد</SelectItem>
+                    <SelectItem value="inactive">غير نشط</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button>إضافة متبرع جديد</Button>
               </div>
             </div>
-          )}
-        </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {donors.map((donor) => {
+                const assignedEmployee = employees.find(emp => emp.id === donor.assignedTo);
+                return (
+                  <Card key={donor.id} className="hover:shadow-lg transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex justify-between items-start mb-4">
+                        <div>
+                          <h3 className="font-semibold">{donor.name}</h3>
+                          <p className="text-sm text-gray-500">{donor.email}</p>
+                          <p className="text-sm text-gray-500">{donor.phone}</p>
+                        </div>
+                        <Badge className={getDonorCategoryColor(donor.category)}>
+                          {getDonorCategoryName(donor.category)}
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="text-center p-3 bg-green-50 rounded">
+                            <p className="text-lg font-bold text-green-600">{donor.totalDonations.toLocaleString()}</p>
+                            <p className="text-xs text-green-600">إجمالي التبرعات</p>
+                          </div>
+                          <div className="text-center p-3 bg-blue-50 rounded">
+                            <p className="text-lg font-bold text-blue-600">{donor.donationCount}</p>
+                            <p className="text-xs text-blue-600">عدد التبرعات</p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium mb-2">القضايا المفضلة:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {donor.preferredCauses.map(cause => (
+                              <Badge key={cause} variant="outline" className="text-xs">
+                                {cause}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="text-sm text-gray-500">
+                          <p>آخر تبرع: {formatDateDMY(donor.lastDonation)}</p>
+                        </div>
+
+                        {assignedEmployee && (
+                          <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                            <Avatar className="h-6 w-6">
+                              <AvatarImage src={assignedEmployee.avatar} />
+                              <AvatarFallback className="text-xs">{assignedEmployee.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-xs font-medium">مسؤول الحساب</p>
+                              <p className="text-xs text-gray-500">{assignedEmployee.name}</p>
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="flex-1">
+                            تعديل
+                          </Button>
+                          <Button size="sm" className="flex-1">
+                            تواصل
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="performance" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {teams.map((team) => (
+                <Card key={team.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <span className="text-xl">{getTeamTypeIcon(team.type)}</span>
+                      {team.name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <p className="text-2xl font-bold text-blue-600">{Math.round((team.performance.tasksCompleted / team.performance.totalTasks) * 100)}%</p>
+                        <p className="text-xs text-gray-500">معدل الإنجاز</p>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-center gap-1">
+                          <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          <span className="text-xl font-bold">{team.performance.avgRating}</span>
+                        </div>
+                        <p className="text-xs text-gray-500">التقييم</p>
+                      </div>
+                      <div>
+                        <p className="text-xl font-bold text-green-600">{team.performance.totalEarnings.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500">الإنجازات (ر.س)</p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>تقدم المهام:</span>
+                        <span>{team.performance.tasksCompleted}/{team.performance.totalTasks}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className="bg-blue-600 h-2 rounded-full" 
+                          style={{ width: `${(team.performance.tasksCompleted / team.performance.totalTasks) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="goals" className="space-y-6">
+            <div className="space-y-6">
+              {teams.map((team) => (
+                <Card key={team.id}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <span className="text-xl">{getTeamTypeIcon(team.type)}</span>
+                      أهداف {team.name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {team.goals.map((goal) => (
+                        <div key={goal.id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-semibold">{goal.title}</h4>
+                              <p className="text-sm text-gray-600">{goal.description}</p>
+                            </div>
+                            {goal.completed && (
+                              <Badge className="bg-green-500 text-white">
+                                مكتمل ✓
+                              </Badge>
+                            )}
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>التقدم:</span>
+                              <span>{goal.currentValue}/{goal.targetValue}</span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full ${goal.completed ? 'bg-green-500' : 'bg-blue-500'}`}
+                                style={{ width: `${Math.min((goal.currentValue / goal.targetValue) * 100, 100)}%` }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center mt-3 text-sm text-gray-500">
+                            <span>الموعد النهائي: {formatDateDMY(goal.deadline)}</span>
+                            <Badge variant="outline">{goal.type}</Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

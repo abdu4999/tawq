@@ -453,17 +453,12 @@ export default function AdminPermissions() {
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="user-role">الدور</Label>
-                          <Select
-                            value={newUser.role_id || 'none'}
-                            onValueChange={(value) =>
-                              setNewUser({ ...newUser, role_id: value === 'none' ? '' : value })
-                            }
-                          >
+                          <Select value={newUser.role_id} onValueChange={(value) => setNewUser({...newUser, role_id: value})}>
                             <SelectTrigger>
                               <SelectValue placeholder="اختر الدور" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="none">بدون دور</SelectItem>
+                              <SelectItem value="">بدون دور</SelectItem>
                               {roles.map(role => (
                                 <SelectItem key={role.id} value={role.id}>
                                   {role.name}
